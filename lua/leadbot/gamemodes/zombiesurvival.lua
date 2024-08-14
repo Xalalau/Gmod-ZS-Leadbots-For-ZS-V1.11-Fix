@@ -2385,12 +2385,14 @@ if SERVER then
                     end
                 end
 
-                if controller.NextCenter < CurTime() and bot:GetVelocity():Length2DSqr() <= 225 then
-                    if bot:Team() == TEAM_ZOMBIE then 
-                        mv:SetForwardSpeed(1200)
+                if controller.NextCenter < CurTime() then
+                    if bot:GetVelocity():Length2DSqr() <= 225 or IsValid(controller.Target) then
+                        if bot:Team() == TEAM_ZOMBIE then 
+                            mv:SetForwardSpeed(1200)
+                        end
+                        controller.strafeAngle = ((controller.strafeAngle == 1 and 2) or 1)
+                        controller.NextCenter = CurTime() + math.Rand(0.5, 1.5)
                     end
-                    controller.strafeAngle = ((controller.strafeAngle == 1 and 2) or 1)
-                    controller.NextCenter = CurTime() + math.Rand(0.5, 1.5)
                 end
 
                 if controller.NextCenter > CurTime() and IsValid(controller.Target) then

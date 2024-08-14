@@ -2402,7 +2402,7 @@ if SERVER then
                     if bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and controller.Target:GetPos():DistToSqr(bot:GetPos()) <= 45000 then
                         mv:SetForwardSpeed(-1200)
                     end 
-                    if bot:GetVelocity():Length2DSqr() <= 225 and !IsValid(controller.Target) or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and (bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1) or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and controller.Target:GetPos():DistToSqr(bot:GetPos()) > 45000 then
+                    if bot:GetVelocity():Length2DSqr() <= 225 and !IsValid(controller.Target) or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and (bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1) or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and controller.Target:GetPos():DistToSqr(bot:GetPos()) > 45000 and INFLICTION < 0.75 then
                         if controller.strafeAngle == 1 then
                             mv:SetSideSpeed(1500)
                         elseif controller.strafeAngle == 2 then

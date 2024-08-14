@@ -2292,7 +2292,7 @@ if SERVER then
                          end
                     else
                         if bot:Team() == TEAM_SURVIVORS then
-                            if distance <= 45000 or controller.Target:GetZombieClass() == 8 or controller.Target:GetZombieClass() == 2 then 
+                            if distance <= 45000 or controller.Target:GetZombieClass() == 2 or controller.Target:GetZombieClass() > 5 and controller.Target:GetZombieClass() < 9 then 
                                 mv:SetForwardSpeed(-1200)
                                 if controller.strafeAngle == 1 then
                                     mv:SetSideSpeed(1500)

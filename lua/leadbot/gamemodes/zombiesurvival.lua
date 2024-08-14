@@ -2395,11 +2395,11 @@ if SERVER then
                     end
                 end
 
-                if controller.NextCenter > CurTime() and IsValid(controller.Target) then
+                if controller.NextCenter > CurTime() then
                     if bot:Team() == TEAM_ZOMBIE then 
                         mv:SetForwardSpeed(1200)
                     end
-                    if bot:Team() == TEAM_SURVIVORS and (bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1) or bot:Team() == TEAM_ZOMBIE and controller.Target:GetPos():DistToSqr(bot:GetPos()) > 45000 then 
+                    if bot:Team() == TEAM_SURVIVORS and (IsValid(controller.Target) or bot:GetVelocity():Length2DSqr() <= 225) and (bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1) or bot:Team() == TEAM_ZOMBIE and (IsValid(controller.Target) and controller.Target:GetPos():DistToSqr(bot:GetPos()) > 45000 or bot:GetVelocity():Length2DSqr() <= 225) then 
                         if controller.strafeAngle == 1 then
                             mv:SetSideSpeed(1500)
                         elseif controller.strafeAngle == 2 then

@@ -40,7 +40,7 @@ local sigil1Valid = false
 resource.AddFile("sound/intermission.mp3")
 
 if SERVER then 
-    for k, v in ipairs(ents.FindByClass("func_door_rotating")) do
+    timer.Simple(3, function() for k, v in ipairs(ents.FindByClass("func_door_rotating")) do
         v:Remove()
     end
         
@@ -55,7 +55,7 @@ if SERVER then
             v:Remove()
         end
 
-        if game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" then 
+        if game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" or game.GetMap() == "zs_fen" then 
             for k, v in ipairs( ents.FindByClass( "func_breakable" ) ) do
                 v:Remove()
             end
@@ -75,7 +75,7 @@ if SERVER then
                 v:Remove()
             end
         end
-    end
+    end end )
 
     local player_meta = FindMetaTable("Player")
     local oldInfo = player_meta.GetInfo
@@ -2399,7 +2399,10 @@ if SERVER then
                     if bot:Team() == TEAM_ZOMBIE then 
                         mv:SetForwardSpeed(1200)
                     end
-                    if bot:Team() == TEAM_SURVIVORS and (IsValid(controller.Target) or bot:GetVelocity():Length2DSqr() <= 225) and (bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1) or bot:Team() == TEAM_ZOMBIE and (IsValid(controller.Target) and controller.Target:GetPos():DistToSqr(bot:GetPos()) > 45000 or bot:GetVelocity():Length2DSqr() <= 225) then 
+                    if bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and controller.Target:GetPos():DistToSqr(bot:GetPos()) <= 45000 then
+                        mv:SetForwardSpeed(-1200)
+                    end 
+                    if bot:GetVelocity():Length2DSqr() <= 225 and !IsValid(controller.Target) or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and (bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1) or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and controller.Target:GetPos():DistToSqr(bot:GetPos()) > 45000 then
                         if controller.strafeAngle == 1 then
                             mv:SetSideSpeed(1500)
                         elseif controller.strafeAngle == 2 then

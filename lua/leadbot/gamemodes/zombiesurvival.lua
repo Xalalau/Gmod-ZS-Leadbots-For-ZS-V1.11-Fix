@@ -880,7 +880,7 @@ if SERVER then
             end
 
             if bot:GetVelocity():Length2DSqr() <= 225 and not bot:IsFrozen() and bot:GetMoveType() ~= MOVETYPE_LADDER then 
-                if target == nil or not target:IsPlayer() then 
+                if target == nil or IsValid(target) and not target:IsPlayer() and target:Health() <= 0 then 
                     if math.random(2) == 1 then 
                         buttons = buttons + IN_JUMP
                     end

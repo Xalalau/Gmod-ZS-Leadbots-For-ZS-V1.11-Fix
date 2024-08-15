@@ -239,127 +239,129 @@ if SERVER then
     }
 
     function LeadBot.AddBot()
-        if !FindMetaTable("NextBot").GetFOV then
-            ErrorNoHalt("You must be using the dev version of Garry's mod!\nhttps://wiki.facepunch.com/gmod/Dev_Branch\n")
-            return
-        end
-
-        if !navmesh.IsLoaded() and !LeadBot.NoNavMesh and not game.SinglePlayer() then
-            if GetConVar("sv_cheats"):GetInt() == 1 then
-                RunConsoleCommand("nav_generate")
+        if SERVER then 
+            if !FindMetaTable("NextBot").GetFOV then
+                ErrorNoHalt("You must be using the dev version of Garry's mod!\nhttps://wiki.facepunch.com/gmod/Dev_Branch\n")
+                return
             end
 
-            ErrorNoHalt("There is no navmesh! Generate one using \"nav_generate\"!\n")
-            return
-        end
-
-        if player.GetCount() == game.MaxPlayers() then
-            MsgN("[LeadBot] Player limit reached!")
-            return
-        end
-
-        local original_name
-        local generated = "Leadbot #" .. #player.GetBots() + 1
-        local model = ""
-        local color = Vector(-1, -1, -1)
-        local weaponcolor = Vector(0.30, 1.80, 2.10)
-        local strategy = 0
-
-        if GetConVar("leadbot_names"):GetString() ~= "" then
-            generated = table.Random(string.Split(GetConVar("leadbot_names"):GetString(), ","))
-        elseif GetConVar("leadbot_models"):GetString() == "" then
-            local name, _ = table.Random(player_manager.AllValidModels())
-            local translate = player_manager.TranslateToPlayerModelName(name)
-            name = translate
-
-            for _, ply in ipairs(player.GetBots()) do
-                if ply.OriginalName == name or string.lower(ply:Nick()) == name or name_Default[name] and ply:Nick() == name_Default[name] then
-                    name = ""
+            if !navmesh.IsLoaded() and !LeadBot.NoNavMesh and not game.SinglePlayer() then
+                if GetConVar("sv_cheats"):GetInt() == 1 then
+                    RunConsoleCommand("nav_generate")
                 end
+
+                ErrorNoHalt("There is no navmesh! Generate one using \"nav_generate\"!\n")
+                return
             end
 
-            if name == "" then
-                local i = 0
-                while name == "" do
-                    i = i + 1
-                    local str = player_manager.TranslateToPlayerModelName(table.Random(player_manager.AllValidModels()))
-                    for _, ply in ipairs(player.GetBots()) do
-                        if ply.OriginalName == str or string.lower(ply:Nick()) == str or name_Default[str] and ply:Nick() == name_Default[str] then
-                            str = ""
-                        end
+            if player.GetCount() == game.MaxPlayers() then
+                MsgN("[LeadBot] Player limit reached!")
+                return
+            end
+
+            local original_name
+            local generated = "Leadbot #" .. #player.GetBots() + 1
+            local model = ""
+            local color = Vector(-1, -1, -1)
+            local weaponcolor = Vector(0.30, 1.80, 2.10)
+            local strategy = 0
+
+            if GetConVar("leadbot_names"):GetString() ~= "" then
+                generated = table.Random(string.Split(GetConVar("leadbot_names"):GetString(), ","))
+            elseif GetConVar("leadbot_models"):GetString() == "" then
+                local name, _ = table.Random(player_manager.AllValidModels())
+                local translate = player_manager.TranslateToPlayerModelName(name)
+                name = translate
+
+                for _, ply in ipairs(player.GetBots()) do
+                    if ply.OriginalName == name or string.lower(ply:Nick()) == name or name_Default[name] and ply:Nick() == name_Default[name] then
+                        name = ""
                     end
-
-                    if str == "" and i < #player_manager.AllValidModels() then continue end
-                    name = str
                 end
-            end
 
-            original_name = name
-            model = name
-            name = string.lower(name)
-            name = name_Default[name] or name
+                if name == "" then
+                    local i = 0
+                    while name == "" do
+                        i = i + 1
+                        local str = player_manager.TranslateToPlayerModelName(table.Random(player_manager.AllValidModels()))
+                        for _, ply in ipairs(player.GetBots()) do
+                            if ply.OriginalName == str or string.lower(ply:Nick()) == str or name_Default[str] and ply:Nick() == name_Default[str] then
+                                str = ""
+                            end
+                        end
 
-            local name_Generated = string.Split(name, "/")
-            name_Generated = name_Generated[#name_Generated]
-            name_Generated = string.Split(name_Generated, " ")
-
-            for i, namestr in ipairs(name_Generated) do
-                name_Generated[i] = string.upper(string.sub(namestr, 1, 1)) .. string.sub(namestr, 2)
-            end
-
-            name_Generated = table.concat(name_Generated, " ")
-            generated = name_Generated
-        end
-
-        if LeadBot.PlayerColor == "default" then
-            generated = "Kleiner"
-        end
-
-        generated = GetConVar("leadbot_name_prefix"):GetString() .. generated
-
-        local name = LeadBot.Prefix .. generated
-        local bot = player.CreateNextBot(name)
-
-        if !IsValid(bot) then
-            MsgN("[LeadBot] Unable to create bot!")
-            return
-        end
-
-        if GetConVar("leadbot_strategy"):GetBool() then
-            strategy = math.random(0, LeadBot.Strategies)
-        end
-
-        if LeadBot.PlayerColor ~= "default" then
-            if model == "" then
-                if GetConVar("leadbot_models"):GetString() ~= "" then
-                    model = table.Random(string.Split(GetConVar("leadbot_models"):GetString(), ","))
-                else
-                    model = player_manager.TranslateToPlayerModelName(table.Random(player_manager.AllValidModels()))
+                        if str == "" and i < #player_manager.AllValidModels() then continue end
+                        name = str
+                    end
                 end
+
+                original_name = name
+                model = name
+                name = string.lower(name)
+                name = name_Default[name] or name
+
+                local name_Generated = string.Split(name, "/")
+                name_Generated = name_Generated[#name_Generated]
+                name_Generated = string.Split(name_Generated, " ")
+
+                for i, namestr in ipairs(name_Generated) do
+                    name_Generated[i] = string.upper(string.sub(namestr, 1, 1)) .. string.sub(namestr, 2)
+                end
+
+                name_Generated = table.concat(name_Generated, " ")
+                generated = name_Generated
             end
 
-            if color == Vector(-1, -1, -1) then
-                local botcolor = ColorRand()
-                local botweaponcolor = ColorRand()
-                color = Vector(botcolor.r / 255, botcolor.g / 255, botcolor.b / 255)
-                weaponcolor = Vector(botweaponcolor.r / 255, botweaponcolor.g / 255, botweaponcolor.b / 255)
+            if LeadBot.PlayerColor == "default" then
+                generated = "Kleiner"
             end
-        else
-            model = "kleiner"
-            color = Vector(0.24, 0.34, 0.41)
+
+            generated = GetConVar("leadbot_name_prefix"):GetString() .. generated
+
+            local name = LeadBot.Prefix .. generated
+            local bot = player.CreateNextBot(name)
+
+            if !IsValid(bot) then
+                MsgN("[LeadBot] Unable to create bot!")
+                return
+            end
+
+            if GetConVar("leadbot_strategy"):GetBool() then
+                strategy = math.random(0, LeadBot.Strategies)
+            end
+
+            if LeadBot.PlayerColor ~= "default" then
+                if model == "" then
+                    if GetConVar("leadbot_models"):GetString() ~= "" then
+                        model = table.Random(string.Split(GetConVar("leadbot_models"):GetString(), ","))
+                    else
+                        model = player_manager.TranslateToPlayerModelName(table.Random(player_manager.AllValidModels()))
+                    end
+                end
+
+                if color == Vector(-1, -1, -1) then
+                    local botcolor = ColorRand()
+                    local botweaponcolor = ColorRand()
+                    color = Vector(botcolor.r / 255, botcolor.g / 255, botcolor.b / 255)
+                    weaponcolor = Vector(botweaponcolor.r / 255, botweaponcolor.g / 255, botweaponcolor.b / 255)
+                end
+            else
+                model = "kleiner"
+                color = Vector(0.24, 0.34, 0.41)
+            end
+
+            bot.LeadBot_Config = {model, color, weaponcolor, strategy}
+
+            -- for legacy purposes, will be removed soon when gamemodes are updated
+            bot.BotStrategy = strategy
+            bot.OriginalName = original_name
+            bot.ControllerBot = ents.Create("leadbot_navigator")
+            bot.ControllerBot:Spawn()
+            bot.ControllerBot:SetOwner(bot)
+            bot.LeadBot = true
+            LeadBot.AddBotOverride(bot)
+            LeadBot.AddBotControllerOverride(bot, bot.ControllerBot)
         end
-
-        bot.LeadBot_Config = {model, color, weaponcolor, strategy}
-
-        -- for legacy purposes, will be removed soon when gamemodes are updated
-        bot.BotStrategy = strategy
-        bot.OriginalName = original_name
-        bot.ControllerBot = ents.Create("leadbot_navigator")
-        bot.ControllerBot:Spawn()
-        bot.ControllerBot:SetOwner(bot)
-        bot.LeadBot = true
-        LeadBot.AddBotOverride(bot)
-        LeadBot.AddBotControllerOverride(bot, bot.ControllerBot)
     end
 
     if not game.SinglePlayer() and leadbot_hordes:GetInt() >= 1 then
@@ -375,44 +377,46 @@ if SERVER then
     end
 
     hook.Add( "PlayerInitialSpawn", "BotSpawnLogic", function( ply )
-        if not game.SinglePlayer() then 
-            if not ply:IsBot() and leadbot_zchance:GetInt() == 0 and INFLICTION < 0.5 or not ply:IsBot() and leadbot_zchance:GetInt() == 0 and (CurTime() <= GetConVar("zs_roundtime"):GetInt()*0.5 and not GetConVar("zs_human_deadline"):GetBool()) then 
-                timer.Simple(2, function() 
-                    ply:Redeem() 
-                    if leadbot_mapchanges:GetInt() >= 1 then 
-                        if game.GetMap() == "zs_buntshot" then 
-                            ply:SetPos( Vector(-520.605774 + math.random(-25, 25), -90.801414 + math.random(-25, 25), -211.968750) ) 
-                        elseif game.GetMap() == "zs_snow" then 
-                            ply:SetPos( Vector(-566.444092 + math.random(-25, 25), 1023.660217 + math.random(-25, 25), -38.856033) ) 
-                        end
-                    end
-                end)
-            end
-
-            if ply:IsBot() then 
-                for k, v in ipairs(player.GetBots()) do 
-                    if GetConVar("leadbot_quota"):GetInt() > 1 and leadbot_hordes:GetInt() < 1 then
-                        v:Redeem()
-                        v:SetMaxHealth(1000000)
+        if SERVER then 
+            if not game.SinglePlayer() then 
+                if not ply:IsBot() and leadbot_zchance:GetInt() == 0 and INFLICTION < 0.5 or not ply:IsBot() and leadbot_zchance:GetInt() == 0 and (CurTime() <= GetConVar("zs_roundtime"):GetInt()*0.5 and not GetConVar("zs_human_deadline"):GetBool()) then 
+                    timer.Simple(2, function() 
+                        ply:Redeem() 
                         if leadbot_mapchanges:GetInt() >= 1 then 
                             if game.GetMap() == "zs_buntshot" then 
-                                v:SetPos( Vector(550.256470 + math.random(-25, 25), -595.521240 + math.random(-25, 25), -203.968750) )
+                                ply:SetPos( Vector(-520.605774 + math.random(-25, 25), -90.801414 + math.random(-25, 25), -211.968750) ) 
                             elseif game.GetMap() == "zs_snow" then 
-                                v:SetPos( Vector(-154.754593 + math.random(-25, 25), 1325.260010 + math.random(-25, 25), -571.968750) )
+                                ply:SetPos( Vector(-566.444092 + math.random(-25, 25), 1023.660217 + math.random(-25, 25), -38.856033) ) 
                             end
                         end
-                    end   
+                    end)
                 end
-            end
 
-            if leadbot_hordes:GetInt() >= 1 and player.GetCount() == 1 then
-                ply:EmitSound("intermission.mp3", CHAN_REPLACE)
-                timer.Start("Hordes")
-                timer.Start("INTERMISSION_MESSAGE")
-            end
-            if leadbot_hordes:GetInt() < 1 and player.GetCount() >= 1 then
-                timer.Stop("Hordes")
-                timer.Stop("INTERMISSION_MESSAGE")
+                if ply:IsBot() then 
+                    for k, v in ipairs(player.GetBots()) do 
+                        if GetConVar("leadbot_quota"):GetInt() > 1 and leadbot_hordes:GetInt() < 1 then
+                            v:Redeem()
+                            v:SetMaxHealth(1000000)
+                            if leadbot_mapchanges:GetInt() >= 1 then 
+                                if game.GetMap() == "zs_buntshot" then 
+                                    v:SetPos( Vector(550.256470 + math.random(-25, 25), -595.521240 + math.random(-25, 25), -203.968750) )
+                                elseif game.GetMap() == "zs_snow" then 
+                                    v:SetPos( Vector(-154.754593 + math.random(-25, 25), 1325.260010 + math.random(-25, 25), -571.968750) )
+                                end
+                            end
+                        end   
+                    end
+                end
+
+                if leadbot_hordes:GetInt() >= 1 and player.GetCount() == 1 then
+                    ply:EmitSound("intermission.mp3", CHAN_REPLACE)
+                    timer.Start("Hordes")
+                    timer.Start("INTERMISSION_MESSAGE")
+                end
+                if leadbot_hordes:GetInt() < 1 and player.GetCount() >= 1 then
+                    timer.Stop("Hordes")
+                    timer.Stop("INTERMISSION_MESSAGE")
+                end
             end
         end
     end )
@@ -841,12 +845,8 @@ if SERVER then
 
                 if !IsValid(target) then
                     if math.random(100) == 1 then 
-                        if bot:GetZombieClass() > 3 or bot:GetZombieClass() < 3 then
-                            if bot:GetZombieClass() > 8 or bot:GetZombieClass() < 8 then 
-                                if bot:IsOnGround() then 
-                                    buttons = buttons + IN_ATTACK2
-                                end
-                            end
+                        if bot:IsOnGround() and ( bot:GetZombieClass() > 3 or bot:GetZombieClass() < 3 ) and ( bot:GetZombieClass() > 8 or bot:GetZombieClass() < 8 ) then
+                            buttons = buttons + IN_ATTACK2
                         end
                     end
                     if math.random(100) == 1 and bot:GetZombieClass() > 5 and bot:GetZombieClass() < 9 then 
@@ -2051,7 +2051,7 @@ if SERVER then
             if !IsValid(controller.Target) then
                 for _, ply in RandomPairs(player.GetAll()) do
                     if ply ~= bot and ply:Team() ~= bot:Team() and ply:Alive() and IsValid(ply) and ply:GetPos():DistToSqr(bot:GetPos()) <= 1200 then
-                    controller.Target = ply
+                        controller.Target = ply
                         controller.ForgetTarget = CurTime() + 4
                     end
                 end
@@ -2605,19 +2605,21 @@ if SERVER then
     end)
 
     hook.Add("EntityTakeDamage", "LeadBot_Hurt", function(ply, dmgi)
-        local bot = dmgi:GetAttacker()
-        local hp = ply:Health()
-        local dmg = dmgi:GetDamage()
-        local force = dmgi:GetDamageForce()
+        if SERVER then 
+            local bot = dmgi:GetAttacker()
+            local hp = ply:Health()
+            local dmg = dmgi:GetDamage()
+            local force = dmgi:GetDamageForce()
 
-        if leadbot_cs:GetInt() >= 1 then 
-            if ply:IsPlayer() and bot:IsPlayer() and ply:Team() == TEAM_ZOMBIE and bot:Team() == TEAM_SURVIVORS then 
-                ply:SetVelocity(ply:GetVelocity() + ( force / 4 ) )
+            if leadbot_cs:GetInt() >= 1 then 
+                if ply:IsPlayer() and bot:IsPlayer() and ply:Team() == TEAM_ZOMBIE and bot:Team() == TEAM_SURVIVORS then 
+                    ply:SetVelocity(ply:GetVelocity() + ( force / 4 ) )
+                end
             end
-        end
 
-        if IsValid(ply) and ply:IsPlayer() and ply:IsLBot() and not bot:IsNPC() then
-            LeadBot.PlayerHurt(ply, bot, hp, dmg)
+            if IsValid(ply) and ply:IsPlayer() and ply:IsLBot() and not bot:IsNPC() then
+                LeadBot.PlayerHurt(ply, bot, hp, dmg)
+            end
         end
     end)
 

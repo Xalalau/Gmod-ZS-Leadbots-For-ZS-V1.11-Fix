@@ -240,11 +240,6 @@ if SERVER then
 
     function LeadBot.AddBot()
         if SERVER then 
-            if !FindMetaTable("NextBot").GetFOV then
-                ErrorNoHalt("You must be using the dev version of Garry's mod!\nhttps://wiki.facepunch.com/gmod/Dev_Branch\n")
-                return
-            end
-
             if !navmesh.IsLoaded() and !LeadBot.NoNavMesh and not game.SinglePlayer() then
                 if GetConVar("sv_cheats"):GetInt() == 1 then
                     RunConsoleCommand("nav_generate")

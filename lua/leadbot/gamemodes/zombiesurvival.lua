@@ -894,7 +894,7 @@ if SERVER then
                 end
             end 
 
-            if !bot:IsOnGround() then
+            if !bot:IsOnGround() and bot:WaterLevel() == 0 then
                 buttons = buttons + IN_DUCK
             end
 

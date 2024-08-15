@@ -55,7 +55,7 @@ if SERVER then
             v:Remove()
         end
 
-        if game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" or game.GetMap() == "zs_fen" then 
+        if game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" or game.GetMap() == "zs_fen" or game.GetMap() == "zs_house_outbreak_b2" then 
             for k, v in ipairs( ents.FindByClass( "func_breakable" ) ) do
                 v:Remove()
             end

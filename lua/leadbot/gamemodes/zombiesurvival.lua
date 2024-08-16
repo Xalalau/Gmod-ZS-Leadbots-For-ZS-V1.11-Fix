@@ -2337,6 +2337,24 @@ if SERVER then
                 end
             end
 
+            if controller.PosGen and !IsValid(controller.Target) then
+                if bot:Team() == TEAM_ZOMBIE then 
+                    for k, v in ipairs(player.GetAll()) do 
+                        if bot:LBGetStrategy() <= 1 then 
+                            if v:Team() == TEAM_SURVIVORS and v:GetPos():DistToSqr(bot:GetPos()) < controller.PosGen:DistToSqr(bot:GetPos()) then 
+                                controller.PosGen = v:GetPos()
+                                controller.LastSegmented = CurTime() + 4000000
+                            end
+                        else
+                            if v:Team() == TEAM_SURVIVORS and v:GetPos():DistToSqr(bot:GetPos()) > controller.PosGen:DistToSqr(bot:GetPos()) then 
+                                controller.PosGen = v:GetPos()
+                                controller.LastSegmented = CurTime() + 4000000
+                            end
+                        end
+                    end
+                end
+            end
+
             -- movement also has a similar issue, but it's more severe...
             if !controller.P then
                 return
@@ -2521,10 +2539,8 @@ if SERVER then
                     local maxClip2 = weapon:GetMaxClip2()
                     local primAmmoType = weapon:GetPrimaryAmmoType()
                     local secAmmoType = weapon:GetSecondaryAmmoType()
-                    if maxClip == -1 and maxClip2 == -1 then
-                        maxClip = 9999
-                        maxClip2 = 9999
-                    end
+                    maxClip = 9999
+                    maxClip2 = 9999
                     if maxClip <= 0 and primAmmoType ~= -1 then maxClip = 1 end
                     if maxClip2 == -1 and secAmmoType ~= -1 then maxClip2 = 1 end
                     if n == 1 then

@@ -2386,7 +2386,7 @@ if SERVER then
                             mv:SetForwardSpeed(1200)
                         end
                         controller.strafeAngle = ((controller.strafeAngle == 1 and 2) or 1)
-                        controller.NextCenter = CurTime() + math.Rand(0.5, 1.5)
+                        controller.NextCenter = CurTime() + math.Rand(0.1, 1)
                     end
                 end
 

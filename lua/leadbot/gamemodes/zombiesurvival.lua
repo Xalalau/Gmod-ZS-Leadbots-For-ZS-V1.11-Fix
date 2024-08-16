@@ -2337,20 +2337,11 @@ if SERVER then
                 end
             end
 
-            if controller.PosGen and !IsValid(controller.Target) then
-                if bot:Team() == TEAM_ZOMBIE then 
-                    for k, v in ipairs(player.GetAll()) do 
-                        if bot:LBGetStrategy() <= 1 then 
-                            if v:Team() == TEAM_SURVIVORS and v:GetPos():DistToSqr(bot:GetPos()) < controller.PosGen:DistToSqr(bot:GetPos()) then 
-                                controller.PosGen = v:GetPos()
-                                controller.LastSegmented = CurTime() + 4000000
-                            end
-                        else
-                            if v:Team() == TEAM_SURVIVORS and v:GetPos():DistToSqr(bot:GetPos()) > controller.PosGen:DistToSqr(bot:GetPos()) then 
-                                controller.PosGen = v:GetPos()
-                                controller.LastSegmented = CurTime() + 4000000
-                            end
-                        end
+            if controller.PosGen and !IsValid(controller.Target) and bot:LBGetStrategy() <= 1 and bot:Team() == TEAM_ZOMBIE then 
+                for k, v in ipairs(player.GetAll()) do 
+                    if v:Team() == TEAM_SURVIVORS and v:GetPos():DistToSqr(bot:GetPos()) < controller.PosGen:DistToSqr(bot:GetPos()) then 
+                        controller.PosGen = v:GetPos()
+                        controller.LastSegmented = CurTime() + 4000000
                     end
                 end
             end
@@ -2404,7 +2395,7 @@ if SERVER then
                             mv:SetForwardSpeed(1200)
                         end
                         controller.strafeAngle = ((controller.strafeAngle == 1 and 2) or 1)
-                        controller.NextCenter = CurTime() + math.Rand(0.1, 1)
+                        controller.NextCenter = CurTime() + math.Rand(0.3, 0.9)
                     end
                 end
 
@@ -2532,15 +2523,17 @@ if SERVER then
             n = 1
         end
         if n > 0 then
-            for k,v in ipairs (player.GetAll()) do
+            for k,v in ipairs (player.GetBots()) do
                 weapon = v:GetActiveWeapon()
-                if IsValid(weapon) and v:IsBot() and v:Team() == TEAM_SURVIVORS then
+                if IsValid(weapon) and v:Team() == TEAM_SURVIVORS then
                     local maxClip = weapon:GetMaxClip1()
                     local maxClip2 = weapon:GetMaxClip2()
                     local primAmmoType = weapon:GetPrimaryAmmoType()
                     local secAmmoType = weapon:GetSecondaryAmmoType()
-                    maxClip = 9999
-                    maxClip2 = 9999
+                    if maxClip == -1 and maxClip2 == -1 then
+                        maxClip = 9999
+                        maxClip2 = 9999
+                    end
                     if maxClip <= 0 and primAmmoType ~= -1 then maxClip = 1 end
                     if maxClip2 == -1 and secAmmoType ~= -1 then maxClip2 = 1 end
                     if n == 1 then

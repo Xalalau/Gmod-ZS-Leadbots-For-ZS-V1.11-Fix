@@ -2667,7 +2667,7 @@ if SERVER then
             local controller = v.ControllerBot 
             if v:Team() == TEAM_ZOMBIE then
                 if v:GetVelocity():Length2DSqr() <= 225 and not v:IsFrozen() and v:Team() == TEAM_ZOMBIE then
-                    if controller.Target == nil or IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:Health() <= 0 or v:GetZombieClass() > 3 and v:GetZombieClass() < 9 or v:GetVelocity():Length2DSqr() == 0 then 
+                    if controller.Target == nil or IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:Health() <= 0 or v:GetZombieClass() > 3 or v:GetVelocity():Length2DSqr() == 0 then 
                         v:Kill()
                     end
                 end

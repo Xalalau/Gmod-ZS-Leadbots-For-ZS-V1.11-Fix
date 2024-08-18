@@ -2437,8 +2437,10 @@ if SERVER then
                 end
 
                 if controller.BackUnStuck > CurTime() then
-                    if !IsValid(controller.Target) then
-                        mv:SetForwardSpeed(-1200)
+                    if !IsValid(controller.Target) and bot:GetMoveType() ~= MOVETYPE_LADDER then
+                        if bot:Team() == TEAM_ZOMBIE or bot:Team() == TEAM_SURVIVORS and ( bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 ) then
+                            mv:SetForwardSpeed(-1200)
+                        end
                     end
                 end
 

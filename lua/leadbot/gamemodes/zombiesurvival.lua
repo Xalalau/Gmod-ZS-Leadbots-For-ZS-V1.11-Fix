@@ -2390,8 +2390,11 @@ if SERVER then
 
                 if controller.NextCenter < CurTime() then
                     if bot:GetVelocity():Length2DSqr() <= 225 or IsValid(controller.Target) then
-                        if bot:Team() == TEAM_ZOMBIE then 
+                        if bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) then 
                             mv:SetForwardSpeed(1200)
+                        end
+                        if !IsValid(controller.Target) and ( bot:Team() == TEAM_ZOMBIE or bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 ) then 
+                            mv:SetForwardSpeed(-1200)
                         end
                         controller.strafeAngle = ((controller.strafeAngle == 1 and 2) or 1)
                         controller.NextCenter = CurTime() + math.Rand(0.3, 0.9)
@@ -2399,10 +2402,10 @@ if SERVER then
                 end
 
                 if controller.NextCenter > CurTime() then
-                    if bot:Team() == TEAM_ZOMBIE then 
+                    if bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) then 
                         mv:SetForwardSpeed(1200)
                     end
-                    if bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and controller.Target:GetPos():DistToSqr(bot:GetPos()) <= 45000 then
+                    if bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and controller.Target:GetPos():DistToSqr(bot:GetPos()) <= 45000 or !IsValid(controller.Target) and ( bot:Team() == TEAM_ZOMBIE or bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 ) then
                         mv:SetForwardSpeed(-1200)
                     end 
                     if bot:GetVelocity():Length2DSqr() <= 225 and !IsValid(controller.Target) or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and (bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1) and controller.Target:IsPlayer() or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and controller.Target:GetPos():DistToSqr(bot:GetPos()) > 45000 and controller.Target:IsPlayer() then

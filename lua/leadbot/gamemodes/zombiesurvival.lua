@@ -2325,15 +2325,15 @@ if SERVER then
                                 mv:SetSideSpeed(-1500)
                             end
                         else
-                            if bot:Team() == TEAM_SURVIVORS then
-                                if distance <= 45000 then 
-                                    mv:SetForwardSpeed(-1200)
-                                    if controller.strafeAngle == 1 then
-                                        mv:SetSideSpeed(1500)
-                                    elseif controller.strafeAngle == 2 then
-                                        mv:SetSideSpeed(-1500)
-                                    end
+                            if distance <= 45000 then 
+                                mv:SetForwardSpeed(-1200)
+                                if controller.strafeAngle == 1 then
+                                    mv:SetSideSpeed(1500)
+                                elseif controller.strafeAngle == 2 then
+                                    mv:SetSideSpeed(-1500)
                                 end
+                            end
+                            if bot:Health() <= 40 then 
                                 if controller.Target:GetZombieClass() == 2 or controller.Target:GetZombieClass() > 5 and controller.Target:GetZombieClass() < 9 then 
                                     if controller.strafeAngle == 1 then
                                         mv:SetSideSpeed(1500)
@@ -2386,7 +2386,7 @@ if SERVER then
 
             if controller.PosGen and !IsValid(controller.Target) and bot:LBGetStrategy() <= 1 and bot:Team() == TEAM_ZOMBIE then 
                 for k, v in ipairs(player.GetAll()) do 
-                    if IsValid(v) and v:Team() == TEAM_SURVIVORS and v:GetPos():DistToSqr(bot:GetPos()) < controller.PosGen:DistToSqr(bot:GetPos()) then 
+                    if IsValid(v) and v:Team() == TEAM_SURVIVORS and v:GetPos():DistToSqr(bot:GetPos()) < controller.PosGen:DistToSqr(bot:GetPos()) and v:GetPos().z == bot:GetPos().z then 
                         controller.PosGen = v:GetPos()
                         controller.LastSegmented = CurTime() + 4000000
                     end

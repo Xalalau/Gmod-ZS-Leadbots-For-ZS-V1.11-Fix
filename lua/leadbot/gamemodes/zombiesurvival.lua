@@ -408,7 +408,7 @@ if SERVER then
                 if ply:IsBot() then
                     if GetConVar("leadbot_quota"):GetInt() > 1 and leadbot_hordes:GetInt() < 1 then
                         for k, v in ipairs(player.GetBots()) do 
-                            v:Redeem()
+                            --v:Redeem()
                             v:SetMaxHealth(1000000)
                             if leadbot_mapchanges:GetInt() >= 1 then 
                                 if game.GetMap() == "zs_buntshot" then 
@@ -898,8 +898,12 @@ if SERVER then
                 end
             end
 
-            if bot:GetVelocity():Length2DSqr() <= 225 and not bot:IsFrozen() and bot:GetMoveType() ~= MOVETYPE_LADDER then 
-                if target == nil or IsValid(target) and not target:IsPlayer() and target:Health() <= 0 then 
+            if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS and controller.PosGen == nil then 
+                buttons = buttons + IN_DUCK
+            end
+
+            if bot:GetVelocity():Length2DSqr() <= 225 and not bot:IsFrozen() and bot:GetMoveType() ~= MOVETYPE_LADDER and controller.PosGen ~= nil then 
+                if target == nil or IsValid(target) and not target:IsPlayer() and target:Health() <= 0 and controller.PosGen ~= nil then 
                     if math.random(2) == 1 then 
                         buttons = buttons + IN_JUMP
                     end
@@ -2196,8 +2200,14 @@ if SERVER then
                     if leadbot_freeroam:GetInt() < 1 then 
                         -- camping ai 
                         if sigil3Valid then 
-                            controller.PosGen = sigil3:GetPos()
-                            controller.LastSegmented = CurTime() + 1
+                            local dist = bot:GetPos():DistToSqr(sigil3:GetPos())
+                                if dist <= 5000 then -- we're here
+                                    controller.PosGen = nil
+                                else -- we need to run...
+                                    controller.PosGen = sigil3:GetPos()
+                                end
+
+                            controller.LastSegmented = CurTime() + 3
                         else
                             for k, v in RandomPairs(player.GetAll()) do 
                                 if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
@@ -2214,8 +2224,14 @@ if SERVER then
                 elseif bot:Team() == TEAM_SURVIVORS and bot:LBGetStrategy() == 2 then
                     if leadbot_freeroam:GetInt() < 1 then 
                         if sigil2Valid then 
-                            controller.PosGen = sigil2:GetPos()
-                            controller.LastSegmented = CurTime() + 1
+                            local dist = bot:GetPos():DistToSqr(sigil2:GetPos())
+                                if dist <= 5000 then -- we're here
+                                    controller.PosGen = nil
+                                else -- we need to run...
+                                    controller.PosGen = sigil2:GetPos()
+                                end
+
+                            controller.LastSegmented = CurTime() + 3
                         else
                             for k, v in RandomPairs(player.GetAll()) do 
                                 if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
@@ -2232,8 +2248,14 @@ if SERVER then
                 elseif bot:Team() == TEAM_SURVIVORS and bot:LBGetStrategy() == 3 then
                     if leadbot_freeroam:GetInt() < 1 then 
                         if sigil1Valid then 
-                            controller.PosGen = sigil1:GetPos()
-                            controller.LastSegmented = CurTime() + 1
+                            local dist = bot:GetPos():DistToSqr(sigil1:GetPos())
+                                if dist <= 5000 then -- we're here
+                                    controller.PosGen = nil
+                                else -- we need to run...
+                                    controller.PosGen = sigil1:GetPos()
+                                end
+
+                            controller.LastSegmented = CurTime() + 3
                         else
                             for k, v in RandomPairs(player.GetAll()) do 
                                 if IsValid(v) and v:Team() == TEAM_SURVIVORS then 

@@ -589,7 +589,9 @@ if SERVER then
                     controller.PosGen = bot:GetPos()
                     controller.LastSegmented = CurTime() + 5 
                     controller.LookAtTime = CurTime() + 2
-                    controller.LookAt = (bot:GetPos() - ply:GetPos()):Angle()
+                    if not bot:IsFrozen() then 
+                        controller.LookAt = (bot:GetPos() - ply:GetPos()):Angle()
+                    end
                 end
             end
 
@@ -873,9 +875,13 @@ if SERVER then
                 local ang = ((pos + bot:GetCurrentViewOffset()) - bot:GetShootPos()):Angle()
 
                 if pos.z > controller:GetPos().z then
-                    controller.LookAt = Angle(-30, ang.y, 0)
+                    if not bot:IsFrozen() then 
+                        controller.LookAt = Angle(-30, ang.y, 0)
+                    end
                 else
-                    controller.LookAt = Angle(30, ang.y, 0)
+                    if not bot:IsFrozen() then 
+                        controller.LookAt = Angle(30, ang.y, 0)
+                    end
                 end
 
                 controller.LookAtTime = CurTime() + 0.1
@@ -2495,14 +2501,20 @@ if SERVER then
                 end
                 return
             elseif IsValid(controller.Target) and not controller.Target:IsPlayer() then
-                bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:GetPos() - bot:GetShootPos()):Angle()))
+                if not bot:IsFrozen() then 
+                    bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:GetPos() - bot:GetShootPos()):Angle()))
+                end
             elseif curgoal then
                 if controller.LookAtTime > CurTime() then
                     local ang = LerpAngle(lerpc, bot:EyeAngles(), controller.LookAt)
-                bot:SetEyeAngles(Angle(ang.p, ang.y, 0))
+                    if not bot:IsFrozen() then 
+                        bot:SetEyeAngles(Angle(ang.p, ang.y, 0))
+                    end
                 else
                     local ang = LerpAngle(lerpc, bot:EyeAngles(), mva)
-                bot:SetEyeAngles(Angle(ang.p, ang.y, 0))
+                    if not bot:IsFrozen() then 
+                        bot:SetEyeAngles(Angle(ang.p, ang.y, 0))
+                    end
                 end
             end
         end
@@ -2657,6 +2669,11 @@ if SERVER then
 
     hook.Add( "PlayerDeath", "SurvivorBotHealPerKill", function( victim, inflictor, attacker )
         if SERVER then 
+            timer.Create(victim:UniqueID().."secondwindstopper", 2.1, 1, function()
+                if IsValid(victim) and victim:IsBot() and victim:Alive() and victim:Team() == TEAM_ZOMBIE then
+                    victim:Kill()
+                end
+            end)
             if leadbot_hregen:GetInt() >= 1 then 
                 if attacker:IsPlayer() and victim:IsPlayer() and attacker:Team() == TEAM_ZOMBIE and attacker ~= victim then 
                     for k, v in ipairs(player.GetBots()) do 

@@ -37,11 +37,54 @@ function ENT:ChasePos()
 
 	if !self.P:IsValid() then return end
 
-	while self.P:IsValid() do
-		if self.PosGen then
-			self.P:Compute(self, self.PosGen)
-			self.cur_segment = 2
-		end
+	while ( self.P:IsValid() and self.PosGen ) do
+		self.P:Compute(self, self.PosGen, function( area, fromArea, ladder, elevator, length )
+			if ( !IsValid( fromArea ) ) then
+
+				-- first area in path, no cost
+				return 0
+			
+			else
+			
+				if ( !self.loco:IsAreaTraversable( area ) ) then
+					-- our locomotor says we can't move here
+					return -1
+				end
+
+				-- compute distance traveled along path so far
+				local dist = 0
+
+				if ( IsValid( ladder ) ) then
+					dist = ladder:GetLength()
+				elseif ( length > 0 ) then
+					-- optimization to avoid recomputing length
+					dist = length
+				else
+					dist = ( area:GetCenter() - fromArea:GetCenter() ):GetLength()
+				end
+
+				local cost = dist + fromArea:GetCostSoFar()
+
+				-- check height change
+				local deltaZ = fromArea:ComputeAdjacentConnectionHeightChange( area )
+				if ( deltaZ >= self.loco:GetStepHeight() ) then
+					if ( deltaZ >= self.loco:GetMaxJumpHeight() ) then
+						-- too high to reach
+						return -1
+					end
+
+					-- jumping is slower than flat ground
+					local jumpPenalty = 5
+					cost = cost + jumpPenalty * dist
+				elseif ( deltaZ < -self.loco:GetDeathDropHeight() ) then
+					-- too far to drop
+					return -1
+				end
+
+				return cost
+			end
+		end )
+		self.cur_segment = 2
 
 		coroutine.wait(1)
 		coroutine.yield()

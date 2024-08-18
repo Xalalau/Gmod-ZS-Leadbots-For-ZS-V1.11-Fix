@@ -408,7 +408,7 @@ if SERVER then
                 if ply:IsBot() then
                     if GetConVar("leadbot_quota"):GetInt() > 1 and leadbot_hordes:GetInt() < 1 then
                         for k, v in ipairs(player.GetBots()) do 
-                            v:Redeem()
+                            --v:Redeem()
                             v:SetMaxHealth(1000000)
                             if leadbot_mapchanges:GetInt() >= 1 then 
                                 if game.GetMap() == "zs_buntshot" then 
@@ -2451,20 +2451,6 @@ if SERVER then
                             mv:SetSideSpeed(1500)
                         elseif controller.strafeAngle == 2 then
                             mv:SetSideSpeed(-1500)
-                        end
-                    end
-                end
-
-                if controller.BackUnStuck < CurTime() then
-                    if bot:GetVelocity():Length2DSqr() <= 225 and not bot:IsFrozen() then
-                        controller.BackUnStuck = CurTime() + 0.2
-                    end
-                end
-
-                if controller.BackUnStuck > CurTime() then
-                    if !IsValid(controller.Target) and bot:GetMoveType() ~= MOVETYPE_LADDER and not bot:IsFrozen() then
-                        if bot:Team() == TEAM_ZOMBIE or bot:Team() == TEAM_SURVIVORS and ( bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 ) then
-                            mv:SetForwardSpeed(-1200)
                         end
                     end
                 end

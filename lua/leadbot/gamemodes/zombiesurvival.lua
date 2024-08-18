@@ -2419,13 +2419,11 @@ if SERVER then
                 end
 
                 if controller.NextCenter > CurTime() then
-                    if !IsValid(controller.Target) then
-                        if bot:GetVelocity():Length2DSqr() <= 225 then 
-                            if controller.strafeAngle == 1 then
-                                mv:SetSideSpeed(1500)
-                            elseif controller.strafeAngle == 2 then
-                                mv:SetSideSpeed(-1500)
-                            end
+                    if !IsValid(controller.Target) and bot:GetVelocity():Length2DSqr() <= 225 and bot:GetMoveType() ~= MOVETYPE_LADDER then
+                        if controller.strafeAngle == 1 then
+                            mv:SetSideSpeed(1500)
+                        elseif controller.strafeAngle == 2 then
+                            mv:SetSideSpeed(-1500)
                         end
                     end
                 end

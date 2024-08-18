@@ -2201,7 +2201,7 @@ if SERVER then
                         -- camping ai 
                         if sigil3Valid then 
                             local dist = bot:GetPos():DistToSqr(sigil3:GetPos())
-                                if dist <= 5000 then -- we're here
+                                if dist <= 2500 then -- we're here
                                     controller.PosGen = nil
                                 else -- we need to run...
                                     controller.PosGen = sigil3:GetPos()
@@ -2225,7 +2225,7 @@ if SERVER then
                     if leadbot_freeroam:GetInt() < 1 then 
                         if sigil2Valid then 
                             local dist = bot:GetPos():DistToSqr(sigil2:GetPos())
-                                if dist <= 5000 then -- we're here
+                                if dist <= 2500 then -- we're here
                                     controller.PosGen = nil
                                 else -- we need to run...
                                     controller.PosGen = sigil2:GetPos()
@@ -2249,7 +2249,7 @@ if SERVER then
                     if leadbot_freeroam:GetInt() < 1 then 
                         if sigil1Valid then 
                             local dist = bot:GetPos():DistToSqr(sigil1:GetPos())
-                                if dist <= 5000 then -- we're here
+                                if dist <= 2500 then -- we're here
                                     controller.PosGen = nil
                                 else -- we need to run...
                                     controller.PosGen = sigil1:GetPos()
@@ -2282,7 +2282,7 @@ if SERVER then
             elseif IsValid(controller.Target) then
                 -- move to our target
                 local distance = controller.Target:GetPos():DistToSqr(bot:GetPos())
-                if controller.Target:IsPlayer() then 
+                if controller.Target:IsPlayer() and ( bot:Team() == TEAM_SURVIVORS and bot:LBGetStrategy() == 0 or bot:Team() == TEAM_ZOMBIE ) then 
                     controller.PosGen = controller.Target:GetPos()
                 end
 

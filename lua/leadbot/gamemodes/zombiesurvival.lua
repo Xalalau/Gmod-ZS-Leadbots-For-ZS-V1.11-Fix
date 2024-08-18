@@ -40,7 +40,6 @@ local sigil1Valid = false
 local survivorBreak = false
 local zombiePropCheck = true
 local zombieBreakCheck = true
-local zombieDodge = true
 resource.AddFile("sound/intermission.mp3")
 
 if SERVER then 
@@ -64,10 +63,6 @@ if SERVER then
 
     if game.GetMap() == "zs_pub" or game.GetMap() == "zs_ascent" or game.GetMap() == "zs_nastierhouse_v3" then
         zombieBreakCheck = false
-    end
-
-    if game.GetMap() == "zs_port_v5" or game.GetMap() == "zs_panic_house_v2" then 
-        zombieDodge = false
     end
 
     if leadbot_mapchanges:GetInt() >= 1 then 
@@ -2267,7 +2262,7 @@ if SERVER then
                 if controller.Target:IsPlayer() then 
                     if bot:Team() == TEAM_ZOMBIE then 
                         mv:SetForwardSpeed(1200)
-                        if distance > 45000 and zombieDodge then
+                        if distance > 45000 then
                             if controller.strafeAngle == 1 then
                                 mv:SetSideSpeed(1500)
                             elseif controller.strafeAngle == 2 then

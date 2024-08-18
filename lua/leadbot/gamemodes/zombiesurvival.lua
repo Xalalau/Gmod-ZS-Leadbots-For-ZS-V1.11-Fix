@@ -76,7 +76,7 @@ if SERVER then
             end
         end
 
-        if game.GetMap() == "zs_jail_v1" then 
+        if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_house_number_23" then 
             for k, v in ipairs( ents.FindByClass( "func_physbox" ) ) do
                 v:Remove()
             end

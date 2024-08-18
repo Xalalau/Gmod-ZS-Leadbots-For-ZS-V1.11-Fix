@@ -2132,10 +2132,8 @@ if SERVER then
             end
 
             if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_physbox" then
-                if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() or controller.Target == nil ) then
-                    if controller.Target:GetClass() ~= "func_breakable" then 
-                        controller.Target = dt.Entity
-                    end
+                if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) then
+                    controller.Target = dt.Entity
                 end
             end
 
@@ -2144,9 +2142,7 @@ if SERVER then
                     if dt.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
                         if dt.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
                             if not zombiePropCheck then
-                                if controller.Target:GetClass() ~= "func_breakable" then 
-                                    controller.Target = dt.Entity
-                                end
+                                controller.Target = dt.Entity
                             end
                         end
                     end
@@ -2159,9 +2155,7 @@ if SERVER then
                         if dtpse.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
                             if dtpse.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
                                 if not zombiePropCheck then
-                                    if controller.Target:GetClass() ~= "func_breakable" then 
-                                        controller.Target = dt.Entity
-                                    end
+                                    controller.Target = dt.Entity
                                 end
                             end
                         end

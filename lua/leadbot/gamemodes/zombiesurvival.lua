@@ -2207,7 +2207,7 @@ if SERVER then
                                     controller.PosGen = sigil3:GetPos()
                                 end
 
-                            controller.LastSegmented = CurTime() + 3
+                            controller.LastSegmented = CurTime() + 1
                         else
                             for k, v in RandomPairs(player.GetAll()) do 
                                 if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
@@ -2231,7 +2231,7 @@ if SERVER then
                                     controller.PosGen = sigil2:GetPos()
                                 end
 
-                            controller.LastSegmented = CurTime() + 3
+                            controller.LastSegmented = CurTime() + 1
                         else
                             for k, v in RandomPairs(player.GetAll()) do 
                                 if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
@@ -2255,7 +2255,7 @@ if SERVER then
                                     controller.PosGen = sigil1:GetPos()
                                 end
 
-                            controller.LastSegmented = CurTime() + 3
+                            controller.LastSegmented = CurTime() + 1
                         else
                             for k, v in RandomPairs(player.GetAll()) do 
                                 if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
@@ -2282,7 +2282,7 @@ if SERVER then
             elseif IsValid(controller.Target) then
                 -- move to our target
                 local distance = controller.Target:GetPos():DistToSqr(bot:GetPos())
-                if controller.Target:IsPlayer() and ( bot:Team() == TEAM_SURVIVORS and bot:LBGetStrategy() == 0 or bot:Team() == TEAM_ZOMBIE ) then 
+                if controller.Target:IsPlayer() then 
                     controller.PosGen = controller.Target:GetPos()
                 end
 
@@ -2386,7 +2386,7 @@ if SERVER then
 
             if controller.PosGen and !IsValid(controller.Target) and bot:LBGetStrategy() <= 1 and bot:Team() == TEAM_ZOMBIE then 
                 for k, v in ipairs(player.GetAll()) do 
-                    if v:Team() == TEAM_SURVIVORS and v:GetPos():DistToSqr(bot:GetPos()) < controller.PosGen:DistToSqr(bot:GetPos()) then 
+                    if IsValid(v) and v:Team() == TEAM_SURVIVORS and v:GetPos():DistToSqr(bot:GetPos()) < controller.PosGen:DistToSqr(bot:GetPos()) then 
                         controller.PosGen = v:GetPos()
                         controller.LastSegmented = CurTime() + 4000000
                     end

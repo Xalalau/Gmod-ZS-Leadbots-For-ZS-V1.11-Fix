@@ -2132,7 +2132,7 @@ if SERVER then
             end
 
             if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_physbox" then
-                if bot:Team() == TEAM_ZOMBIE and not controller.Target:IsPlayer() then
+                if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() or controller.Target == nil ) then
                     if controller.Target:GetClass() ~= "func_breakable" then 
                         controller.Target = dt.Entity
                     end
@@ -2140,7 +2140,7 @@ if SERVER then
             end
 
             if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_physics" then
-                if bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" then
+                if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) then
                     if dt.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
                         if dt.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
                             if not zombiePropCheck then
@@ -2155,7 +2155,7 @@ if SERVER then
 
             if bot:GetMoveType() == MOVETYPE_LADDER then 
                 if IsValid(dtpse.Entity) and dtpse.Entity:GetClass() == "prop_physics" then
-                    if bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" then
+                    if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) then
                         if dtpse.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
                             if dtpse.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
                                 if not zombiePropCheck then

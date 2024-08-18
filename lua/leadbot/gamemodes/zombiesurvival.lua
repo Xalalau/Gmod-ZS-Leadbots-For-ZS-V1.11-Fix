@@ -2266,32 +2266,55 @@ if SERVER then
                 -- something like controller.PosGen = controller:FindSpot("random", {pos = bot:GetPos() - bot:GetForward() * 350, radius = 1000})?
 
                 if controller.Target:IsPlayer() then 
-                    if bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 then 
-                        if bot:Health() > 70 then 
-                            if bot:Team() == TEAM_SURVIVORS and distance <= 45000 then
-                                mv:SetForwardSpeed(-1200)
+                    if bot:Team() == TEAM_ZOMBIE then 
+                        mv:SetForwardSpeed(1200)
+                        if distance > 45000 then
+                            if controller.strafeAngle == 1 then
+                                mv:SetSideSpeed(1500)
+                            elseif controller.strafeAngle == 2 then
+                                mv:SetSideSpeed(-1500)
                             end
-                        elseif bot:Health() <= 70 and bot:Health() > 40 then 
-                            if bot:Team() == TEAM_SURVIVORS and distance <= 90000 then
-                                mv:SetForwardSpeed(-1200)
-                            end
-                        elseif bot:Health() <= 40 and bot:Health() > 10 then 
-                            if bot:Team() == TEAM_SURVIVORS and distance <= 135000 then
-                                mv:SetForwardSpeed(-1200)
-                            end
-                        elseif bot:Health() <= 10 then 
-                            if bot:Team() == TEAM_SURVIVORS and distance <= 180000 then
-                                mv:SetForwardSpeed(-1200)
-                            end
-                         end
+                        end
                     else
-                        if bot:Team() == TEAM_SURVIVORS then
-                            if distance <= 45000 or controller.Target:GetZombieClass() == 2 or controller.Target:GetZombieClass() > 5 and controller.Target:GetZombieClass() < 9 then 
-                                mv:SetForwardSpeed(-1200)
-                                if controller.strafeAngle == 1 then
-                                    mv:SetSideSpeed(1500)
-                                elseif controller.strafeAngle == 2 then
-                                    mv:SetSideSpeed(-1500)
+                        if bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 then 
+                            if bot:Health() > 70 then 
+                                if distance <= 45000 then
+                                    mv:SetForwardSpeed(-1200)
+                                end
+                            elseif bot:Health() <= 70 and bot:Health() > 40 then 
+                                if distance <= 90000 then
+                                    mv:SetForwardSpeed(-1200)
+                                end
+                            elseif bot:Health() <= 40 and bot:Health() > 10 then 
+                                if distance <= 135000 then
+                                    mv:SetForwardSpeed(-1200)
+                                end
+                            elseif bot:Health() <= 10 then 
+                                if distance <= 180000 then
+                                    mv:SetForwardSpeed(-1200)
+                                end
+                             end
+                            if controller.strafeAngle == 1 then
+                                mv:SetSideSpeed(1500)
+                            elseif controller.strafeAngle == 2 then
+                                mv:SetSideSpeed(-1500)
+                            end
+                        else
+                            if bot:Team() == TEAM_SURVIVORS then
+                                if distance <= 45000 then 
+                                    mv:SetForwardSpeed(-1200)
+                                    if controller.strafeAngle == 1 then
+                                        mv:SetSideSpeed(1500)
+                                    elseif controller.strafeAngle == 2 then
+                                        mv:SetSideSpeed(-1500)
+                                    end
+                                end
+                                if controller.Target:GetZombieClass() == 2 or controller.Target:GetZombieClass() > 5 and controller.Target:GetZombieClass() < 9 then 
+                                    if controller.strafeAngle == 1 then
+                                        mv:SetSideSpeed(1500)
+                                    elseif controller.strafeAngle == 2 then
+                                        mv:SetSideSpeed(-1500)
+                                    end
                                 end
                             end
                         end
@@ -2390,30 +2413,32 @@ if SERVER then
 
                 if controller.NextCenter < CurTime() then
                     if bot:GetVelocity():Length2DSqr() <= 225 or IsValid(controller.Target) then
-                        if bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) then 
-                            mv:SetForwardSpeed(1200)
-                        end
-                        if !IsValid(controller.Target) and ( bot:Team() == TEAM_ZOMBIE or bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 ) then 
-                            mv:SetForwardSpeed(-1200)
-                        end
                         controller.strafeAngle = ((controller.strafeAngle == 1 and 2) or 1)
                         controller.NextCenter = CurTime() + math.Rand(0.3, 0.9)
                     end
                 end
 
                 if controller.NextCenter > CurTime() then
-                    if bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) then 
-                        mv:SetForwardSpeed(1200)
-                    end
-                    if bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and controller.Target:GetPos():DistToSqr(bot:GetPos()) <= 45000 or !IsValid(controller.Target) and ( bot:Team() == TEAM_ZOMBIE or bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 ) then
-                        mv:SetForwardSpeed(-1200)
-                    end 
-                    if bot:GetVelocity():Length2DSqr() <= 225 and !IsValid(controller.Target) or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and (bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1) and controller.Target:IsPlayer() or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and controller.Target:GetPos():DistToSqr(bot:GetPos()) > 45000 and controller.Target:IsPlayer() then
-                        if controller.strafeAngle == 1 then
-                            mv:SetSideSpeed(1500)
-                        elseif controller.strafeAngle == 2 then
-                            mv:SetSideSpeed(-1500)
+                    if !IsValid(controller.Target) then
+                        if bot:GetVelocity():Length2DSqr() <= 225 then 
+                            if controller.strafeAngle == 1 then
+                                mv:SetSideSpeed(1500)
+                            elseif controller.strafeAngle == 2 then
+                                mv:SetSideSpeed(-1500)
+                            end
                         end
+                    end
+                end
+
+                if controller.BackUnStuck < CurTime() then
+                    if bot:GetVelocity():Length2DSqr() <= 225 then
+                        controller.BackUnStuck = CurTime() + 0.3
+                    end
+                end
+
+                if controller.BackUnStuck > CurTime() then
+                    if !IsValid(controller.Target) then
+                        mv:SetForwardSpeed(-1200)
                     end
                 end
 

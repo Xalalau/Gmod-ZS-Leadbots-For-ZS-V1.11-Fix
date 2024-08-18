@@ -40,6 +40,7 @@ local sigil1Valid = false
 local survivorBreak = false
 local zombiePropCheck = true
 local zombieBreakCheck = true
+local zombieDodge = true
 resource.AddFile("sound/intermission.mp3")
 
 if SERVER then 
@@ -65,12 +66,16 @@ if SERVER then
         zombieBreakCheck = false
     end
 
+    if game.GetMap() == "zs_port_v5" or game.GetMap() == "zs_panic_house_v2" then 
+        zombieDodge = false
+    end
+
     if leadbot_mapchanges:GetInt() >= 1 then 
         for k, v in ipairs(ents.FindByClass("func_useableladder")) do
             v:Remove()
         end
 
-        if game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" or game.GetMap() == "zs_fen" or game.GetMap() == "zs_house_outbreak_b2" then 
+        if game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" or game.GetMap() == "zs_fen" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_pub" then 
             for k, v in ipairs( ents.FindByClass( "func_breakable" ) ) do
                 v:Remove()
             end
@@ -2262,7 +2267,7 @@ if SERVER then
                 if controller.Target:IsPlayer() then 
                     if bot:Team() == TEAM_ZOMBIE then 
                         mv:SetForwardSpeed(1200)
-                        if distance > 45000 then
+                        if distance > 45000 and zombieDodge then
                             if controller.strafeAngle == 1 then
                                 mv:SetSideSpeed(1500)
                             elseif controller.strafeAngle == 2 then
@@ -2486,7 +2491,9 @@ if SERVER then
                         end
                     end
                 else 
-                    bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:EyePos() - bot:GetShootPos()):Angle()))
+                    if not bot:IsFrozen() then 
+                        bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:EyePos() - bot:GetShootPos()):Angle()))
+                    end
                 end
                 return
             elseif IsValid(controller.Target) and not controller.Target:IsPlayer() then

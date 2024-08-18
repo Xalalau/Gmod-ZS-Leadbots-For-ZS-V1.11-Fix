@@ -89,6 +89,9 @@ if SERVER then
             if game.GetMap() == "zs_imashouse_b2" and v:GetModel() == "models/props_debris/wood_board04a.mdl" then  
                 v:Remove()
             end
+            if game.GetMap() == "zs_panic_house_v2" and v:GetModel() == "models/props_debris/wood_board06a.mdl" then  
+                v:Remove()
+            end
         end
     end end )
 

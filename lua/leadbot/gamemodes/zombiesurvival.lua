@@ -37,6 +37,9 @@ local INTERMISSION_FAKE_TIMER = 60
 local sigil3Valid = false
 local sigil2Valid = false
 local sigil1Valid = false
+local survivorBreak = false
+local zombiePropCheck = true
+local zombieBreakCheck = true
 resource.AddFile("sound/intermission.mp3")
 
 if SERVER then 
@@ -48,6 +51,18 @@ if SERVER then
         for k, v in ipairs(ents.FindByClass("prop_door_rotating")) do
             v:Remove()
         end
+    end
+
+    if game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_pub" or game.GetMap() == "zs_bog_shityhouse" or game.GetMap() == "zs_ancient_castle_opt" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_gu_frostbite_v2" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_imashouse_b2" then
+        survivorBreak = true
+    end
+
+    if game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_port_v5" or game.GetMap() == "zs_bunkerhouse" then 
+        zombiePropCheck = false
+    end
+
+    if game.GetMap() == "zs_pub" or game.GetMap() == "zs_ascent" or game.GetMap() == "zs_nastierhouse_v3" then
+        zombieBreakCheck = false
     end
 
     if leadbot_mapchanges:GetInt() >= 1 then 
@@ -2054,15 +2069,15 @@ if SERVER then
                 controller.ForgetTarget = CurTime() + 4
             end
 
-            local dt = util.QuickTrace(bot:EyePos(), bot:GetForward() * 45, bot)
+            local dt = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90, bot)
 
-            local dtn = util.QuickTrace(bot:EyePos(), bot:GetForward() * 45 - bot:GetViewOffsetDucked(), bot)
+            local dtn = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 - bot:GetViewOffsetDucked(), bot)
 
-            local dtp = util.QuickTrace(bot:EyePos(), bot:GetForward() * 45 + bot:GetViewOffsetDucked(), bot)
+            local dtp = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 + bot:GetViewOffsetDucked(), bot)
 
-            local dtnse = util.QuickTrace(bot:EyePos(), bot:GetForward() * 45 - bot:GetViewOffsetDucked() - bot:GetViewOffsetDucked() - bot:GetViewOffsetDucked(), bot)
+            local dtnse = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 - bot:GetViewOffsetDucked() - bot:GetViewOffsetDucked() - bot:GetViewOffsetDucked(), bot)
 
-            local dtpse = util.QuickTrace(bot:EyePos(), bot:GetForward() * 45 + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked(), bot)
+            local dtpse = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked(), bot)
 
             if game.GetMap() == "zs_jail_v1" then 
                 if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_door_rotating" then
@@ -2079,71 +2094,57 @@ if SERVER then
             end
 
             if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_breakable" then
-                if bot:Team() == TEAM_ZOMBIE or game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_pub" or game.GetMap() == "zs_bog_shityhouse" or game.GetMap() == "zs_ancient_castle_opt" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_gu_frostbite_v2" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_imashouse_b2" then
+                if bot:Team() == TEAM_ZOMBIE or survivorBreak then
                     controller.Target = dt.Entity
                 end
             end
 
             if IsValid(dtn.Entity) and dtn.Entity:GetClass() == "func_breakable" then
-                if game.GetMap() ~= "zs_pub" then
-                    if game.GetMap() ~= "zs_ascent" then
-                        if game.GetMap() ~= "zs_nastierhouse_v3" then
-                            if bot:Team() == TEAM_ZOMBIE or game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_pub" or game.GetMap() == "zs_bog_shityhouse" or game.GetMap() == "zs_ancient_castle_opt" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_gu_frostbite_v2" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_imashouse_b2" then
-                                controller.Target = dtn.Entity
-                            end
-                        end
+                if not zombieBreakCheck then
+                    if bot:Team() == TEAM_ZOMBIE or survivorBreak then
+                        controller.Target = dtn.Entity
                     end
                 end
             end
 
             if IsValid(dtp.Entity) and dtp.Entity:GetClass() == "func_breakable" then
-                if game.GetMap() ~= "zs_pub" then
-                    if game.GetMap() ~= "zs_ascent" then
-                        if game.GetMap() ~= "zs_nastierhouse_v3" then
-                            if bot:Team() == TEAM_ZOMBIE or game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_pub" or game.GetMap() == "zs_bog_shityhouse" or game.GetMap() == "zs_ancient_castle_opt" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_gu_frostbite_v2" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_imashouse_b2" then
-                                controller.Target = dtp.Entity
-                            end
-                        end
+                if not zombieBreakCheck then
+                    if bot:Team() == TEAM_ZOMBIE or survivorBreak then
+                        controller.Target = dtp.Entity
                     end
                 end
             end
 
             if IsValid(dtnse.Entity) and dtnse.Entity:GetClass() == "func_breakable" then
-                    if game.GetMap() ~= "zs_pub" then
-                        if game.GetMap() ~= "zs_ascent" then
-                            if game.GetMap() ~= "zs_nastierhouse_v3" then
-                                if bot:Team() == TEAM_ZOMBIE or game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_pub" or game.GetMap() == "zs_bog_shityhouse" or game.GetMap() == "zs_ancient_castle_opt" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_gu_frostbite_v2" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_imashouse_b2" then
-                                    controller.Target = dtnse.Entity
-                                end
-                            end
+                    if not zombieBreakCheck then
+                        if bot:Team() == TEAM_ZOMBIE or survivorBreak then
+                            controller.Target = dtnse.Entity
                         end
                     end
                 end
 
             if IsValid(dtpse.Entity) and dtpse.Entity:GetClass() == "func_breakable" then
-                if game.GetMap() ~= "zs_pub" then
-                    if game.GetMap() ~= "zs_ascent" then
-                        if game.GetMap() ~= "zs_nastierhouse_v3" then
-                            if bot:Team() == TEAM_ZOMBIE or game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_pub" or game.GetMap() == "zs_bog_shityhouse" or game.GetMap() == "zs_ancient_castle_opt" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_gu_frostbite_v2" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_imashouse_b2" then
-                                controller.Target = dtpse.Entity
-                            end
-                        end
+                if not zombieBreakCheck then
+                    if bot:Team() == TEAM_ZOMBIE or survivorBreak then
+                        controller.Target = dtpse.Entity
                     end
                 end
             end
 
             if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_physbox" then
-                if bot:Team() == TEAM_ZOMBIE and controller.Target == nil or bot:Team() == TEAM_ZOMBIE and not controller.Target:IsPlayer() then
-                    controller.Target = dt.Entity
+                if bot:Team() == TEAM_ZOMBIE and not controller.Target:IsPlayer() then
+                    if controller.Target:GetClass() ~= "func_breakable" then 
+                        controller.Target = dt.Entity
+                    end
                 end
             end
 
             if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_physics" then
-                if bot:Team() == TEAM_ZOMBIE and controller.Target == nil or bot:Team() == TEAM_ZOMBIE and not controller.Target:IsPlayer() then
+                if bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" then
                     if dt.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
                         if dt.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
-                            if game.GetMap() ~= "zs_port_v5" then 
-                                if game.GetMap() ~= "zs_bunkerhouse" then 
+                            if not zombiePropCheck then
+                                if controller.Target:GetClass() ~= "func_breakable" then 
                                     controller.Target = dt.Entity
                                 end
                             end
@@ -2154,14 +2155,12 @@ if SERVER then
 
             if bot:GetMoveType() == MOVETYPE_LADDER then 
                 if IsValid(dtpse.Entity) and dtpse.Entity:GetClass() == "prop_physics" then
-                    if bot:Team() == TEAM_ZOMBIE and controller.Target == nil or bot:Team() == TEAM_ZOMBIE and not controller.Target:IsPlayer() then
+                    if bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" then
                         if dtpse.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
                             if dtpse.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
-                                if game.GetMap() ~= "zs_buntshot" then 
-                                    if game.GetMap() ~= "zs_port_v5" then 
-                                        if game.GetMap() ~= "zs_bunkerhouse" then 
-                                            controller.Target = dtpse.Entity
-                                        end
+                                if not zombiePropCheck then
+                                    if controller.Target:GetClass() ~= "func_breakable" then 
+                                        controller.Target = dt.Entity
                                     end
                                 end
                             end
@@ -2406,7 +2405,7 @@ if SERVER then
                     if bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and controller.Target:GetPos():DistToSqr(bot:GetPos()) <= 45000 then
                         mv:SetForwardSpeed(-1200)
                     end 
-                    if bot:GetVelocity():Length2DSqr() <= 225 and !IsValid(controller.Target) or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and (bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1) or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and controller.Target:GetPos():DistToSqr(bot:GetPos()) > 45000 then
+                    if bot:GetVelocity():Length2DSqr() <= 225 and !IsValid(controller.Target) or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and (bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1) and controller.Target:IsPlayer() or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and controller.Target:GetPos():DistToSqr(bot:GetPos()) > 45000 and controller.Target:IsPlayer() then
                         if controller.strafeAngle == 1 then
                             mv:SetSideSpeed(1500)
                         elseif controller.strafeAngle == 2 then

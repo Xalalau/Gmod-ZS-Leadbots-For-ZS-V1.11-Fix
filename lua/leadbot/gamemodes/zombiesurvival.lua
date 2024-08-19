@@ -44,57 +44,75 @@ local playerCSSpeed = 200
 resource.AddFile("sound/intermission.mp3")
 
 if SERVER then 
-    timer.Simple(3, function() for k, v in ipairs(ents.FindByClass("func_door_rotating")) do
-        v:Remove()
-    end
-        
-    if game.GetMap() ~= "zs_jail_v1" then 
-        for k, v in ipairs(ents.FindByClass("prop_door_rotating")) do
+    timer.Simple(3, function() 
+        for k, v in ipairs(ents.FindByClass("func_door_rotating")) do
             v:Remove()
         end
-    end
-
-    if game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_pub" or game.GetMap() == "zs_bog_shityhouse" or game.GetMap() == "zs_ancient_castle_opt" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_gu_frostbite_v2" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_imashouse_b2" then
-        survivorBreak = true
-    end
-
-    if game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_port_v5" or game.GetMap() == "zs_bunkerhouse" then 
-        zombiePropCheck = false
-    end
-
-    if game.GetMap() == "zs_pub" or game.GetMap() == "zs_ascent" or game.GetMap() == "zs_nastierhouse_v3" then
-        zombieBreakCheck = false
-    end
-
-    if leadbot_mapchanges:GetInt() >= 1 then 
-        for k, v in ipairs(ents.FindByClass("func_useableladder")) do
-            v:Remove()
-        end
-
-        if game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" or game.GetMap() == "zs_fen" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_pub" then 
-            for k, v in ipairs( ents.FindByClass( "func_breakable" ) ) do
+            
+        if game.GetMap() ~= "zs_jail_v1" then 
+            for k, v in ipairs(ents.FindByClass("prop_door_rotating")) do
                 v:Remove()
             end
         end
 
-        if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_house_number_23" then 
-            for k, v in ipairs( ents.FindByClass( "func_physbox" ) ) do
-                v:Remove()
-            end
+        if game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_pub" or game.GetMap() == "zs_bog_shityhouse" or game.GetMap() == "zs_ancient_castle_opt" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_gu_frostbite_v2" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_imashouse_b2" then
+            survivorBreak = true
         end
 
-        for k, v in ipairs( ents.FindByClass( "prop_physics" ) ) do
-            if v:GetModel() == "models/combine_apc.mdl" or v:GetModel() == "models/props_junk/vent001.mdl" or v:GetModel() == "models/props/cs_militia/refrigerator01.mdl" then 
-                v:Remove()
-            end
-            if game.GetMap() == "zs_imashouse_b2" and v:GetModel() == "models/props_debris/wood_board04a.mdl" then  
-                v:Remove()
-            end
-            if game.GetMap() == "zs_panic_house_v2" and v:GetModel() == "models/props_debris/wood_board06a.mdl" then  
-                v:Remove()
-            end
+        if game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_port_v5" or game.GetMap() == "zs_bunkerhouse" then 
+            zombiePropCheck = false
         end
-    end end )
+
+        if game.GetMap() == "zs_pub" or game.GetMap() == "zs_ascent" or game.GetMap() == "zs_nastierhouse_v3" then
+            zombieBreakCheck = false
+        end
+
+        if leadbot_mapchanges:GetInt() >= 1 then 
+            for k, v in ipairs(ents.FindByClass("func_useableladder")) do
+                v:Remove()
+            end
+
+            if game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" or game.GetMap() == "zs_fen" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_pub" then 
+                for k, v in ipairs( ents.FindByClass( "func_breakable" ) ) do
+                    v:Remove()
+                end
+            end
+
+            if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_house_number_23" then 
+                for k, v in ipairs( ents.FindByClass( "func_physbox" ) ) do
+                    v:Remove()
+                end
+            end
+
+            for k, v in ipairs( ents.FindByClass( "prop_physics" ) ) do
+                if v:GetModel() == "models/combine_apc.mdl" or v:GetModel() == "models/props_junk/vent001.mdl" or v:GetModel() == "models/props/cs_militia/refrigerator01.mdl" then 
+                    v:Remove()
+                end
+                if game.GetMap() == "zs_imashouse_b2" and v:GetModel() == "models/props_debris/wood_board04a.mdl" then  
+                    v:Remove()
+                end
+                if game.GetMap() == "zs_panic_house_v2" and v:GetModel() == "models/props_debris/wood_board06a.mdl" then  
+                    v:Remove()
+                end
+            end
+
+            if game.GetMap() == "zs_snow" then 
+                barrierLeadBot = ents.Create("prop_physics")
+                barrierLeadBot:SetModel("models/props_c17/fence03a.mdl")
+                barrierLeadBot:SetPos(Vector(-125.453964, 250.133347, -293.968750))
+                barrierLeadBot:SetAngles(Angle(0, 90, 0))
+                barrierLeadBot:Spawn()
+                barrierLeadBot:Fire("DisableMotion", bot, 0)
+
+                barrierLeadBot2 = ents.Create("prop_physics")
+                barrierLeadBot2:SetModel("models/props_c17/fence03a.mdl")
+                barrierLeadBot2:SetPos(Vector(-224.436020, 1804.177734, -551.968750))
+                barrierLeadBot2:SetAngles(Angle(0, 90, 0))
+                barrierLeadBot2:Spawn()
+                barrierLeadBot2:Fire("DisableMotion", bot, 0)
+            end
+        end 
+    end )
 
     local player_meta = FindMetaTable("Player")
     local oldInfo = player_meta.GetInfo

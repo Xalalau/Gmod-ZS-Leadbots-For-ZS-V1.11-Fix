@@ -72,15 +72,18 @@ if SERVER then
                 v:Remove()
             end
 
-            if game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" or game.GetMap() == "zs_fen" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_pub" then 
+            if game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" or game.GetMap() == "zs_fen" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_pub" then 
                 for k, v in ipairs( ents.FindByClass( "func_breakable" ) ) do
                     v:Remove()
                 end
             end
 
-            if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_house_number_23" then 
-                for k, v in ipairs( ents.FindByClass( "func_physbox" ) ) do
+            for k, v in ipairs( ents.FindByClass( "func_physbox" ) ) do
+                if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_house_number_23" then 
                     v:Remove()
+                end
+                if game.GetMap() == "zs_termites_v2" then 
+                    v:Fire("EnableMotion")
                 end
             end
 
@@ -94,6 +97,9 @@ if SERVER then
                 if game.GetMap() == "zs_panic_house_v2" and v:GetModel() == "models/props_debris/wood_board06a.mdl" then  
                     v:Remove()
                 end
+                if game.GetMap() == "zs_termites_v2" then 
+                    v:Fire("EnableMotion")
+                end
             end
 
             if game.GetMap() == "zs_snow" then 
@@ -102,14 +108,14 @@ if SERVER then
                 barrierLeadBot:SetPos(Vector(-125.453964, 250.133347, -293.968750))
                 barrierLeadBot:SetAngles(Angle(0, 90, 0))
                 barrierLeadBot:Spawn()
-                barrierLeadBot:Fire("DisableMotion", bot, 0)
+                barrierLeadBot:Fire("DisableMotion")
 
                 barrierLeadBot2 = ents.Create("prop_physics")
                 barrierLeadBot2:SetModel("models/props_c17/fence03a.mdl")
                 barrierLeadBot2:SetPos(Vector(-224.436020, 1804.177734, -551.968750))
                 barrierLeadBot2:SetAngles(Angle(0, 90, 0))
                 barrierLeadBot2:Spawn()
-                barrierLeadBot2:Fire("DisableMotion", bot, 0)
+                barrierLeadBot2:Fire("DisableMotion")
             end
         end 
     end )

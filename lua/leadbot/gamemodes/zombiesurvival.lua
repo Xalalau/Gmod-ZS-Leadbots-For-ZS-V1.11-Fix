@@ -409,7 +409,7 @@ if SERVER then
                 if ply:IsBot() then
                     if GetConVar("leadbot_quota"):GetInt() > 1 and leadbot_hordes:GetInt() < 1 then
                         for k, v in ipairs(player.GetBots()) do 
-                            v:Redeem()
+                            --v:Redeem()
                             v:SetMaxHealth(1000000)
                             if leadbot_mapchanges:GetInt() >= 1 then 
                                 if game.GetMap() == "zs_buntshot" then 
@@ -2385,15 +2385,6 @@ if SERVER then
                 end
             end
 
-            if controller.PosGen and !IsValid(controller.Target) and bot:LBGetStrategy() <= 1 and bot:Team() == TEAM_ZOMBIE then 
-                for k, v in ipairs(player.GetAll()) do 
-                    if IsValid(v) and v:Team() == TEAM_SURVIVORS and v:GetPos():DistToSqr(bot:GetPos()) < controller.PosGen:DistToSqr(bot:GetPos()) and v:GetPos().z == bot:GetPos().z then 
-                        controller.PosGen = v:GetPos()
-                        controller.LastSegmented = CurTime() + 4000000
-                    end
-                end
-            end
-
             -- movement also has a similar issue, but it's more severe...
             if !controller.P then
                 return
@@ -2709,37 +2700,60 @@ if SERVER then
         end
     end )
 
-    timer.Create("zombieIgnore", 5, -1, function() if SERVER then
-        for k, v in ipairs(player.GetBots()) do
-            if v:Team() == TEAM_ZOMBIE and team.NumPlayers(TEAM_SURVIVORS) ~= 0 then 
-                for _, ply in RandomPairs(player.GetAll()) do
-                    if ply:Team() == TEAM_SURVIVORS then
-                        local controller = v.ControllerBot 
-                        if IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:Health() <= 0 then 
-                            controller.Target = ply
-                            controller.ForgetTarget = CurTime() + 5
+    timer.Create("zombieIgnore", 5, -1, function() 
+        if SERVER then
+            for k, v in ipairs(player.GetBots()) do
+                if v:Team() == TEAM_ZOMBIE and team.NumPlayers(TEAM_SURVIVORS) ~= 0 then 
+                    for _, ply in RandomPairs(player.GetAll()) do
+                        if ply:Team() == TEAM_SURVIVORS then
+                            local controller = v.ControllerBot 
+                            if IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:Health() <= 0 then 
+                                controller.Target = ply
+                                controller.ForgetTarget = CurTime() + 5
+                            end
                         end
                     end
                 end
             end
-        end
-    end end )
+        end 
+    end )
 
-    timer.Create("zombieStuckDetector", 20, -1, function() if SERVER then 
-        for k, v in ipairs(player.GetBots()) do
-            local controller = v.ControllerBot 
-            if v:Team() == TEAM_ZOMBIE then
-                if v:GetVelocity():Length2DSqr() <= 225 and not v:IsFrozen() and v:Team() == TEAM_ZOMBIE then
-                    if controller.Target == nil or IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:Health() <= 0 or v:GetZombieClass() > 3 or v:GetVelocity():Length2DSqr() == 0 then 
-                        v:Kill()
+    timer.Create("zombieStuckDetector", 20, -1, function() 
+        if SERVER then 
+            for k, v in ipairs(player.GetBots()) do
+                local controller = v.ControllerBot 
+                if v:Team() == TEAM_ZOMBIE then
+                    if v:GetVelocity():Length2DSqr() <= 225 and not v:IsFrozen() and v:Team() == TEAM_ZOMBIE then
+                        if controller.Target == nil or IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:Health() <= 0 or v:GetZombieClass() > 3 or v:GetVelocity():Length2DSqr() == 0 then 
+                            v:Kill()
+                        end
                     end
                 end
             end
+        end 
+    end )
+
+    timer.Create("zombieNearDetector", 10, -1, function() 
+        if SERVER then 
+            for _, z in ipairs(player.GetBots()) do  
+                local controller = z.ControllerBot 
+                if controller.PosGen and !IsValid(controller.Target) then 
+                    if z:Team() == TEAM_ZOMBIE and z:LBGetStrategy() <= 1 then 
+                        for _, h in ipairs(player.GetAll()) do 
+                            if IsValid(h) and h:Team() == TEAM_SURVIVORS and h:GetPos():DistToSqr(z:GetPos()) < controller.PosGen:DistToSqr(z:GetPos()) then 
+                                controller.PosGen = h:GetPos()
+                                controller.LastSegmented = CurTime() + 4000000
+                            end
+                        end
+                    end
+                end
+            end 
         end
-    end end )
+    end )
 
     timer.Start("zombieIgnore")
     timer.Start("zombieStuckDetector")
+    timer.Start("zombieNearDetector")
 
     if !DEBUG then return end
 end

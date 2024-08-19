@@ -40,6 +40,7 @@ local sigil1Valid = false
 local survivorBreak = false
 local zombiePropCheck = true
 local zombieBreakCheck = true
+local playerCSSpeed = 200
 resource.AddFile("sound/intermission.mp3")
 
 if SERVER then 
@@ -378,7 +379,7 @@ if SERVER then
     end
 
     if not game.SinglePlayer() and leadbot_hordes:GetInt() >= 1 then
-        timer.Create("Hordes", 60, 9999, function() 
+        timer.Create("Hordes", 60, -1, function() 
             RunConsoleCommand("leadbot_add", "1")
             INTERMISSION = 0
         end )
@@ -2621,10 +2622,12 @@ if SERVER then
 
             if leadbot_cs:GetInt() >= 1 then 
                 for k, v in ipairs(player.GetAll()) do
-                    if v:Team() == TEAM_ZOMBIE then 
-                        if v:HasGodMode() then 
-                            v:SetMaxHealth(1000)
-                            v:SetHealth(1000)
+                    if v:Team() == TEAM_ZOMBIE then
+                        playerCSSpeed = playerCSSpeed + 10
+                        if v:Health() ~= 1000 then 
+                            GAMEMODE:SetPlayerSpeed(v, math.min(playerCSSpeed, 200))
+                        else
+                            GAMEMODE:SetPlayerSpeed(v, 200)
                         end
                         if v:GetZombieClass() ~= 1 then 
                             v:Kill()
@@ -2650,6 +2653,12 @@ if SERVER then
 
     hook.Add("PlayerSpawn", "LeadBot_Spawn", function(bot)
         if SERVER then 
+            if bot:Team() == TEAM_ZOMBIE and leadbot_cs:GetInt() >= 1 then 
+                timer.Create(bot:SteamID64() .. " csHealth", 1, 1, function() 
+                    bot:SetMaxHealth(1000)
+                    bot:SetHealth(1000) 
+                end )
+            end
             if bot:IsLBot() then
                 LeadBot.PlayerSpawn(bot)
             end
@@ -2665,6 +2674,7 @@ if SERVER then
 
             if leadbot_cs:GetInt() >= 1 then 
                 if ply:IsPlayer() and bot:IsPlayer() and ply:Team() == TEAM_ZOMBIE and bot:Team() == TEAM_SURVIVORS then 
+                    playerCSSpeed = 1
                     ply:SetVelocity(ply:GetVelocity() + ( force / 4 ) )
                 end
             end
@@ -2699,7 +2709,7 @@ if SERVER then
         end
     end )
 
-    timer.Create("zombieIgnore", 5, 9999, function() if SERVER then
+    timer.Create("zombieIgnore", 5, -1, function() if SERVER then
         for k, v in ipairs(player.GetBots()) do
             if v:Team() == TEAM_ZOMBIE and team.NumPlayers(TEAM_SURVIVORS) ~= 0 then 
                 for _, ply in RandomPairs(player.GetAll()) do
@@ -2715,7 +2725,7 @@ if SERVER then
         end
     end end )
 
-    timer.Create("zombieStuckDetector", 20, 9999, function() if SERVER then 
+    timer.Create("zombieStuckDetector", 20, -1, function() if SERVER then 
         for k, v in ipairs(player.GetBots()) do
             local controller = v.ControllerBot 
             if v:Team() == TEAM_ZOMBIE then

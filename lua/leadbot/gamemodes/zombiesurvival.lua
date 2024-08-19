@@ -2751,7 +2751,7 @@ if SERVER then
         end 
     end )
 
-    timer.Create("zombieNearDetector", 10, -1, function() 
+    timer.Create("zombieNearDetector", 20, -1, function() 
         if SERVER then 
             for _, z in ipairs(player.GetBots()) do  
                 local controller = z.ControllerBot 

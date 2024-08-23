@@ -1881,7 +1881,7 @@ if SERVER then
                             if game.GetMap() == "zs_panic_house_v2" then 
                                 bot:SetEyeAngles(Angle(0, 0 + hallvar, 0))
                             elseif game.GetMap() == "zs_lila_panic_v3" then 
-                                bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
+                                bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
                             elseif game.GetMap() == "zs_bog_pubremakev1" then 
                                 bot:SetEyeAngles(Angle(0, 180 + doorvar, 0))
                             elseif game.GetMap() == "zs_bunkerhouse" then 
@@ -1965,7 +1965,7 @@ if SERVER then
                             if game.GetMap() == "zs_panic_house_v2" then 
                                 bot:SetEyeAngles(Angle(0, 90 + doorvar, 0))
                             elseif game.GetMap() == "zs_lila_panic_v3" then 
-                                bot:SetEyeAngles(Angle(0, 0 + doorvar, 0))
+                                bot:SetEyeAngles(Angle(0, 0 + openvar, 0))
                             elseif game.GetMap() == "zs_bog_pubremakev1" then 
                                 bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
                             elseif game.GetMap() == "zs_bunkerhouse" then 

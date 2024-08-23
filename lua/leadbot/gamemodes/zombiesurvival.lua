@@ -139,6 +139,14 @@ if SERVER then
         end
     end
 
+    function player_meta.LBGetSurvSkill(self)
+        if self.LeadBot_Config then
+            return self.LeadBot_Config[5]
+        else
+            return 0
+        end
+    end
+
     function player_meta.LBGetModel(self)
         if self.LeadBot_Config then
             return self.LeadBot_Config[1]
@@ -368,6 +376,8 @@ if SERVER then
                 strategy = math.random(0, LeadBot.Strategies)
             end
 
+            survskill = math.random(0, 1)
+
             if LeadBot.PlayerColor ~= "default" then
                 if model == "" then
                     if GetConVar("leadbot_models"):GetString() ~= "" then
@@ -388,7 +398,7 @@ if SERVER then
                 color = Vector(0.24, 0.34, 0.41)
             end
 
-            bot.LeadBot_Config = {model, color, weaponcolor, strategy}
+            bot.LeadBot_Config = {model, color, weaponcolor, strategy, survskill}
 
             -- for legacy purposes, will be removed soon when gamemodes are updated
             bot.BotStrategy = strategy
@@ -867,7 +877,7 @@ if SERVER then
                             end
                         end
                     else
-                        if target:IsPlayer() and target == prt.Entity then 
+                        if target:IsPlayer() and target == prt.Entity and bot:LBGetStrategy() <= 1 then 
                             if bot:GetZombieClass() == 3 or bot:GetZombieClass() == 8 then
                                 if target:GetPos():DistToSqr(bot:GetPos()) <= 90000 then 
                                     buttons = buttons + IN_ATTACK2
@@ -883,7 +893,7 @@ if SERVER then
                     end
                 end
 
-                if !IsValid(target) then
+                if !IsValid(target) and bot:LBGetStrategy() <= 1 then
                     if math.random(100) == 1 then 
                         if bot:IsOnGround() and ( bot:GetZombieClass() > 3 or bot:GetZombieClass() < 3 ) and ( bot:GetZombieClass() > 8 or bot:GetZombieClass() < 8 ) then
                             buttons = buttons + IN_ATTACK2
@@ -2218,7 +2228,9 @@ if SERVER then
             if !IsValid(controller.Target) and (!controller.PosGen or bot:GetPos():DistToSqr(controller.PosGen) < 1000 or controller.LastSegmented < CurTime()) then
             -- find a random spot on the map if human, and then do it again in 5 seconds!
                 if bot:Team() == TEAM_SURVIVORS and bot:LBGetStrategy() == 0 then
-                    bot:SelectWeapon("weapon_zs_swissarmyknife")
+                    if bot:LBGetSurvSkill() == 0 then 
+                        bot:SelectWeapon("weapon_zs_swissarmyknife")
+                    end
                     controller.PosGen = controller:FindSpot("random", {radius = 1000000})
                     controller.LastSegmented = CurTime() + 5
                 elseif bot:Team() == TEAM_SURVIVORS and bot:LBGetStrategy() == 1 then 
@@ -2318,7 +2330,7 @@ if SERVER then
                 if controller.Target:IsPlayer() then 
                     if bot:Team() == TEAM_ZOMBIE then 
                         mv:SetForwardSpeed(1200)
-                        if distance > 45000 then
+                        if distance > 45000 and bot:LBGetStrategy() <= 1 then
                             if controller.strafeAngle == 1 then
                                 mv:SetSideSpeed(1500)
                             elseif controller.strafeAngle == 2 then
@@ -2343,11 +2355,13 @@ if SERVER then
                                 if distance <= 180000 then
                                     mv:SetForwardSpeed(-1200)
                                 end
-                             end
-                            if controller.strafeAngle == 1 then
-                                mv:SetSideSpeed(1500)
-                            elseif controller.strafeAngle == 2 then
-                                mv:SetSideSpeed(-1500)
+                            end
+                            if bot:LBGetSurvSkill() == 0 then
+                                if controller.strafeAngle == 1 then
+                                    mv:SetSideSpeed(1500)
+                                elseif controller.strafeAngle == 2 then
+                                    mv:SetSideSpeed(-1500)
+                                end
                             end
                         else
                             if distance <= 45000 then 
@@ -2462,11 +2476,17 @@ if SERVER then
                 end
 
                 if controller.NextCenter > CurTime() then
-                    if !IsValid(controller.Target) and bot:GetVelocity():Length2DSqr() <= 225 and bot:GetMoveType() ~= MOVETYPE_LADDER and not bot:IsFrozen() then
+                    if bot:GetVelocity():Length2DSqr() <= 10000 and ( !IsValid(controller.Target) and bot:GetMoveType() ~= MOVETYPE_LADDER and not bot:IsFrozen() or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and bot:LBGetStrategy() == 0 ) then
                         if controller.strafeAngle == 1 then
                             mv:SetSideSpeed(1500)
+                            if bot:LBGetSurvSkill() == 1 then 
+                                mv:SetForwardSpeed(0)
+                            end
                         elseif controller.strafeAngle == 2 then
                             mv:SetSideSpeed(-1500)
+                            if bot:LBGetSurvSkill() == 1 then 
+                                mv:SetForwardSpeed(0)
+                            end
                         end
                     end
                 end

@@ -28,6 +28,7 @@ local leadbot_hregen = CreateConVar("leadbot_hregen", "0", {FCVAR_ARCHIVE}, "If 
 local leadbot_freeroam = CreateConVar("leadbot_freeroam", "0", {FCVAR_ARCHIVE}, "If you want survivor bots to run around instead of camp", 0 , 1)
 local leadbot_zcheats = CreateConVar("leadbot_zcheats", "0", {FCVAR_ARCHIVE}, "If you want zombie bots to cheat a little so that they're better at killing humans'", 0 , 1)
 local leadbot_collision = CreateConVar("leadbot_collision", "0", {FCVAR_ARCHIVE}, "If you want bots to not collide with each other or others", 0 , 1)
+local leadbot_knockback = CreateConVar("leadbot_knockback", "1", {FCVAR_ARCHIVE}, "If you want to not experience any knockback", 0 , 1)
 local leadbot_mapchanges = CreateConVar("leadbot_mapchanges", "0", {FCVAR_ARCHIVE}, "If you want certain things to be removed from certain maps in order for bots to not get stuck and/or confused", 0, 1)
 local leadbot_cs = CreateConVar("leadbot_cs", "0", {FCVAR_ARCHIVE}, "If you want THE counter strike ZM experience", 0 , 1)
 local DEBUG = false
@@ -427,7 +428,7 @@ if SERVER then
     hook.Add( "PlayerInitialSpawn", "BotSpawnLogic", function( ply )
         if SERVER then 
             if not game.SinglePlayer() then 
-                if not ply:IsBot() and leadbot_zchance:GetInt() == 0 and INFLICTION < 0.5 or not ply:IsBot() and leadbot_zchance:GetInt() == 0 and (CurTime() <= GetConVar("zs_roundtime"):GetInt()*0.5 and not GetConVar("zs_human_deadline"):GetBool()) then 
+                if not ply:IsBot() and leadbot_zchance:GetInt() < 1 and INFLICTION < 0.5 or not ply:IsBot() and leadbot_zchance:GetInt() < 1 and (CurTime() <= GetConVar("zs_roundtime"):GetInt()*0.5 and not GetConVar("zs_human_deadline"):GetBool()) then 
                     timer.Simple(2, function() 
                         ply:Redeem() 
                         if leadbot_mapchanges:GetInt() >= 1 then 
@@ -2693,6 +2694,9 @@ if SERVER then
                     bot:SetMaxHealth(1000)
                     bot:SetHealth(1000) 
                 end )
+            end
+            if leadbot_knockback:GetInt() < 1 then 
+                bot:AddEFlags(EFL_NO_DAMAGE_FORCES)
             end
             if bot:IsLBot() then
                 LeadBot.PlayerSpawn(bot)

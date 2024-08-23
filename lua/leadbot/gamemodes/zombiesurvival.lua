@@ -2048,12 +2048,6 @@ if SERVER then
                     end
                 end
 
-            if leadbot_collision:GetInt() < 1 then
-                bot:SetNoCollideWithTeammates(true)
-            else 
-                bot:SetNoCollideWithTeammates(false)
-            end
-
             if bot:Team() == TEAM_ZOMBIE then 
                 if bot:GetZombieClass() > 5 then 
                     if bot:GetZombieClass() == 8 and leadbot_zcheats:GetInt() >= 1 then 
@@ -2680,6 +2674,16 @@ if SERVER then
 
             if team.NumPlayers(TEAM_ZOMBIE) >= 1 and team.NumPlayers(TEAM_ZOMBIE) < player.GetCount() then 
                 INTERMISSION = 0
+            end
+
+            if leadbot_collision:GetInt() < 1 then
+                for k, v in ipairs(player.GetAll()) do
+                    v:SetNoCollideWithTeammates(true)
+                end
+            else 
+                for k, v in ipairs(player.GetAll()) do
+                    v:SetNoCollideWithTeammates(false)
+                end
             end
 
             InfiniteAmmoForSurvivorBots()

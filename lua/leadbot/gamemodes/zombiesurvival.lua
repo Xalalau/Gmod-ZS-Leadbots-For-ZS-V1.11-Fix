@@ -2722,7 +2722,12 @@ if SERVER then
 
     hook.Add( "PlayerDeath", "SurvivorBotHealPerKill", function( victim, inflictor, attacker )
         if SERVER then
-            timer.Create(victim:SteamID64().."secondwindstopper", 2.1, 1, function()
+            timer.Create(victim:SteamID64().."secondwindstopper1", 2.1, 1, function()
+                if IsValid(victim) and victim:IsBot() and victim:Alive() and victim:Team() == TEAM_ZOMBIE then
+                    victim:Kill()
+                end
+            end)
+            timer.Create(victim:SteamID64().."secondwindstopper2", 2.6, 1, function()
                 if IsValid(victim) and victim:IsBot() and victim:Alive() and victim:Team() == TEAM_ZOMBIE then
                     victim:Kill()
                 end

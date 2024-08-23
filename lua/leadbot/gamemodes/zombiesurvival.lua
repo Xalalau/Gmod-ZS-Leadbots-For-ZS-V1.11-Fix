@@ -2476,7 +2476,7 @@ if SERVER then
                 end
 
                 if controller.NextCenter > CurTime() then
-                    if bot:GetVelocity():Length2DSqr() <= 10000 and ( !IsValid(controller.Target) and bot:GetMoveType() ~= MOVETYPE_LADDER and not bot:IsFrozen() or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and bot:LBGetStrategy() == 0 ) then
+                    if bot:GetVelocity():Length2DSqr() <= 10000 and ( !IsValid(controller.Target) and bot:GetMoveType() ~= MOVETYPE_LADDER and not bot:IsFrozen() or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and bot:LBGetStrategy() == 0 or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and bot:LBGetStrategy() > 1 ) then
                         if controller.strafeAngle == 1 then
                             mv:SetSideSpeed(1500)
                             if bot:LBGetSurvSkill() == 1 then 

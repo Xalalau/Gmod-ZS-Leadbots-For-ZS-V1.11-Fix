@@ -85,7 +85,7 @@ if SERVER then
             end
 
             for k, v in ipairs( ents.FindByClass( "func_physbox" ) ) do
-                if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_embassy" and v:Health() > 1 then 
+                if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_embassy" and v:Health() > 1 or game.GetMap() == "zs_the_pub_beta1" and ( v:GetModel() == "*46" or v:GetModel() == "*47" ) then 
                     v:Remove()
                 end
                 if game.GetMap() == "zs_termites_v2" then 

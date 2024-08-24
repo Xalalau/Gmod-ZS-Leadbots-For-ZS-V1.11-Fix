@@ -39,6 +39,7 @@ local sigil3Valid = false
 local sigil2Valid = false
 local sigil1Valid = false
 local survivorBreak = false
+local survivorBoxBreak = false
 local zombiePropCheck = true
 local zombieBreakCheck = true
 local playerCSSpeed = 200
@@ -56,8 +57,12 @@ if SERVER then
             end
         end
 
-        if game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_pub" or game.GetMap() == "zs_bog_shityhouse" or game.GetMap() == "zs_ancient_castle_opt" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_gu_frostbite_v2" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_imashouse_b2" then
+        if game.GetMap() == "zs_embassy" or game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_pub" or game.GetMap() == "zs_bog_shityhouse" or game.GetMap() == "zs_ancient_castle_opt" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_gu_frostbite_v2" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_imashouse_b2" then
             survivorBreak = true
+        end
+
+        if game.GetMap() == "zs_embassy" then
+            survivorBoxBreak = true
         end
 
         if game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_port_v5" or game.GetMap() == "zs_bunkerhouse" then 
@@ -73,14 +78,14 @@ if SERVER then
                 v:Remove()
             end
 
-            if game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" or game.GetMap() == "zs_fen" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_pub" then 
+            if game.GetMap() == "zs_embassy" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" or game.GetMap() == "zs_fen" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_pub" then 
                 for k, v in ipairs( ents.FindByClass( "func_breakable" ) ) do
                     v:Remove()
                 end
             end
 
             for k, v in ipairs( ents.FindByClass( "func_physbox" ) ) do
-                if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_house_number_23" then 
+                if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_embassy" and v:Health() > 1 then 
                     v:Remove()
                 end
                 if game.GetMap() == "zs_termites_v2" then 
@@ -2175,7 +2180,7 @@ if SERVER then
             end
 
             if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_physbox" then
-                if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) then
+                if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or survivorBoxBreak and dt.Entity:Health() > 1 then
                     controller.Target = dt.Entity
                 end
             end

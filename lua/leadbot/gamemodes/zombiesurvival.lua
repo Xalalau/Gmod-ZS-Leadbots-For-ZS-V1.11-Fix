@@ -153,6 +153,14 @@ if SERVER then
         end
     end
 
+    function player_meta.LBGetZomSkill(self)
+        if self.LeadBot_Config then
+            return self.LeadBot_Config[6]
+        else
+            return 0
+        end
+    end
+
     function player_meta.LBGetModel(self)
         if self.LeadBot_Config then
             return self.LeadBot_Config[1]
@@ -383,6 +391,7 @@ if SERVER then
             end
 
             survskill = math.random(0, 1)
+            zomskill = math.random(0, 1)
 
             if LeadBot.PlayerColor ~= "default" then
                 if model == "" then
@@ -404,7 +413,7 @@ if SERVER then
                 color = Vector(0.24, 0.34, 0.41)
             end
 
-            bot.LeadBot_Config = {model, color, weaponcolor, strategy, survskill}
+            bot.LeadBot_Config = {model, color, weaponcolor, strategy, survskill, zomskill}
 
             -- for legacy purposes, will be removed soon when gamemodes are updated
             bot.BotStrategy = strategy
@@ -860,7 +869,7 @@ if SERVER then
                         end
                     else
                         if math.random(2) == 1 then
-                            if botWeapon:Clip1() ~= 0 then 
+                            if botWeapon:Clip1() ~= 0 and ( not target:IsPlayer() or target:IsPlayer() and ( target:GetPos():DistToSqr(bot:GetPos()) > 75000 and target:GetZombieClass() == 4 or target:GetZombieClass() ~= 4 ) ) then 
                                 buttons = buttons + IN_ATTACK
                             else
                                 if leadbot_hinfammo:GetInt() < 1 then 
@@ -883,7 +892,7 @@ if SERVER then
                             end
                         end
                     else
-                        if target:IsPlayer() and target == prt.Entity and bot:LBGetStrategy() <= 1 then 
+                        if target:IsPlayer() and target == prt.Entity and bot:LBGetZomSkill() == 1 then 
                             if bot:GetZombieClass() == 3 or bot:GetZombieClass() == 8 then
                                 if target:GetPos():DistToSqr(bot:GetPos()) <= 90000 then 
                                     buttons = buttons + IN_ATTACK2
@@ -899,7 +908,7 @@ if SERVER then
                     end
                 end
 
-                if !IsValid(target) and bot:LBGetStrategy() <= 1 then
+                if !IsValid(target) and bot:LBGetZomSkill() == 1 then
                     if math.random(100) == 1 then 
                         if bot:IsOnGround() and ( bot:GetZombieClass() > 3 or bot:GetZombieClass() < 3 ) and ( bot:GetZombieClass() > 8 or bot:GetZombieClass() < 8 ) then
                             buttons = buttons + IN_ATTACK2
@@ -2330,7 +2339,7 @@ if SERVER then
                 if controller.Target:IsPlayer() then 
                     if bot:Team() == TEAM_ZOMBIE then 
                         mv:SetForwardSpeed(1200)
-                        if distance > 45000 and bot:LBGetStrategy() <= 1 then
+                        if distance > 45000 and bot:LBGetZomSkill() == 1 then
                             if controller.strafeAngle == 1 then
                                 mv:SetSideSpeed(1500)
                             elseif controller.strafeAngle == 2 then
@@ -2800,7 +2809,7 @@ if SERVER then
             for _, z in ipairs(player.GetBots()) do  
                 local controller = z.ControllerBot 
                 if controller.PosGen and !IsValid(controller.Target) then 
-                    if z:Team() == TEAM_ZOMBIE and z:LBGetStrategy() <= 1 then 
+                    if z:Team() == TEAM_ZOMBIE and z:LBGetZomSkill() == 1 then 
                         for _, h in ipairs(player.GetAll()) do 
                             if IsValid(h) and h:Team() == TEAM_SURVIVORS and h:GetPos():DistToSqr(z:GetPos()) < controller.PosGen:DistToSqr(z:GetPos()) then 
                                 controller.PosGen = h:GetPos()

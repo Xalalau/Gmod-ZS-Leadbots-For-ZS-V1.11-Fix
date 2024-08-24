@@ -706,7 +706,7 @@ if SERVER then
             local ptpe = util.QuickTrace(bot:GetPos(), bot:GetForward() * 10000000000 + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked(), filterList)
 
             if IsValid(prt.Entity) and prt.Entity:IsPlayer() and prt.Entity:Team() ~= bot:Team() then
-                if prt.Entity:GetZombieClass() ~= 4 or prt.Entity:GetZombieClass() == 4 and prt.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                if prt.Entity:GetZombieClass() ~= 4 or prt.Entity:GetZombieClass() == 4 and prt.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
                     if !IsValid(target) then
                         controller.Target = prt.Entity
                         controller.ForgetTarget = CurTime() + 4
@@ -720,7 +720,7 @@ if SERVER then
             end
 
             if IsValid(pot.Entity) and pot.Entity:IsPlayer() and pot.Entity:Team() ~= bot:Team() then
-                if pot.Entity:GetZombieClass() ~= 4 or pot.Entity:GetZombieClass() == 4 and pot.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                if pot.Entity:GetZombieClass() ~= 4 or pot.Entity:GetZombieClass() == 4 and pot.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
                     if !IsValid(target) then
                         controller.Target = pot.Entity
                         controller.ForgetTarget = CurTime() + 4
@@ -734,7 +734,7 @@ if SERVER then
             end
 
             if IsValid(pet.Entity) and pet.Entity:IsPlayer() and pet.Entity:Team() ~= bot:Team() then
-                if pet.Entity:GetZombieClass() ~= 4 or pet.Entity:GetZombieClass() == 4 and pet.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                if pet.Entity:GetZombieClass() ~= 4 or pet.Entity:GetZombieClass() == 4 and pet.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
                     if !IsValid(target) then
                         controller.Target = pet.Entity
                         controller.ForgetTarget = CurTime() + 4
@@ -748,7 +748,7 @@ if SERVER then
             end
 
             if IsValid(pwrt.Entity) and pwrt.Entity:IsPlayer() and pwrt.Entity:Team() ~= bot:Team() then
-                if pwrt.Entity:GetZombieClass() ~= 4 or pwrt.Entity:GetZombieClass() == 4 and pwrt.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                if pwrt.Entity:GetZombieClass() ~= 4 or pwrt.Entity:GetZombieClass() == 4 and pwrt.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
                     if !IsValid(target) then
                         controller.Target = pwrt.Entity
                         controller.ForgetTarget = CurTime() + 4
@@ -762,7 +762,7 @@ if SERVER then
             end
 
             if IsValid(pwlt.Entity) and pwlt.Entity:IsPlayer() and pwlt.Entity:Team() ~= bot:Team() then
-                if pwlt.Entity:GetZombieClass() ~= 4 or pwlt.Entity:GetZombieClass() == 4 and pwlt.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                if pwlt.Entity:GetZombieClass() ~= 4 or pwlt.Entity:GetZombieClass() == 4 and pwlt.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
                     if !IsValid(target) then
                         controller.Target = pwlt.Entity
                         controller.ForgetTarget = CurTime() + 4
@@ -776,7 +776,7 @@ if SERVER then
             end
 
             if IsValid(pwdrt.Entity) and pwdrt.Entity:IsPlayer() and pwdrt.Entity:Team() ~= bot:Team() then
-                if pwdrt.Entity:GetZombieClass() ~= 4 or pwdrt.Entity:GetZombieClass() == 4 and pwdrt.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                if pwdrt.Entity:GetZombieClass() ~= 4 or pwdrt.Entity:GetZombieClass() == 4 and pwdrt.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
                     if !IsValid(target) then
                         controller.Target = pwdrt.Entity
                         controller.ForgetTarget = CurTime() + 4
@@ -790,7 +790,7 @@ if SERVER then
             end
 
             if IsValid(pwdlt.Entity) and pwdlt.Entity:IsPlayer() and pwdlt.Entity:Team() ~= bot:Team() then
-                if pwdlt.Entity:GetZombieClass() ~= 4 or pwdlt.Entity:GetZombieClass() == 4 and pwdlt.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                if pwdlt.Entity:GetZombieClass() ~= 4 or pwdlt.Entity:GetZombieClass() == 4 and pwdlt.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
                     if !IsValid(target) then
                         controller.Target = pwdlt.Entity
                         controller.ForgetTarget = CurTime() + 4
@@ -804,7 +804,7 @@ if SERVER then
             end
 
             if IsValid(pwdrat.Entity) and pwdrat.Entity:IsPlayer() and pwdrat.Entity:Team() ~= bot:Team() then
-                if pwdrat.Entity:GetZombieClass() ~= 4 or pwdrat.Entity:GetZombieClass() == 4 and pwdrat.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                if pwdrat.Entity:GetZombieClass() ~= 4 or pwdrat.Entity:GetZombieClass() == 4 and pwdrat.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
                     if !IsValid(target) then
                         controller.Target = pwdrat.Entity
                         controller.ForgetTarget = CurTime() + 4
@@ -818,7 +818,7 @@ if SERVER then
             end
 
             if IsValid(pwdlat.Entity) and pwdlat.Entity:IsPlayer() and pwdlat.Entity:Team() ~= bot:Team() then
-                if pwdlat.Entity:GetZombieClass() ~= 4 or pwdlat.Entity:GetZombieClass() == 4 and pwdlat.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                if pwdlat.Entity:GetZombieClass() ~= 4 or pwdlat.Entity:GetZombieClass() == 4 and pwdlat.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
                     if !IsValid(target) then
                         controller.Target = pwdlat.Entity
                         controller.ForgetTarget = CurTime() + 4
@@ -832,7 +832,7 @@ if SERVER then
             end
 
             if IsValid(ptn.Entity) and ptn.Entity:IsPlayer() and ptn.Entity:Team() ~= bot:Team() then
-                if ptn.Entity:GetZombieClass() ~= 4 or ptn.Entity:GetZombieClass() == 4 and ptn.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                if ptn.Entity:GetZombieClass() ~= 4 or ptn.Entity:GetZombieClass() == 4 and ptn.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
                     if !IsValid(target) then
                         controller.Target = ptn.Entity
                         controller.ForgetTarget = CurTime() + 4
@@ -846,7 +846,7 @@ if SERVER then
             end
 
             if IsValid(ptp.Entity) and ptp.Entity:IsPlayer() and ptp.Entity:Team() ~= bot:Team() then
-                if ptp.Entity:GetZombieClass() ~= 4 or ptp.Entity:GetZombieClass() == 4 and ptp.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                if ptp.Entity:GetZombieClass() ~= 4 or ptp.Entity:GetZombieClass() == 4 and ptp.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
                     if !IsValid(target) then
                         controller.Target = ptp.Entity
                         controller.ForgetTarget = CurTime() + 4
@@ -860,7 +860,7 @@ if SERVER then
             end
 
             if IsValid(ptne.Entity) and ptne.Entity:IsPlayer() and ptne.Entity:Team() ~= bot:Team() then
-                if ptne.Entity:GetZombieClass() ~= 4 or ptne.Entity:GetZombieClass() == 4 and ptne.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                if ptne.Entity:GetZombieClass() ~= 4 or ptne.Entity:GetZombieClass() == 4 and ptne.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
                     if !IsValid(target) then
                         controller.Target = ptne.Entity
                         controller.ForgetTarget = CurTime() + 4
@@ -874,7 +874,7 @@ if SERVER then
             end
 
             if IsValid(ptpe.Entity) and ptpe.Entity:IsPlayer() and ptpe.Entity:Team() ~= bot:Team() then
-                if ptpe.Entity:GetZombieClass() ~= 4 or ptpe.Entity:GetZombieClass() == 4 and ptpe.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                if ptpe.Entity:GetZombieClass() ~= 4 or ptpe.Entity:GetZombieClass() == 4 and ptpe.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
                     if !IsValid(target) then
                         controller.Target = ptpe.Entity
                         controller.ForgetTarget = CurTime() + 4
@@ -895,7 +895,7 @@ if SERVER then
                         end
                     else
                         if math.random(2) == 1 then
-                            if botWeapon:Clip1() ~= 0 and ( not target:IsPlayer() or target:IsPlayer() and ( target:GetPos():DistToSqr(bot:GetPos()) > 75000 and target:GetZombieClass() == 4 or target:GetZombieClass() ~= 4 ) ) then 
+                            if botWeapon:Clip1() ~= 0 and ( not target:IsPlayer() or target:IsPlayer() and ( target:GetPos():DistToSqr(bot:GetPos()) > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() ~= 4 ) ) then 
                                 buttons = buttons + IN_ATTACK
                             else
                                 if leadbot_hinfammo:GetInt() < 1 then 

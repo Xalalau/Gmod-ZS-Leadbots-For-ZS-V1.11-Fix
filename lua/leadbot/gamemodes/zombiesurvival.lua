@@ -706,157 +706,183 @@ if SERVER then
             local ptpe = util.QuickTrace(bot:GetPos(), bot:GetForward() * 10000000000 + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked(), filterList)
 
             if IsValid(prt.Entity) and prt.Entity:IsPlayer() and prt.Entity:Team() ~= bot:Team() then
-                if !IsValid(target) then
-                    controller.Target = prt.Entity
-                    controller.ForgetTarget = CurTime() + 4
-                else
-                    if target:GetPos():DistToSqr(bot:GetPos()) > prt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                if prt.Entity:GetZombieClass() ~= 4 or prt.Entity:GetZombieClass() == 4 and prt.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                    if !IsValid(target) then
                         controller.Target = prt.Entity
                         controller.ForgetTarget = CurTime() + 4
+                    else
+                        if target:GetPos():DistToSqr(bot:GetPos()) > prt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                            controller.Target = prt.Entity
+                            controller.ForgetTarget = CurTime() + 4
+                        end
                     end
                 end
             end
 
             if IsValid(pot.Entity) and pot.Entity:IsPlayer() and pot.Entity:Team() ~= bot:Team() then
-                if !IsValid(target) then
-                    controller.Target = pot.Entity
-                    controller.ForgetTarget = CurTime() + 4
-                else
-                    if target:GetPos():DistToSqr(bot:GetPos()) > pot.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                if pot.Entity:GetZombieClass() ~= 4 or pot.Entity:GetZombieClass() == 4 and pot.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                    if !IsValid(target) then
                         controller.Target = pot.Entity
                         controller.ForgetTarget = CurTime() + 4
+                    else
+                        if target:GetPos():DistToSqr(bot:GetPos()) > pot.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                            controller.Target = pot.Entity
+                            controller.ForgetTarget = CurTime() + 4
+                        end
                     end
                 end
             end
 
             if IsValid(pet.Entity) and pet.Entity:IsPlayer() and pet.Entity:Team() ~= bot:Team() then
-                if !IsValid(target) then
-                    controller.Target = pet.Entity
-                    controller.ForgetTarget = CurTime() + 4
-                else
-                    if target:GetPos():DistToSqr(bot:GetPos()) > pet.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                if pet.Entity:GetZombieClass() ~= 4 or pet.Entity:GetZombieClass() == 4 and pet.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                    if !IsValid(target) then
                         controller.Target = pet.Entity
                         controller.ForgetTarget = CurTime() + 4
+                    else
+                        if target:GetPos():DistToSqr(bot:GetPos()) > pet.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                            controller.Target = pet.Entity
+                            controller.ForgetTarget = CurTime() + 4
+                        end
                     end
                 end
             end
 
             if IsValid(pwrt.Entity) and pwrt.Entity:IsPlayer() and pwrt.Entity:Team() ~= bot:Team() then
-                if !IsValid(target) then
-                    controller.Target = pwrt.Entity
-                    controller.ForgetTarget = CurTime() + 4
-                else
-                    if target:GetPos():DistToSqr(bot:GetPos()) > pwrt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                if pwrt.Entity:GetZombieClass() ~= 4 or pwrt.Entity:GetZombieClass() == 4 and pwrt.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                    if !IsValid(target) then
                         controller.Target = pwrt.Entity
                         controller.ForgetTarget = CurTime() + 4
+                    else
+                        if target:GetPos():DistToSqr(bot:GetPos()) > pwrt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                            controller.Target = pwrt.Entity
+                            controller.ForgetTarget = CurTime() + 4
+                        end
                     end
                 end
             end
 
             if IsValid(pwlt.Entity) and pwlt.Entity:IsPlayer() and pwlt.Entity:Team() ~= bot:Team() then
-                if !IsValid(target) then
-                    controller.Target = pwlt.Entity
-                    controller.ForgetTarget = CurTime() + 4
-                else
-                    if target:GetPos():DistToSqr(bot:GetPos()) > pwlt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                if pwlt.Entity:GetZombieClass() ~= 4 or pwlt.Entity:GetZombieClass() == 4 and pwlt.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                    if !IsValid(target) then
                         controller.Target = pwlt.Entity
                         controller.ForgetTarget = CurTime() + 4
+                    else
+                        if target:GetPos():DistToSqr(bot:GetPos()) > pwlt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                            controller.Target = pwlt.Entity
+                            controller.ForgetTarget = CurTime() + 4
+                        end
                     end
                 end
             end
 
             if IsValid(pwdrt.Entity) and pwdrt.Entity:IsPlayer() and pwdrt.Entity:Team() ~= bot:Team() then
-                if !IsValid(target) then
-                    controller.Target = pwdrt.Entity
-                    controller.ForgetTarget = CurTime() + 4
-                else
-                    if target:GetPos():DistToSqr(bot:GetPos()) > pwdrt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                if pwdrt.Entity:GetZombieClass() ~= 4 or pwdrt.Entity:GetZombieClass() == 4 and pwdrt.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                    if !IsValid(target) then
                         controller.Target = pwdrt.Entity
                         controller.ForgetTarget = CurTime() + 4
+                    else
+                        if target:GetPos():DistToSqr(bot:GetPos()) > pwdrt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                            controller.Target = pwdrt.Entity
+                            controller.ForgetTarget = CurTime() + 4
+                        end
                     end
                 end
             end
 
             if IsValid(pwdlt.Entity) and pwdlt.Entity:IsPlayer() and pwdlt.Entity:Team() ~= bot:Team() then
-                if !IsValid(target) then
-                    controller.Target = pwdlt.Entity
-                    controller.ForgetTarget = CurTime() + 4
-                else
-                    if target:GetPos():DistToSqr(bot:GetPos()) > pwdlt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                if pwdlt.Entity:GetZombieClass() ~= 4 or pwdlt.Entity:GetZombieClass() == 4 and pwdlt.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                    if !IsValid(target) then
                         controller.Target = pwdlt.Entity
                         controller.ForgetTarget = CurTime() + 4
+                    else
+                        if target:GetPos():DistToSqr(bot:GetPos()) > pwdlt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                            controller.Target = pwdlt.Entity
+                            controller.ForgetTarget = CurTime() + 4
+                        end
                     end
                 end
             end
 
             if IsValid(pwdrat.Entity) and pwdrat.Entity:IsPlayer() and pwdrat.Entity:Team() ~= bot:Team() then
-                if !IsValid(target) then
-                    controller.Target = pwdrat.Entity
-                    controller.ForgetTarget = CurTime() + 4
-                else
-                    if target:GetPos():DistToSqr(bot:GetPos()) > pwdrat.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                if pwdrat.Entity:GetZombieClass() ~= 4 or pwdrat.Entity:GetZombieClass() == 4 and pwdrat.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                    if !IsValid(target) then
                         controller.Target = pwdrat.Entity
                         controller.ForgetTarget = CurTime() + 4
+                    else
+                        if target:GetPos():DistToSqr(bot:GetPos()) > pwdrat.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                            controller.Target = pwdrat.Entity
+                            controller.ForgetTarget = CurTime() + 4
+                        end
                     end
                 end
             end
 
             if IsValid(pwdlat.Entity) and pwdlat.Entity:IsPlayer() and pwdlat.Entity:Team() ~= bot:Team() then
-                if !IsValid(target) then
-                    controller.Target = pwdlat.Entity
-                    controller.ForgetTarget = CurTime() + 4
-                else
-                    if target:GetPos():DistToSqr(bot:GetPos()) > pwdlat.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                if pwdlat.Entity:GetZombieClass() ~= 4 or pwdlat.Entity:GetZombieClass() == 4 and pwdlat.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                    if !IsValid(target) then
                         controller.Target = pwdlat.Entity
                         controller.ForgetTarget = CurTime() + 4
+                    else
+                        if target:GetPos():DistToSqr(bot:GetPos()) > pwdlat.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                            controller.Target = pwdlat.Entity
+                            controller.ForgetTarget = CurTime() + 4
+                        end
                     end
                 end
             end
 
             if IsValid(ptn.Entity) and ptn.Entity:IsPlayer() and ptn.Entity:Team() ~= bot:Team() then
-                if !IsValid(target) then
-                    controller.Target = ptn.Entity
-                    controller.ForgetTarget = CurTime() + 4
-                else
-                    if target:GetPos():DistToSqr(bot:GetPos()) > ptn.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                if ptn.Entity:GetZombieClass() ~= 4 or ptn.Entity:GetZombieClass() == 4 and ptn.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                    if !IsValid(target) then
                         controller.Target = ptn.Entity
                         controller.ForgetTarget = CurTime() + 4
+                    else
+                        if target:GetPos():DistToSqr(bot:GetPos()) > ptn.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                            controller.Target = ptn.Entity
+                            controller.ForgetTarget = CurTime() + 4
+                        end
                     end
                 end
             end
 
             if IsValid(ptp.Entity) and ptp.Entity:IsPlayer() and ptp.Entity:Team() ~= bot:Team() then
-                if !IsValid(target) then
-                    controller.Target = ptp.Entity
-                    controller.ForgetTarget = CurTime() + 4
-                else
-                    if target:GetPos():DistToSqr(bot:GetPos()) > ptp.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                if ptp.Entity:GetZombieClass() ~= 4 or ptp.Entity:GetZombieClass() == 4 and ptp.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                    if !IsValid(target) then
                         controller.Target = ptp.Entity
                         controller.ForgetTarget = CurTime() + 4
+                    else
+                        if target:GetPos():DistToSqr(bot:GetPos()) > ptp.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                            controller.Target = ptp.Entity
+                            controller.ForgetTarget = CurTime() + 4
+                        end
                     end
                 end
             end
 
             if IsValid(ptne.Entity) and ptne.Entity:IsPlayer() and ptne.Entity:Team() ~= bot:Team() then
-                if !IsValid(target) then
-                    controller.Target = ptne.Entity
-                    controller.ForgetTarget = CurTime() + 4
-                else
-                    if target:GetPos():DistToSqr(bot:GetPos()) > ptne.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                if ptne.Entity:GetZombieClass() ~= 4 or ptne.Entity:GetZombieClass() == 4 and ptne.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                    if !IsValid(target) then
                         controller.Target = ptne.Entity
                         controller.ForgetTarget = CurTime() + 4
+                    else
+                        if target:GetPos():DistToSqr(bot:GetPos()) > ptne.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                            controller.Target = ptne.Entity
+                            controller.ForgetTarget = CurTime() + 4
+                        end
                     end
                 end
             end
 
             if IsValid(ptpe.Entity) and ptpe.Entity:IsPlayer() and ptpe.Entity:Team() ~= bot:Team() then
-                if !IsValid(target) then
-                    controller.Target = ptpe.Entity
-                    controller.ForgetTarget = CurTime() + 4
-                else
-                    if target:GetPos():DistToSqr(bot:GetPos()) > ptpe.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                if ptpe.Entity:GetZombieClass() ~= 4 or ptpe.Entity:GetZombieClass() == 4 and ptpe.Entity:GetPos():DistToSqr(bot:GetPos()) > 75000 then
+                    if !IsValid(target) then
                         controller.Target = ptpe.Entity
                         controller.ForgetTarget = CurTime() + 4
+                    else
+                        if target:GetPos():DistToSqr(bot:GetPos()) > ptpe.Entity:GetPos():DistToSqr(bot:GetPos()) then  
+                            controller.Target = ptpe.Entity
+                            controller.ForgetTarget = CurTime() + 4
+                        end
                     end
                 end
             end
@@ -2485,7 +2511,7 @@ if SERVER then
                 end
 
                 if controller.NextCenter > CurTime() then
-                    if bot:GetVelocity():Length2DSqr() <= 10000 and ( !IsValid(controller.Target) and bot:GetMoveType() ~= MOVETYPE_LADDER and not bot:IsFrozen() or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and ( bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 ) or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and bot:LBGetStrategy() > 1 ) then
+                    if curgoal.area:GetAttributes() ~= NAV_MESH_JUMP and bot:GetVelocity():Length2DSqr() <= 10000 and ( !IsValid(controller.Target) and bot:GetMoveType() ~= MOVETYPE_LADDER and not bot:IsFrozen() or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and ( bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 ) or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and bot:LBGetStrategy() > 1 ) then
                         if controller.strafeAngle == 1 then
                             mv:SetSideSpeed(1500)
                             if bot:LBGetSurvSkill() == 1 then 

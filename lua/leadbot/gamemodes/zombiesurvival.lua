@@ -538,7 +538,7 @@ if SERVER then
             bot:StripWeapon("weapon_zs_slugrifle")
 
             if leadbot_cs:GetInt() < 1 then 
-                if INFLICTION < 0.5 then 
+                if INFLICTION < ZombieClasses[3].Threshold then 
                     if bot:GetZombieClass() ~= 9 then 
                         if classes > 3 and INFLICTION >= ZombieClasses[1].Threshold then 
                             bot:SetZombieClass(1)
@@ -552,7 +552,7 @@ if SERVER then
                             bot:SetZombieClass(1)
                         end
                     end
-                elseif INFLICTION >= 0.5 and INFLICTION < 0.75 then
+                elseif INFLICTION >= ZombieClasses[3].Threshold and INFLICTION < ZombieClasses[4].Threshold then
                     if HALFclasses > 7 then 
                         bot:SetZombieClass(2)
                     else
@@ -576,7 +576,7 @@ if SERVER then
                             end
                         end
                     end
-                elseif INFLICTION >= 0.75 then
+                elseif INFLICTION >= INFLICTION < ZombieClasses[4].Threshold then
                     if UNclasses > 12 then 
                         bot:SetZombieClass(2)
                     elseif UNclasses <= 12 and UNclasses > 8 then

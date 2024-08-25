@@ -621,7 +621,7 @@ if SERVER then
             local controller = ply:GetController()
             local hurtdistance = ply:GetPos():DistToSqr(bot:GetPos())
                 
-            if hp <= dmg and math.random(2) == 1 and bot:IsPlayer() then
+            --[[if hp <= dmg and math.random(2) == 1 and bot:IsPlayer() then
                 LeadBot.TalkToMe(bot, "taunt")
             end
 
@@ -631,7 +631,7 @@ if SERVER then
 
             if hp >= dmg and ply:Team() == TEAM_SURVIVORS and not bot:IsNPC() and ply:Health() <= 40 and math.random(2) == 1 then -- don't spam
                 LeadBot.TalkToMe(bot, "pain")
-            end
+            end]]
 
             if SERVER then 
                 if ply:Team() == TEAM_SURVIVORS then 

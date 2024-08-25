@@ -100,18 +100,19 @@ LeadBot.VoicePreset["metropolice"]["pain"] = {"npc/metropolice/vo/11-99officerne
 -- Player Config
 
 LeadBot.VoiceModels["Alyx Vance"] = "alyx"
-LeadBot.VoiceModels["Isaac Kleiner"] = "male"
+LeadBot.VoiceModels["BuizBuben241"] = "male"
 LeadBot.VoiceModels["Dr. Wallace Breen"] = "male"
 LeadBot.VoiceModels["The G-Man"] = "male"
 LeadBot.VoiceModels["Odessa Cubbage"] = "male"
 LeadBot.VoiceModels["Eli Vance"] = "male"
 LeadBot.VoiceModels["Father Grigori"] = "grigori"
 LeadBot.VoiceModels["Judith Mossman"] = "female"
+LeadBot.VoiceModels["Bushe"] = "female"
 LeadBot.VoiceModels["Barney Calhoun"] = "barney"
 
 LeadBot.VoiceModels["Magnusson"] = "male"
 
-LeadBot.VoiceModels["American Soldier"] = "male"
+LeadBot.VoiceModels["Boldier"] = "male"
 LeadBot.VoiceModels["German Soldier"] = "male"
 
 LeadBot.VoiceModels["GIGN"] = "css"
@@ -130,7 +131,7 @@ LeadBot.VoiceModels["Civil Protection"] = "metropolice"
 LeadBot.VoiceModels["Civil Erection"] = "metropolice"
 LeadBot.VoiceModels["Combine Soldier"] = "metropolice"
 LeadBot.VoiceModels["Combine Prison Guard"] = "metropolice"
-LeadBot.VoiceModels["Elite Combine Soldier"] = "metropolice"
+LeadBot.VoiceModels["Bony Bosk Benginooy"] = "metropolice"
 LeadBot.VoiceModels["Stripped Combine Soldier"] = "metropolice"
 
 LeadBot.VoiceModels["Zombie"] = "css"
@@ -138,7 +139,7 @@ LeadBot.VoiceModels["Fast Zombie"] = "css"
 LeadBot.VoiceModels["Zombine"] = "css"
 LeadBot.VoiceModels["Corpse"] = "css"
 LeadBot.VoiceModels["Charple"] = "css"
-LeadBot.VoiceModels["Skeleton"] = "css"
+LeadBot.VoiceModels["BiversRox"] = "css"
 
 LeadBot.VoiceModels["Van"] = "male"
 LeadBot.VoiceModels["Pan"] = "male"

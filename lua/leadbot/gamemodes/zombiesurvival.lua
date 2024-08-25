@@ -205,18 +205,18 @@ if SERVER then
 
     local name_Default = {
         alyx = "Alyx Vance",
-        kleiner = "Isaac Kleiner",
+        kleiner = "BuizBuben241",
         breen = "Dr. Wallace Breen",
         gman = "The G-Man",
         odessa = "Odessa Cubbage",
         eli = "Eli Vance",
         monk = "Father Grigori",
         mossman = "Judith Mossman",
-        mossmanarctic = "Judith Mossman",
+        mossmanarctic = "Bushe",
         barney = "Barney Calhoun",
 
 
-        dod_american = "American Soldier",
+        dod_american = "Boldier",
         dod_german = "German Soldier",
 
         css_swat = "GIGN",
@@ -240,7 +240,7 @@ if SERVER then
 
         combine = "Combine Soldier",
         combineprison = "Combine Prison Guard",
-        combineelite = "Elite Combine Soldier",
+        combineelite = "Bony Bosk Benginooy",
         stripped = "Stripped Combine Soldier",
 
         zombie = "Zombie",
@@ -248,7 +248,7 @@ if SERVER then
         zombine = "Zombine",
         corpse = "Corpse",
         charple = "Charple",
-        skeleton = "Skeleton",
+        skeleton = "BiversRox",
 
         male01 = "Dan",
         male02 = "Ted",
@@ -619,7 +619,7 @@ if SERVER then
                 LeadBot.TalkToMe(bot, "taunt")
             end
 
-            if hp >= dmg and ply:Team() == TEAM_SURVIVORS and ply:Health() <= 10 and math.random(10) == 1 then -- don't spam
+            if hp >= dmg and ply:Team() == TEAM_SURVIVOFRS and ply:Health() <= 10 and math.random(10) == 1 then -- don't spam
                 LeadBot.TalkToMe(bot, "help")
             end
 
@@ -627,28 +627,30 @@ if SERVER then
                 LeadBot.TalkToMe(bot, "pain")
             end
 
-            if ply:Team() == TEAM_SURVIVORS then 
-                if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() or hp >= dmg and bot:IsNPC() then
-                    controller.Target = bot
-                    controller.ForgetTarget = CurTime() + 4
-                end
-            end
-
-            if ply:Team() == TEAM_ZOMBIE then
-                if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and hurtdistance < ply:GetPos():DistToSqr(controller.PosGen) then
-                    controller.PosGen = bot:GetPos()
-                    controller.LastSegmented = CurTime() + 5 
-                    controller.LookAtTime = CurTime() + 2
-                    if not bot:IsFrozen() then 
-                        controller.LookAt = (bot:GetPos() - ply:GetPos()):Angle()
+            if SERVER then 
+                if ply:Team() == TEAM_SURVIVORS then 
+                    if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() or hp >= dmg and bot:IsNPC() then
+                        controller.Target = bot
+                        controller.ForgetTarget = CurTime() + 4
                     end
                 end
-            end
 
-            if ply:Team() == TEAM_ZOMBIE then
-                if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and IsValid(controller.Target) and ply:GetPos():DistToSqr(controller.Target:GetPos()) > hurtdistance then
-                    controller.Target = bot
-                    controller.ForgetTarget = CurTime() + 4
+                if ply:Team() == TEAM_ZOMBIE then
+                    if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and hurtdistance < ply:GetPos():DistToSqr(controller.PosGen) then
+                        controller.PosGen = bot:GetPos()
+                        controller.LastSegmented = CurTime() + 5 
+                        controller.LookAtTime = CurTime() + 2
+                        if not bot:IsFrozen() then 
+                            controller.LookAt = (bot:GetPos() - ply:GetPos()):Angle()
+                        end
+                    end
+                end
+
+                if ply:Team() == TEAM_ZOMBIE then
+                    if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and IsValid(controller.Target) and ply:GetPos():DistToSqr(controller.Target:GetPos()) > hurtdistance then
+                        controller.Target = bot
+                        controller.ForgetTarget = CurTime() + 4
+                    end
                 end
             end
         end
@@ -2761,10 +2763,10 @@ if SERVER then
                     ply:SetVelocity(ply:GetVelocity() + ( force / 4 ) )
                 end
             end
+        end
 
-            if IsValid(ply) and ply:IsPlayer() and ply:IsLBot() and not bot:IsNPC() then
-                LeadBot.PlayerHurt(ply, bot, hp, dmg)
-            end
+        if IsValid(ply) and ply:IsPlayer() and ply:IsLBot() and not bot:IsNPC() then
+            LeadBot.PlayerHurt(ply, bot, hp, dmg)
         end
     end)
 

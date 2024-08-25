@@ -538,7 +538,7 @@ if SERVER then
             bot:StripWeapon("weapon_zs_slugrifle")
 
             if leadbot_cs:GetInt() < 1 then 
-                if INFLICTION < ZombieClasses[3].Threshold then 
+                if INFLICTION < ZombieClasses[2].Threshold then 
                     if bot:GetZombieClass() ~= 9 then 
                         if classes > 3 and INFLICTION >= ZombieClasses[1].Threshold then 
                             bot:SetZombieClass(1)
@@ -552,8 +552,8 @@ if SERVER then
                             bot:SetZombieClass(1)
                         end
                     end
-                elseif INFLICTION >= ZombieClasses[3].Threshold and INFLICTION < ZombieClasses[4].Threshold then
-                    if HALFclasses > 7 then 
+                elseif INFLICTION >= ZombieClasses[2].Threshold and INFLICTION < ZombieClasses[4].Threshold then
+                    if HALFclasses > 7 and ZombieClasses[2].Threshold then 
                         bot:SetZombieClass(2)
                     else
                         if bot:GetZombieClass() ~= 9 then 
@@ -576,10 +576,10 @@ if SERVER then
                             end
                         end
                     end
-                elseif INFLICTION >= INFLICTION < ZombieClasses[4].Threshold then
-                    if UNclasses > 12 then 
+                elseif INFLICTION >= ZombieClasses[4].Threshold then
+                    if UNclasses > 12 and ZombieClasses[2].Threshold then 
                         bot:SetZombieClass(2)
-                    elseif UNclasses <= 12 and UNclasses > 8 then
+                    elseif UNclasses <= 12 and UNclasses > 8 and ZombieClasses[4].Threshold then
                         bot:SetZombieClass(4)
                     elseif UNclasses <= 8 then
                         if bot:GetZombieClass() ~= 9 then 
@@ -599,8 +599,12 @@ if SERVER then
                                 bot:SetZombieClass(7)
                             elseif UNclasses == 8 and INFLICTION >= ZombieClasses[8].Threshold then
                                 bot:SetZombieClass(8)
+                            else
+                                bot:SetZombieClass(4)
                             end
                         end
+                    else
+                        bot:SetZombieClass(4)
                     end
                 end 
             else

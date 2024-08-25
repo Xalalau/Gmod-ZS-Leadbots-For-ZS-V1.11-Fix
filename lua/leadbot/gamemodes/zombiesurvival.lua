@@ -540,7 +540,7 @@ if SERVER then
             if leadbot_cs:GetInt() < 1 then 
                 if INFLICTION < 0.5 then 
                     if bot:GetZombieClass() ~= 9 then 
-                        if classes > 3 then 
+                        if classes > 3 and INFLICTION >= ZombieClasses[1].Threshold then 
                             bot:SetZombieClass(1)
                         elseif classes == 1 and INFLICTION >= ZombieClasses[5].Threshold then
                             bot:SetZombieClass(5)
@@ -557,17 +557,17 @@ if SERVER then
                         bot:SetZombieClass(2)
                     else
                         if bot:GetZombieClass() ~= 9 then 
-                            if HALFclasses == 1 then 
+                            if HALFclasses == 1 and INFLICTION >= ZombieClasses[1].Threshold then 
                                 bot:SetZombieClass(1)
-                            elseif HALFclasses == 2 then
+                            elseif HALFclasses == 2 and INFLICTION >= ZombieClasses[2].Threshold then
                                 bot:SetZombieClass(2)
                             elseif HALFclasses == 3 and INFLICTION >= ZombieClasses[3].Threshold then
                                 bot:SetZombieClass(3)
-                            elseif HALFclasses == 4 then
+                            elseif HALFclasses == 4 and INFLICTION >= ZombieClasses[5].Threshold then
                                 bot:SetZombieClass(5)
-                            elseif HALFclasses == 5 then
+                            elseif HALFclasses == 5 and INFLICTION >= ZombieClasses[6].Threshold then
                                 bot:SetZombieClass(6)
-                            elseif HALFclasses == 6 then
+                            elseif HALFclasses == 6 and INFLICTION >= ZombieClasses[7].Threshold then
                                 bot:SetZombieClass(7)
                             elseif HALFclasses == 7 and INFLICTION >= ZombieClasses[8].Threshold then
                                 bot:SetZombieClass(8)
@@ -583,21 +583,21 @@ if SERVER then
                         bot:SetZombieClass(4)
                     elseif UNclasses <= 8 then
                         if bot:GetZombieClass() ~= 9 then 
-                            if UNclasses == 1 then 
+                            if UNclasses == 1 and INFLICTION >= ZombieClasses[1].Threshold then 
                                 bot:SetZombieClass(1)
-                            elseif UNclasses == 2 then
+                            elseif UNclasses == 2 and INFLICTION >= ZombieClasses[2].Threshold then
                                 bot:SetZombieClass(2)
-                            elseif UNclasses == 3 then
+                            elseif UNclasses == 3 and INFLICTION >= ZombieClasses[3].Threshold then
                                 bot:SetZombieClass(3)
-                            elseif UNclasses == 4 then 
+                            elseif UNclasses == 4 and INFLICTION >= ZombieClasses[4].Threshold then 
                                 bot:SetZombieClass(4)
-                            elseif UNclasses == 5 then
+                            elseif UNclasses == 5 and INFLICTION >= ZombieClasses[5].Threshold then
                                 bot:SetZombieClass(5)
-                            elseif UNclasses == 6 then
+                            elseif UNclasses == 6 and INFLICTION >= ZombieClasses[6].Threshold then
                                 bot:SetZombieClass(6)
-                            elseif UNclasses == 7 then
+                            elseif UNclasses == 7 and INFLICTION >= ZombieClasses[7].Threshold then
                                 bot:SetZombieClass(7)
-                            elseif UNclasses == 8 then
+                            elseif UNclasses == 8 and INFLICTION >= ZombieClasses[8].Threshold then
                                 bot:SetZombieClass(8)
                             end
                         end

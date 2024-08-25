@@ -633,30 +633,28 @@ if SERVER then
                 LeadBot.TalkToMe(bot, "pain")
             end]]
 
-            if SERVER then 
-                if ply:Team() == TEAM_SURVIVORS then 
-                    if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() or hp >= dmg and bot:IsNPC() then
-                        controller.Target = bot
-                        controller.ForgetTarget = CurTime() + 4
+            if ply:Team() == TEAM_SURVIVORS then 
+                if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() or hp >= dmg and bot:IsNPC() then
+                    controller.Target = bot
+                    controller.ForgetTarget = CurTime() + 4
+                end
+            end
+
+            if ply:Team() == TEAM_ZOMBIE then
+                if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and hurtdistance < ply:GetPos():DistToSqr(controller.PosGen) then
+                    controller.PosGen = bot:GetPos()
+                    controller.LastSegmented = CurTime() + 5 
+                    controller.LookAtTime = CurTime() + 2
+                    if not bot:IsFrozen() then 
+                        controller.LookAt = (bot:GetPos() - ply:GetPos()):Angle()
                     end
                 end
+            end
 
-                if ply:Team() == TEAM_ZOMBIE then
-                    if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and hurtdistance < ply:GetPos():DistToSqr(controller.PosGen) then
-                        controller.PosGen = bot:GetPos()
-                        controller.LastSegmented = CurTime() + 5 
-                        controller.LookAtTime = CurTime() + 2
-                        if not bot:IsFrozen() then 
-                            controller.LookAt = (bot:GetPos() - ply:GetPos()):Angle()
-                        end
-                    end
-                end
-
-                if ply:Team() == TEAM_ZOMBIE then
-                    if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and IsValid(controller.Target) and ply:GetPos():DistToSqr(controller.Target:GetPos()) > hurtdistance then
-                        controller.Target = bot
-                        controller.ForgetTarget = CurTime() + 4
-                    end
+            if ply:Team() == TEAM_ZOMBIE then
+                if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and IsValid(controller.Target) and ply:GetPos():DistToSqr(controller.Target:GetPos()) > hurtdistance then
+                    controller.Target = bot
+                    controller.ForgetTarget = CurTime() + 4
                 end
             end
         end
@@ -2757,20 +2755,22 @@ if SERVER then
     end)
 
     hook.Add("EntityTakeDamage", "LeadBot_Hurt", function(ply, dmgi) 
-        local bot = dmgi:GetAttacker()
-        local hp = ply:Health()
-        local dmg = dmgi:GetDamage()
-        local force = dmgi:GetDamageForce()
+        if SERVER then
+            local bot = dmgi:GetAttacker()
+            local hp = ply:Health()
+            local dmg = dmgi:GetDamage()
+            local force = dmgi:GetDamageForce()
 
-        if leadbot_cs:GetInt() >= 1 then 
-            if ply:IsPlayer() and bot:IsPlayer() and ply:Team() == TEAM_ZOMBIE and bot:Team() == TEAM_SURVIVORS then 
-                playerCSSpeed = 1
-                ply:SetVelocity(ply:GetVelocity() + ( force / 4 ) )
+            if leadbot_cs:GetInt() >= 1 then 
+                if ply:IsPlayer() and bot:IsPlayer() and ply:Team() == TEAM_ZOMBIE and bot:Team() == TEAM_SURVIVORS then 
+                    playerCSSpeed = 1
+                    ply:SetVelocity(ply:GetVelocity() + ( force / 4 ) )
+                end
+             end
+
+            if IsValid(ply) and IsValid(bot) and ply:IsPlayer() and ply:IsLBot() and bot:IsPlayer() then
+                LeadBot.PlayerHurt(ply, bot, hp, dmg)
             end
-         end
-
-        if IsValid(ply) and IsValid(bot) and ply:IsPlayer() and ply:IsLBot() and bot:IsPlayer() then
-            LeadBot.PlayerHurt(ply, bot, hp, dmg)
         end
     end)
 

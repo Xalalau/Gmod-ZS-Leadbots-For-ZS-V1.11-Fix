@@ -542,11 +542,11 @@ if SERVER then
                     if bot:GetZombieClass() ~= 9 then 
                         if classes > 3 then 
                             bot:SetZombieClass(1)
-                        elseif classes == 1 and INFLICTION >= 0.4 then
+                        elseif classes == 1 and INFLICTION >= ZombieClasses[5].Threshold then
                             bot:SetZombieClass(5)
-                        elseif classes == 2 and INFLICTION >= 0.26 then
+                        elseif classes == 2 and INFLICTION >= ZombieClasses[6].Threshold then
                             bot:SetZombieClass(6)
-                        elseif classes == 3 and INFLICTION >= 0.3333 then
+                        elseif classes == 3 and INFLICTION >= ZombieClasses[7].Threshold then
                             bot:SetZombieClass(7)
                         else
                             bot:SetZombieClass(1)
@@ -561,7 +561,7 @@ if SERVER then
                                 bot:SetZombieClass(1)
                             elseif HALFclasses == 2 then
                                 bot:SetZombieClass(2)
-                            elseif HALFclasses == 3 and INFLICTION >= 0.65 then
+                            elseif HALFclasses == 3 and INFLICTION >= ZombieClasses[3].Threshold then
                                 bot:SetZombieClass(3)
                             elseif HALFclasses == 4 then
                                 bot:SetZombieClass(5)
@@ -569,7 +569,7 @@ if SERVER then
                                 bot:SetZombieClass(6)
                             elseif HALFclasses == 6 then
                                 bot:SetZombieClass(7)
-                            elseif HALFclasses == 7 and INFLICTION >= 0.6 then
+                            elseif HALFclasses == 7 and INFLICTION >= ZombieClasses[8].Threshold then
                                 bot:SetZombieClass(8)
                             else
                                 bot:SetZombieClass(2)
@@ -2750,22 +2750,20 @@ if SERVER then
         end
     end)
 
-    hook.Add("EntityTakeDamage", "LeadBot_Hurt", function(ply, dmgi)
-        if SERVER then 
-            local bot = dmgi:GetAttacker()
-            local hp = ply:Health()
-            local dmg = dmgi:GetDamage()
-            local force = dmgi:GetDamageForce()
+    hook.Add("EntityTakeDamage", "LeadBot_Hurt", function(ply, dmgi) 
+        local bot = dmgi:GetAttacker()
+        local hp = ply:Health()
+        local dmg = dmgi:GetDamage()
+        local force = dmgi:GetDamageForce()
 
-            if leadbot_cs:GetInt() >= 1 then 
-                if ply:IsPlayer() and bot:IsPlayer() and ply:Team() == TEAM_ZOMBIE and bot:Team() == TEAM_SURVIVORS then 
-                    playerCSSpeed = 1
-                    ply:SetVelocity(ply:GetVelocity() + ( force / 4 ) )
-                end
+        if leadbot_cs:GetInt() >= 1 then 
+            if ply:IsPlayer() and bot:IsPlayer() and ply:Team() == TEAM_ZOMBIE and bot:Team() == TEAM_SURVIVORS then 
+                playerCSSpeed = 1
+                ply:SetVelocity(ply:GetVelocity() + ( force / 4 ) )
             end
-        end
+         end
 
-        if IsValid(ply) and ply:IsPlayer() and ply:IsLBot() and not bot:IsNPC() then
+        if IsValid(ply) and IsValid(bot) and ply:IsPlayer() and ply:IsLBot() and bot:IsPlayer() then
             LeadBot.PlayerHurt(ply, bot, hp, dmg)
         end
     end)

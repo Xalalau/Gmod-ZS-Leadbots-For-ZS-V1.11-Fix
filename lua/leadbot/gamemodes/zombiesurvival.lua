@@ -52,8 +52,10 @@ if SERVER then
         end
             
         if game.GetMap() ~= "zs_jail_v1" then 
-            for k, v in ipairs(ents.FindByClass("prop_door_rotating")) do
-                v:Remove()
+            if game.GetMap() ~= "zs_placid" then
+                for k, v in ipairs(ents.FindByClass("prop_door_rotating")) do
+                    v:Remove()
+                end
             end
         end
 
@@ -2168,7 +2170,7 @@ if SERVER then
 
             local dtpse = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked(), bot)
 
-            if game.GetMap() == "zs_jail_v1" then 
+            if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_placid" then 
                 if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_door_rotating" then
                     dt.Entity:Fire("Break", bot, 0)
                 end

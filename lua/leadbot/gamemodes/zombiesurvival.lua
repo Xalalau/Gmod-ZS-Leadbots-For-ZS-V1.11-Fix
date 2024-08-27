@@ -2794,6 +2794,17 @@ if SERVER then
                         end
                     end
                 end
+                if attacker:IsPlayer() and victim:IsPlayer() and attacker:Team() == TEAM_SURVIVORS and attacker ~= victim then 
+                    if INFLICTION < 0.5 then 
+                        attacker:SetHealth(attacker:Health() + 10)
+                    end
+                    if INFLICTION >= 0.5 and INFLICTION < 0.75 then 
+                        attacker:SetHealth(attacker:Health() + 20)
+                    end
+                    if INFLICTION >= 0.75 then 
+                        attacker:SetHealth(attacker:Health() + 30)
+                    end
+                end
             end
             if leadbot_cs:GetInt() >= 1 then 
                 if victim:IsPlayer() and attacker:IsPlayer() and attacker:Team() == TEAM_ZOMBIE and attacker ~= victim then 

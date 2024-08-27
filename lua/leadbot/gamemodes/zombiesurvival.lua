@@ -47,18 +47,6 @@ resource.AddFile("sound/intermission.mp3")
 
 if SERVER then 
     timer.Simple(3, function() 
-        for k, v in ipairs(ents.FindByClass("func_door_rotating")) do
-            v:Remove()
-        end
-            
-        if game.GetMap() ~= "zs_jail_v1" then 
-            if game.GetMap() ~= "zs_placid" then
-                for k, v in ipairs(ents.FindByClass("prop_door_rotating")) do
-                    v:Remove()
-                end
-            end
-        end
-
         if game.GetMap() == "zs_embassy" or game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_pub" or game.GetMap() == "zs_bog_shityhouse" or game.GetMap() == "zs_ancient_castle_opt" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_gu_frostbite_v2" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_imashouse_b2" then
             survivorBreak = true
         end
@@ -76,11 +64,23 @@ if SERVER then
         end
 
         if leadbot_mapchanges:GetInt() >= 1 then 
+            for k, v in ipairs(ents.FindByClass("func_door_rotating")) do
+                v:Remove()
+            end
+                
+            if game.GetMap() ~= "zs_jail_v1" then 
+                if game.GetMap() ~= "zs_placid" then
+                    for k, v in ipairs(ents.FindByClass("prop_door_rotating")) do
+                        v:Remove()
+                    end
+                end
+            end
+            
             for k, v in ipairs(ents.FindByClass("func_useableladder")) do
                 v:Remove()
             end
 
-            if game.GetMap() == "zs_embassy" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" or game.GetMap() == "zs_fen" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_pub" then 
+            if game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_embassy" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" or game.GetMap() == "zs_fen" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_pub" then 
                 for k, v in ipairs( ents.FindByClass( "func_breakable" ) ) do
                     v:Remove()
                 end
@@ -2182,13 +2182,13 @@ if SERVER then
                 end
             end
 
-            if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_breakable" then
+            if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_breakable" and dt.Entity:GetMaxHealth() > 1 then
                 if bot:Team() == TEAM_ZOMBIE or survivorBreak then
                     controller.Target = dt.Entity
                 end
             end
 
-            if IsValid(dtn.Entity) and dtn.Entity:GetClass() == "func_breakable" then
+            if IsValid(dtn.Entity) and dtn.Entity:GetClass() == "func_breakable" and dtn.Entity:GetMaxHealth() > 1 then
                 if not zombieBreakCheck then
                     if bot:Team() == TEAM_ZOMBIE or survivorBreak then
                         controller.Target = dtn.Entity
@@ -2196,7 +2196,7 @@ if SERVER then
                 end
             end
 
-            if IsValid(dtp.Entity) and dtp.Entity:GetClass() == "func_breakable" then
+            if IsValid(dtp.Entity) and dtp.Entity:GetClass() == "func_breakable" and dtp.Entity:GetMaxHealth() > 1 then
                 if not zombieBreakCheck then
                     if bot:Team() == TEAM_ZOMBIE or survivorBreak then
                         controller.Target = dtp.Entity
@@ -2204,7 +2204,7 @@ if SERVER then
                 end
             end
 
-            if IsValid(dtnse.Entity) and dtnse.Entity:GetClass() == "func_breakable" then
+            if IsValid(dtnse.Entity) and dtnse.Entity:GetClass() == "func_breakable" and dtnse.Entity:GetMaxHealth() > 1 then
                     if not zombieBreakCheck then
                         if bot:Team() == TEAM_ZOMBIE or survivorBreak then
                             controller.Target = dtnse.Entity
@@ -2212,7 +2212,7 @@ if SERVER then
                     end
                 end
 
-            if IsValid(dtpse.Entity) and dtpse.Entity:GetClass() == "func_breakable" then
+            if IsValid(dtpse.Entity) and dtpse.Entity:GetClass() == "func_breakable" and dtpse.Entity:GetMaxHealth() > 1 then
                 if not zombieBreakCheck then
                     if bot:Team() == TEAM_ZOMBIE or survivorBreak then
                         controller.Target = dtpse.Entity
@@ -2221,7 +2221,7 @@ if SERVER then
             end
 
             if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_physbox" then
-                if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or survivorBoxBreak and dt.Entity:Health() > 1 then
+                if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or survivorBoxBreak and dt.Entity:GetMaxHealth() > 1 then
                     controller.Target = dt.Entity
                 end
             end
@@ -2256,7 +2256,7 @@ if SERVER then
                 controller.Target = dt.Entity
             end
 
-            if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_dynamic" and dt.Entity:Health() > 0 then
+            if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_dynamic" and dt.Entity:GetMaxHealth() > 1 then
                 controller.Target = dt.Entity
             end
 

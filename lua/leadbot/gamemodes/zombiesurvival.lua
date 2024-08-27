@@ -2790,7 +2790,7 @@ if SERVER then
                 if attacker:IsPlayer() and victim:IsPlayer() and attacker:Team() == TEAM_ZOMBIE and attacker ~= victim then 
                     for k, v in ipairs(player.GetBots()) do 
                         if v:Team() == TEAM_SURVIVORS then 
-                            v:SetHealth(v:Health() + 24)
+                            v:SetHealth(v:Health() + 30)
                         end
                     end
                 end

@@ -655,10 +655,12 @@ if SERVER then
 
             if ply:Team() == TEAM_ZOMBIE then
                 if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and hurtdistance < ply:GetPos():DistToSqr(controller.PosGen) then
-                    controller.PosGen = bot:GetPos()
-                    controller.LastSegmented = CurTime() + 5 
+                    if INFLICTION < 0.75 or ply:Team() == TEAM_SURVIVORS then 
+                        controller.PosGen = bot:GetPos()
+                        controller.LastSegmented = CurTime() + 5 
+                    end
                     controller.LookAtTime = CurTime() + 2
-                    if not bot:IsFrozen() then 
+                    if !bot:IsFrozen() then 
                         controller.LookAt = (bot:GetPos() - ply:GetPos()):Angle()
                     end
                 end
@@ -1009,7 +1011,6 @@ if SERVER then
                                 if leadbot_hinfammo:GetInt() < 1 then 
                                     buttons = buttons + IN_RELOAD
                                 end
-                                buttons = buttons - IN_ATTACK
                             end
                         end
                     end
@@ -1060,11 +1061,11 @@ if SERVER then
                 local ang = ((pos + bot:GetCurrentViewOffset()) - bot:GetShootPos()):Angle()
 
                 if pos.z > controller:GetPos().z then
-                    if not bot:IsFrozen() then 
+                    if !bot:IsFrozen() then 
                         controller.LookAt = Angle(-30, ang.y, 0)
                     end
                 else
-                    if not bot:IsFrozen() then 
+                    if !bot:IsFrozen() then 
                         controller.LookAt = Angle(30, ang.y, 0)
                     end
                 end
@@ -1074,12 +1075,14 @@ if SERVER then
                 buttons = buttons + IN_FORWARD
             end
 
-            if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS or bot:Team() == TEAM_ZOMBIE and not bot:IsFrozen() then
-                if controller.NextDuck > CurTime() or controller.NextJump == 0 and !bot:IsOnGround() then
-                    buttons = buttons + IN_DUCK
-                elseif controller.NextJump == 0 then
-                    controller.NextJump = CurTime() + 1
-                    buttons = buttons + IN_JUMP
+            if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS or bot:Team() == TEAM_ZOMBIE then
+                if !bot:IsFrozen() then 
+                    if controller.NextDuck > CurTime() or controller.NextJump == 0 and !bot:IsOnGround() then
+                        buttons = buttons + IN_DUCK
+                    elseif controller.NextJump == 0 then
+                        controller.NextJump = CurTime() + 1
+                        buttons = buttons + IN_JUMP
+                    end
                 end
             end
 
@@ -1087,21 +1090,24 @@ if SERVER then
                 buttons = buttons + IN_DUCK
             end
 
-            if bot:GetVelocity():Length2DSqr() <= 225 and not bot:IsFrozen() and bot:GetMoveType() ~= MOVETYPE_LADDER and controller.PosGen ~= nil then 
+            if bot:GetVelocity():Length2DSqr() <= 225 and bot:GetMoveType() ~= MOVETYPE_LADDER and controller.PosGen ~= nil then 
                 if target == nil or IsValid(target) and not target:IsPlayer() and target:Health() <= 0 and controller.PosGen ~= nil then 
-                    if math.random(2) == 1 then 
-                        controller.NextJump = 0
-                    end
-                    if bot:Team() == TEAM_ZOMBIE then 
-                        if bot:GetZombieClass() > 5 or bot:GetZombieClass() < 5 then
-                            if math.random(2) == 1 then 
-                                buttons = buttons + IN_ATTACK
+                    if !bot:IsFrozen() then 
+                        if math.random(2) == 1 then 
+                            controller.NextJump = 0
+                        end
+                        if bot:Team() == TEAM_ZOMBIE then 
+                            if bot:GetZombieClass() > 5 or bot:GetZombieClass() < 5 then
+                                if math.random(2) == 1 then 
+                                    buttons = buttons + IN_ATTACK
+                                end
                             end
                         end
                     end
                 end
             end
 
+            cmd:SetButtons(buttons)
             cmd:ClearButtons()
             cmd:ClearMovement()
             cmd:SetButtons(buttons)
@@ -2449,10 +2455,19 @@ if SERVER then
                 end
                 -- find survivor position
                 if bot:Team() == TEAM_ZOMBIE and team.NumPlayers(TEAM_SURVIVORS) ~= 0 then
-                    for k, v in RandomPairs(player.GetAll()) do 
-                        if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
-                            controller.PosGen = v:GetPos()
-                            controller.LastSegmented = CurTime() + 1000000
+                    if INFLICTION < 0.75 then 
+                        for k, v in RandomPairs(player.GetAll()) do 
+                            if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
+                                controller.PosGen = v:GetPos()
+                                controller.LastSegmented = CurTime() + 1000000
+                            end
+                        end
+                    else
+                        for k, v in ipairs(player.GetAll()) do 
+                            if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
+                                controller.PosGen = v:GetPos()
+                                controller.LastSegmented = CurTime() + 1000000
+                            end
                         end
                     end
                 end
@@ -2581,8 +2596,13 @@ if SERVER then
             local mva
 
             if bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) then
-                lerp = FrameTime() * 16
-                lerpc = FrameTime() * 16
+                if bot:LBGetStrategy() > 0 and leadbot_freeroam:GetInt() < 1 then 
+                    lerp = FrameTime() * 16
+                    lerpc = FrameTime() * 16
+                else
+                    lerp = FrameTime() * 32
+                    lerpc = FrameTime() * 32
+                end
             end
             if bot:Team() == TEAM_SURVIVORS and !IsValid(controller.Target) or bot:Team() == TEAM_ZOMBIE then
                 lerp = FrameTime() * math.random(8, 10)
@@ -2599,20 +2619,22 @@ if SERVER then
 
                 local goalpos = curgoal.pos
 
-                if bot:GetVelocity():Length2DSqr() <= 225 and not bot:IsFrozen() then
-                    if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS or bot:Team() == TEAM_ZOMBIE then
-                        if controller.nextStuckJump < CurTime() then
-                            if !bot:Crouching() then
-                                controller.NextJump = 0
+                if bot:GetVelocity():Length2DSqr() <= 225 then
+                    if !bot:IsFrozen() then 
+                        if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS or bot:Team() == TEAM_ZOMBIE then
+                            if controller.nextStuckJump < CurTime() then
+                                if !bot:Crouching() then
+                                    controller.NextJump = 0
+                                end
+                                controller.nextStuckJump = CurTime() + math.Rand(1, 2)
                             end
-                            controller.nextStuckJump = CurTime() + math.Rand(1, 2)
                         end
                     end
                 end
 
                 if controller.NextCenter < CurTime() then
                     if bot:GetVelocity():Length2DSqr() <= 225 or IsValid(controller.Target) then
-                        if not bot:IsFrozen() then 
+                        if !bot:IsFrozen() then 
                             controller.strafeAngle = ((controller.strafeAngle == 1 and 2) or 1)
                             controller.NextCenter = CurTime() + math.Rand(0.3, 0.9)
                         end
@@ -2620,16 +2642,18 @@ if SERVER then
                 end
 
                 if controller.NextCenter > CurTime() then
-                    if curgoal.area:GetAttributes() ~= NAV_MESH_JUMP and bot:GetVelocity():Length2DSqr() <= 10000 and not bot:IsFrozen() and ( !IsValid(controller.Target) and bot:GetMoveType() ~= MOVETYPE_LADDER or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and ( bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 ) or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and bot:LBGetStrategy() > 1 ) then
-                        if controller.strafeAngle == 1 then
-                            mv:SetSideSpeed(1500)
-                            if bot:LBGetSurvSkill() == 1 then 
-                                mv:SetForwardSpeed(0)
-                            end
-                        elseif controller.strafeAngle == 2 then
-                            mv:SetSideSpeed(-1500)
-                            if bot:LBGetSurvSkill() == 1 then 
-                                mv:SetForwardSpeed(0)
+                    if curgoal.area:GetAttributes() ~= NAV_MESH_JUMP and bot:GetVelocity():Length2DSqr() <= 10000 and ( !IsValid(controller.Target) and bot:GetMoveType() ~= MOVETYPE_LADDER or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and ( bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 ) or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and bot:LBGetStrategy() > 1 ) then
+                        if !bot:IsFrozen() then 
+                            if controller.strafeAngle == 1 then
+                                mv:SetSideSpeed(1500)
+                                if bot:LBGetSurvSkill() == 1 then 
+                                    mv:SetForwardSpeed(0)
+                                end
+                            elseif controller.strafeAngle == 2 then
+                                mv:SetSideSpeed(-1500)
+                                if bot:LBGetSurvSkill() == 1 then 
+                                    mv:SetForwardSpeed(0)
+                                end
                             end
                         end
                     end
@@ -2665,10 +2689,7 @@ if SERVER then
 
             if IsValid(controller.Target) and controller.Target:IsPlayer() then
                 if bot:Team() == TEAM_SURVIVORS then
-                    if controller.Target:GetZombieClass() < 2 or controller.Target:GetZombieClass() == 5 then
-                        bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:EyePos() - bot:GetShootPos()):Angle()))
-                    end
-                    if controller.Target:GetZombieClass() >= 2 and controller.Target:GetZombieClass() < 5 then
+                    if controller.Target:GetZombieClass() >= 2 and controller.Target:GetZombieClass() < 5 or controller.Target:GetZombieClass() < 2 or controller.Target:GetZombieClass() == 5 then
                         if !controller.Target:Crouching() then 
                             bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:EyePos() - controller.Target:GetViewOffsetDucked() - bot:GetShootPos()):Angle()))
                         else
@@ -2683,24 +2704,24 @@ if SERVER then
                         end
                     end
                 else 
-                    if not bot:IsFrozen() then 
+                    if !bot:IsFrozen() then 
                         bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:EyePos() - bot:GetShootPos()):Angle()))
                     end
                 end
                 return
             elseif IsValid(controller.Target) and not controller.Target:IsPlayer() then
-                if not bot:IsFrozen() then 
+                if !bot:IsFrozen() then 
                     bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:GetPos() - bot:GetShootPos()):Angle()))
                 end
             elseif curgoal then
                 if controller.LookAtTime > CurTime() then
                     local ang = LerpAngle(lerpc, bot:EyeAngles(), controller.LookAt)
-                    if not bot:IsFrozen() then 
+                    if !bot:IsFrozen() then 
                         bot:SetEyeAngles(Angle(ang.p, ang.y, 0))
                     end
                 else
                     local ang = LerpAngle(lerpc, bot:EyeAngles(), mva)
-                    if not bot:IsFrozen() then 
+                    if !bot:IsFrozen() then 
                         bot:SetEyeAngles(Angle(ang.p, ang.y, 0))
                     end
                 end
@@ -2937,9 +2958,11 @@ if SERVER then
             for k, v in ipairs(player.GetBots()) do
                 local controller = v.ControllerBot 
                 if v:Team() == TEAM_ZOMBIE then
-                    if v:GetVelocity():Length2DSqr() <= 225 and not v:IsFrozen() and v:Team() == TEAM_ZOMBIE then
-                        if controller.Target == nil or IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:Health() <= 0 or v:GetZombieClass() > 3 or v:GetVelocity():Length2DSqr() == 0 then 
-                            v:Kill()
+                    if v:GetVelocity():Length2DSqr() <= 225 and v:Team() == TEAM_ZOMBIE then
+                        if !v:IsFrozen() then 
+                            if controller.Target == nil or IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:Health() <= 0 or v:GetZombieClass() > 3 or v:GetVelocity():Length2DSqr() == 0 then 
+                                v:Kill()
+                            end
                         end
                     end
                 end
@@ -2949,19 +2972,21 @@ if SERVER then
 
     timer.Create("zombieNearDetector", 20, -1, function() 
         if SERVER then 
-            for _, z in ipairs(player.GetBots()) do  
-                local controller = z.ControllerBot 
-                if controller.PosGen and !IsValid(controller.Target) then 
-                    if z:Team() == TEAM_ZOMBIE and z:LBGetZomSkill() == 1 then 
-                        for _, h in ipairs(player.GetAll()) do 
-                            if IsValid(h) and h:Team() == TEAM_SURVIVORS and h:GetPos():DistToSqr(z:GetPos()) < controller.PosGen:DistToSqr(z:GetPos()) then 
-                                controller.PosGen = h:GetPos()
-                                controller.LastSegmented = CurTime() + 4000000
+            if INFLICTION < 0.75 then 
+                for _, z in ipairs(player.GetBots()) do  
+                    local controller = z.ControllerBot 
+                    if controller.PosGen and !IsValid(controller.Target) then 
+                        if z:Team() == TEAM_ZOMBIE and z:LBGetZomSkill() == 1 then 
+                            for _, h in ipairs(player.GetAll()) do 
+                                if IsValid(h) and h:Team() == TEAM_SURVIVORS and h:GetPos():DistToSqr(z:GetPos()) < controller.PosGen:DistToSqr(z:GetPos()) then 
+                                    controller.PosGen = h:GetPos()
+                                    controller.LastSegmented = CurTime() + 4000000
+                                end
                             end
                         end
                     end
-                end
-            end 
+                end 
+            end
         end
     end )
 

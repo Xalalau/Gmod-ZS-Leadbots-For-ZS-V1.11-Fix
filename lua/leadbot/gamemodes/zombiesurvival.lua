@@ -655,10 +655,8 @@ if SERVER then
 
             if ply:Team() == TEAM_ZOMBIE then
                 if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and hurtdistance < ply:GetPos():DistToSqr(controller.PosGen) then
-                    if INFLICTION < 0.75 or ply:Team() == TEAM_SURVIVORS then 
-                        controller.PosGen = bot:GetPos()
-                        controller.LastSegmented = CurTime() + 5 
-                    end
+                    controller.PosGen = bot:GetPos()
+                    controller.LastSegmented = CurTime() + 5 
                     controller.LookAtTime = CurTime() + 2
                     if !bot:IsFrozen() then 
                         controller.LookAt = (bot:GetPos() - ply:GetPos()):Angle()
@@ -2248,7 +2246,7 @@ if SERVER then
                 mv:SetForwardSpeed(1200)
             end
 
-            if (bot.NextSpawnTime and bot.NextSpawnTime + 1 > CurTime()) or !IsValid(controller.Target) or controller.ForgetTarget < CurTime() or controller.Target:Health() < 1 then
+            if (bot.NextSpawnTime and bot.NextSpawnTime + 1 > CurTime()) or !IsValid(controller.Target) or controller.ForgetTarget < CurTime() or controller.Target:Health() < 1 or !bot:Alive() then
                 controller.Target = nil
             end
 
@@ -2455,19 +2453,10 @@ if SERVER then
                 end
                 -- find survivor position
                 if bot:Team() == TEAM_ZOMBIE and team.NumPlayers(TEAM_SURVIVORS) ~= 0 then
-                    if INFLICTION < 0.75 then 
-                        for k, v in RandomPairs(player.GetAll()) do 
-                            if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
-                                controller.PosGen = v:GetPos()
-                                controller.LastSegmented = CurTime() + 1000000
-                            end
-                        end
-                    else
-                        for k, v in ipairs(player.GetAll()) do 
-                            if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
-                                controller.PosGen = v:GetPos()
-                                controller.LastSegmented = CurTime() + 1000000
-                            end
+                    for k, v in RandomPairs(player.GetAll()) do 
+                        if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
+                            controller.PosGen = v:GetPos()
+                            controller.LastSegmented = CurTime() + 1000000
                         end
                     end
                 end
@@ -2971,21 +2960,19 @@ if SERVER then
     end )
 
     timer.Create("zombieNearDetector", 20, -1, function() 
-        if SERVER then 
-            if INFLICTION < 0.75 then 
-                for _, z in ipairs(player.GetBots()) do  
-                    local controller = z.ControllerBot 
-                    if controller.PosGen and !IsValid(controller.Target) then 
-                        if z:Team() == TEAM_ZOMBIE and z:LBGetZomSkill() == 1 then 
-                            for _, h in ipairs(player.GetAll()) do 
-                                if IsValid(h) and h:Team() == TEAM_SURVIVORS and h:GetPos():DistToSqr(z:GetPos()) < controller.PosGen:DistToSqr(z:GetPos()) then 
-                                    controller.PosGen = h:GetPos()
-                                    controller.LastSegmented = CurTime() + 4000000
-                                end
+        if SERVER then
+            for _, z in ipairs(player.GetBots()) do  
+                local controller = z.ControllerBot 
+                if controller.PosGen and !IsValid(controller.Target) then 
+                    if z:Team() == TEAM_ZOMBIE and z:LBGetZomSkill() == 1 then 
+                        for _, h in ipairs(player.GetAll()) do 
+                            if IsValid(h) and h:Team() == TEAM_SURVIVORS and h:GetPos():DistToSqr(z:GetPos()) < controller.PosGen:DistToSqr(z:GetPos()) then 
+                                controller.PosGen = h:GetPos()
+                                controller.LastSegmented = CurTime() + 4000000
                             end
                         end
                     end
-                end 
+                end
             end
         end
     end )

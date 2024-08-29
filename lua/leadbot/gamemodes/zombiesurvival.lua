@@ -526,6 +526,12 @@ if SERVER then
 
     function LeadBot.PlayerSpawn(bot)
 
+        if leadbot_knockback:GetInt() < 1 then 
+            bot:AddEFlags(EFL_NO_DAMAGE_FORCES)
+        else
+            bot:RemoveEFlags(EFL_NO_DAMAGE_FORCES)
+        end
+
         --local classes = math.random(1, 8)
         local classes = math.random(1, 6)
         local HALFclasses = math.random(1, 14)
@@ -2841,9 +2847,6 @@ if SERVER then
                     bot:SetMaxHealth(1000)
                     bot:SetHealth(1000) 
                 end )
-            end
-            if leadbot_knockback:GetInt() < 1 then 
-                bot:AddEFlags(EFL_NO_DAMAGE_FORCES)
             end
             if bot:IsLBot() then
                 LeadBot.PlayerSpawn(bot)

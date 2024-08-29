@@ -7,11 +7,9 @@ LeadBot.RespawnAllowed = true -- allows bots to respawn automatically when dead
 LeadBot.PlayerColor = true -- disable this to get the default gmod style players
 LeadBot.NoNavMesh = false -- disable the nav mesh check
 LeadBot.TeamPlay = true -- don't hurt players on the bots team
-LeadBot.LerpAim = true -- interpolate aim (smooth aim)
 LeadBot.AFKBotOverride = false -- KEEP THIS FALSE OR ELSE CODE BREAKS!
 LeadBot.SuicideAFK = false -- kill the player when entering/exiting afk
 LeadBot.NoFlashlight = true -- disable flashlight being enabled in dark areas
-LeadBot.NoSprint = true
 LeadBot.Strategies = 3 -- how many strategies can the bot pick from
 
 concommand.Add("leadbot_add", function(ply, _, args) if IsValid(ply) and !ply:IsSuperAdmin() then return end local amount = 1 if tonumber(args[1]) then amount = tonumber(args[1]) end for i = 1, amount do timer.Simple(i * 0.1, function() LeadBot.AddBot() end) end end, nil, "Adds a LeadBot")
@@ -2580,8 +2578,8 @@ if SERVER then
             local mva
 
             if bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) then
-                lerp = 1
-                lerpc = 1
+                lerp = FrameTime() * 16
+                lerpc = FrameTime() * 16
             end
             if bot:Team() == TEAM_SURVIVORS and !IsValid(controller.Target) or bot:Team() == TEAM_ZOMBIE then
                 lerp = FrameTime() * math.random(8, 10)

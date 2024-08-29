@@ -1003,6 +1003,7 @@ if SERVER then
                                 if leadbot_hinfammo:GetInt() < 1 then 
                                     buttons = buttons + IN_RELOAD
                                 end
+                                buttons = buttons - IN_ATTACK
                             end
                         end
                     end
@@ -1068,7 +1069,7 @@ if SERVER then
             end
 
             if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS or bot:Team() == TEAM_ZOMBIE and not bot:IsFrozen() then
-                if controller.NextDuck > CurTime() then
+                if controller.NextDuck > CurTime() or controller.NextJump == 0 and !bot:IsOnGround() then
                     buttons = buttons + IN_DUCK
                 elseif controller.NextJump == 0 then
                     controller.NextJump = CurTime() + 1
@@ -1083,7 +1084,7 @@ if SERVER then
             if bot:GetVelocity():Length2DSqr() <= 225 and not bot:IsFrozen() and bot:GetMoveType() ~= MOVETYPE_LADDER and controller.PosGen ~= nil then 
                 if target == nil or IsValid(target) and not target:IsPlayer() and target:Health() <= 0 and controller.PosGen ~= nil then 
                     if math.random(2) == 1 then 
-                        buttons = buttons + IN_JUMP
+                        controller.NextJump = 0
                     end
                     if bot:Team() == TEAM_ZOMBIE then 
                         if bot:GetZombieClass() > 5 or bot:GetZombieClass() < 5 then
@@ -1093,10 +1094,6 @@ if SERVER then
                         end
                     end
                 end
-            end 
-
-            if !bot:IsOnGround() and bot:WaterLevel() == 0 then
-                buttons = buttons + IN_DUCK
             end
 
             cmd:ClearButtons()

@@ -494,7 +494,7 @@ if SERVER then
     end )
 
     function LeadBot.AddBotOverride(bot)
-        if math.random(2) == 1 then
+        if math.random(1, 2) == 1 then
             timer.Simple(math.random(1, 4), function()
                 LeadBot.TalkToMe(bot, "join")
             end)
@@ -634,7 +634,7 @@ if SERVER then
             local controller = ply:GetController()
             local hurtdistance = ply:GetPos():DistToSqr(bot:GetPos())
                 
-            --[[if hp <= dmg and math.random(2) == 1 and bot:IsPlayer() then
+            --[[if hp <= dmg and math.random(1, 2) == 1 and bot:IsPlayer() then
                 LeadBot.TalkToMe(bot, "taunt")
             end
 
@@ -642,7 +642,7 @@ if SERVER then
                 LeadBot.TalkToMe(bot, "help")
             end
 
-            if hp >= dmg and ply:Team() == TEAM_SURVIVORS and not bot:IsNPC() and ply:Health() <= 40 and math.random(2) == 1 then -- don't spam
+            if hp >= dmg and ply:Team() == TEAM_SURVIVORS and not bot:IsNPC() and ply:Health() <= 40 and math.random(1, 2) == 1 then -- don't spam
                 LeadBot.TalkToMe(bot, "pain")
             end]]
 
@@ -1000,9 +1000,9 @@ if SERVER then
                             buttons = buttons + IN_RELOAD
                         end
                     else
-                        if botWeapon:Clip1() > 1 then 
+                        if botWeapon:Clip1() > 0 then 
                             if math.random(1, 2) == 1 then 
-                                if not target:IsPlayer() or target:IsPlayer() and ( IsValid(prt.Entity) or target:GetPos():DistToSqr(bot:GetPos()) <= 5625 ) and ( target:GetPos():DistToSqr(bot:GetPos()) > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() > 4 or target:GetZombieClass() < 4 ) then 
+                                if not target:IsPlayer() or target:IsPlayer() and not target:HasGodMode() and ( IsValid(prt.Entity) or target:GetPos():DistToSqr(bot:GetPos()) <= 5625 ) and ( target:GetPos():DistToSqr(bot:GetPos()) > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() > 4 or target:GetZombieClass() < 4 ) then 
                                     buttons = buttons + IN_ATTACK
                                 end
                             end
@@ -1015,7 +1015,7 @@ if SERVER then
                 end
             else
                 if IsValid(target) then
-                    if math.random(2) == 1 then 
+                    if math.random(1, 2) == 1 then 
                         if bot:GetZombieClass() > 5 and bot:GetZombieClass() < 9 then 
                             if IsValid(prt.Entity) or not target:IsPlayer() then 
                                 buttons = buttons + IN_ATTACK
@@ -1043,12 +1043,12 @@ if SERVER then
                 end
 
                 if !IsValid(target) and bot:LBGetZomSkill() == 1 then
-                    if math.random(100) == 1 then 
+                    if math.random(1, 100) == 1 then 
                         if bot:IsOnGround() and ( bot:GetZombieClass() > 3 or bot:GetZombieClass() < 3 ) and ( bot:GetZombieClass() > 8 or bot:GetZombieClass() < 8 ) then
                             buttons = buttons + IN_ATTACK2
                         end
                     end
-                    if math.random(100) == 1 and bot:GetZombieClass() > 5 and bot:GetZombieClass() < 9 then 
+                    if math.random(1, 100) == 1 and bot:GetZombieClass() > 5 and bot:GetZombieClass() < 9 then 
                         buttons = buttons + IN_ATTACK
                     end
                 end
@@ -1091,12 +1091,12 @@ if SERVER then
             if bot:GetVelocity():Length2DSqr() <= 225 and bot:GetMoveType() ~= MOVETYPE_LADDER and controller.PosGen ~= nil then 
                 if target == nil or IsValid(target) and not target:IsPlayer() and target:Health() <= 0 and controller.PosGen ~= nil then 
                     if !bot:IsFrozen() then 
-                        if math.random(2) == 1 then 
+                        if math.random(1, 2) == 1 then 
                             controller.NextJump = 0
                         end
                         if bot:Team() == TEAM_ZOMBIE then 
                             if bot:GetZombieClass() > 5 or bot:GetZombieClass() < 5 then
-                                if math.random(2) == 1 then 
+                                if math.random(1, 2) == 1 then 
                                     buttons = buttons + IN_ATTACK
                                 end
                             end

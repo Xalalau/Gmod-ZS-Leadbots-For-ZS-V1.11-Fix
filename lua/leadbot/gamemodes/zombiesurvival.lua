@@ -2696,7 +2696,9 @@ if SERVER then
                 end
                 return
             elseif IsValid(controller.Target) and not controller.Target:IsPlayer() then
-                bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:WorldSpaceCenter() - bot:GetShootPos()):Angle()))
+                if !bot:IsFrozen() then 
+                    bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:WorldSpaceCenter() - bot:GetShootPos()):Angle()))
+                end
             elseif curgoal then
                 if controller.LookAtTime > CurTime() then
                     local ang = LerpAngle(lerpc, bot:EyeAngles(), controller.LookAt)

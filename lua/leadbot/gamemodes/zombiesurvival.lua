@@ -1002,7 +1002,7 @@ if SERVER then
                     else
                         if math.random(2) == 1 then
                             if botWeapon:Clip1() ~= 0 then 
-                                if IsValid(prt.Entity) and ( not target:IsPlayer() or target:IsPlayer() and ( target:GetPos():DistToSqr(bot:GetPos()) > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() ~= 4 ) ) then 
+                                if not target:IsPlayer() or target:IsPlayer() and IsValid(prt.Entity) and ( target:GetPos():DistToSqr(bot:GetPos()) > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() ~= 4 ) then 
                                     buttons = buttons + IN_ATTACK
                                 end
                             else
@@ -1017,11 +1017,11 @@ if SERVER then
                 if IsValid(target) then
                     if math.random(2) == 1 then 
                         if bot:GetZombieClass() > 5 and bot:GetZombieClass() < 9 then 
-                            if IsValid(prt.Entity) then 
+                            if IsValid(prt.Entity) or not target:IsPlayer() then 
                                 buttons = buttons + IN_ATTACK
                             end
                         else
-                            if target:GetPos():DistToSqr(bot:GetPos()) < 10750 then 
+                            if target:GetPos():DistToSqr(bot:GetPos()) < 10750 or not target:IsPlayer() then 
                                 buttons = buttons + IN_ATTACK
                             end
                         end
@@ -2562,9 +2562,6 @@ if SERVER then
                         bot:SelectWeapon("weapon_zs_sweepershotgun")
                     end
                 end
-                if bot:Team() == TEAM_ZOMBIE and distance <= 1000000000 then 
-                    mv:SetForwardSpeed(1200)
-                end
             end
 
             -- movement also has a similar issue, but it's more severe...
@@ -2699,9 +2696,7 @@ if SERVER then
                 end
                 return
             elseif IsValid(controller.Target) and not controller.Target:IsPlayer() then
-                if !bot:IsFrozen() then 
-                    bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:GetPos() - bot:GetShootPos()):Angle()))
-                end
+                bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:WorldSpaceCenter() - bot:GetShootPos()):Angle()))
             elseif curgoal then
                 if controller.LookAtTime > CurTime() then
                     local ang = LerpAngle(lerpc, bot:EyeAngles(), controller.LookAt)

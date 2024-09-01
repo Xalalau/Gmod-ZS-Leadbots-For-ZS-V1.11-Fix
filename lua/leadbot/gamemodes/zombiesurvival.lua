@@ -1000,7 +1000,7 @@ if SERVER then
                             buttons = buttons + IN_RELOAD
                         end
                     else
-                        if botWeapon:Clip1() > 0 then 
+                        if botWeapon:Clip1() > 1 then 
                             if math.random(1, 2) == 1 then 
                                 if not target:IsPlayer() or target:IsPlayer() and not target:HasGodMode() and ( IsValid(prt.Entity) or target:GetPos():DistToSqr(bot:GetPos()) <= 5625 ) and ( target:GetPos():DistToSqr(bot:GetPos()) > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() > 4 or target:GetZombieClass() < 4 ) then 
                                     buttons = buttons + IN_ATTACK

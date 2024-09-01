@@ -996,13 +996,13 @@ if SERVER then
             if bot:Team() == TEAM_SURVIVORS then 
                 if IsValid(botWeapon) then 
                     if !IsValid(target) then
-                        if botWeapon:Clip1() <= (botWeapon:GetMaxClip1() / 2) and leadbot_hinfammo:GetInt() < 1 then 
+                        if botWeapon:Clip1() <= (botWeapon:GetMaxClip1() / 4) and leadbot_hinfammo:GetInt() < 1 then 
                             buttons = buttons + IN_RELOAD
                         end
                     else
                         if botWeapon:Clip1() > 1 then 
-                            if math.random(2) == 1 then 
-                                if not target:IsPlayer() or target:IsPlayer() and IsValid(prt.Entity) and ( target:GetPos():DistToSqr(bot:GetPos()) > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() > 4 or target:GetZombieClass() < 4 ) then 
+                            if math.random(1, 2) == 1 then 
+                                if not target:IsPlayer() or target:IsPlayer() and ( IsValid(prt.Entity) or target:GetPos():DistToSqr(bot:GetPos()) <= 5625 ) and ( target:GetPos():DistToSqr(bot:GetPos()) > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() > 4 or target:GetZombieClass() < 4 ) then 
                                     buttons = buttons + IN_ATTACK
                                 end
                             end

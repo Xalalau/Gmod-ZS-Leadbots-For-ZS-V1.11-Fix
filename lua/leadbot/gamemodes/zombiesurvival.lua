@@ -2330,10 +2330,10 @@ if SERVER then
             end
 
             if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_physics" then
-                if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) then
+                if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or bot:Team() == TEAM_SURVIVORS and dt.Entity:GetMaxHealth() > 1 then
                     if dt.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
                         if dt.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
-                            if not zombiePropCheck then
+                            if zombiePropCheck then
                                 controller.Target = dt.Entity
                             end
                         end
@@ -2343,10 +2343,10 @@ if SERVER then
 
             if bot:GetMoveType() == MOVETYPE_LADDER then 
                 if IsValid(dtpse.Entity) and dtpse.Entity:GetClass() == "prop_physics" then
-                    if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) then
+                    if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or bot:Team() == TEAM_SURVIVORS and dt.Entity:GetMaxHealth() > 1 then
                         if dtpse.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
                             if dtpse.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
-                                if not zombiePropCheck then
+                                if zombiePropCheck then
                                     controller.Target = dt.Entity
                                 end
                             end
@@ -2371,84 +2371,65 @@ if SERVER then
 
             if !IsValid(controller.Target) and (!controller.PosGen or bot:GetPos():DistToSqr(controller.PosGen) < 1000 or controller.LastSegmented < CurTime()) then
             -- find a random spot on the map if human, and then do it again in 5 seconds!
-                if bot:Team() == TEAM_SURVIVORS and bot:LBGetStrategy() == 0 then
+                if bot:Team() == TEAM_SURVIVORS and ( bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 ) then
                     if bot:LBGetSurvSkill() == 0 then 
                         bot:SelectWeapon("weapon_zs_swissarmyknife")
                     end
                     controller.PosGen = controller:FindSpot("random", {radius = 1000000})
                     controller.LastSegmented = CurTime() + 5
                 elseif bot:Team() == TEAM_SURVIVORS and bot:LBGetStrategy() == 1 then 
-                    if leadbot_freeroam:GetInt() < 1 then 
-                        -- camping ai 
-                        if sigil3Valid then 
-                            local dist = bot:GetPos():DistToSqr(sigil3:GetPos())
-                                if dist <= 2500 then -- we're here
-                                    controller.PosGen = nil
-                                else -- we need to run...
-                                    controller.PosGen = sigil3:GetPos()
-                                end
-
-                            controller.LastSegmented = CurTime() + 1
-                        else
-                            for k, v in RandomPairs(player.GetAll()) do 
-                                if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
-                                    controller.PosGen = v:GetPos()
-                                    controller.LastSegmented = CurTime() + 1000000
-                                end
+                    -- camping ai 
+                    if sigil3Valid then 
+                        local dist = bot:GetPos():DistToSqr(sigil3:GetPos())
+                            if dist <= 2500 then -- we're here
+                                controller.PosGen = nil
+                            else -- we need to run...
+                                controller.PosGen = sigil3:GetPos()
                             end
-                        end
+
+                        controller.LastSegmented = CurTime() + 1
                     else
-                        bot:SelectWeapon("weapon_zs_swissarmyknife")
+                        if bot:LBGetSurvSkill() == 0 then 
+                            bot:SelectWeapon("weapon_zs_swissarmyknife")
+                        end
                         controller.PosGen = controller:FindSpot("random", {radius = 1000000})
                         controller.LastSegmented = CurTime() + 5
                     end
                 elseif bot:Team() == TEAM_SURVIVORS and bot:LBGetStrategy() == 2 then
-                    if leadbot_freeroam:GetInt() < 1 then 
-                        if sigil2Valid then 
-                            local dist = bot:GetPos():DistToSqr(sigil2:GetPos())
-                                if dist <= 2500 then -- we're here
-                                    controller.PosGen = nil
-                                else -- we need to run...
-                                    controller.PosGen = sigil2:GetPos()
-                                end
+                    if sigil2Valid then 
+                        local dist = bot:GetPos():DistToSqr(sigil2:GetPos())
+                            if dist <= 2500 then -- we're here
+                                controller.PosGen = nil
+                            else -- we need to run...
+                                controller.PosGen = sigil2:GetPos()
+                            end
 
-                            controller.LastSegmented = CurTime() + 1
-                        else
-                            for k, v in RandomPairs(player.GetAll()) do 
-                                if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
-                                    controller.PosGen = v:GetPos()
-                                    controller.LastSegmented = CurTime() + 1000000
-                                end
+                        controller.LastSegmented = CurTime() + 1
+                    else
+                        for k, v in RandomPairs(player.GetAll()) do 
+                            if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
+                                controller.PosGen = v:GetPos()
+                                controller.LastSegmented = CurTime() + 1000000
                             end
                         end
-                    else
-                        bot:SelectWeapon("weapon_zs_swissarmyknife")
-                        controller.PosGen = controller:FindSpot("random", {radius = 1000000})
-                        controller.LastSegmented = CurTime() + 5
                     end
                 elseif bot:Team() == TEAM_SURVIVORS and bot:LBGetStrategy() == 3 then
-                    if leadbot_freeroam:GetInt() < 1 then 
-                        if sigil1Valid then 
-                            local dist = bot:GetPos():DistToSqr(sigil1:GetPos())
-                                if dist <= 2500 then -- we're here
-                                    controller.PosGen = nil
-                                else -- we need to run...
-                                    controller.PosGen = sigil1:GetPos()
-                                end
+                    if sigil1Valid then 
+                        local dist = bot:GetPos():DistToSqr(sigil1:GetPos())
+                            if dist <= 2500 then -- we're here
+                                controller.PosGen = nil
+                            else -- we need to run...
+                                controller.PosGen = sigil1:GetPos()
+                            end
 
-                            controller.LastSegmented = CurTime() + 1
-                        else
-                            for k, v in RandomPairs(player.GetAll()) do 
-                                if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
-                                    controller.PosGen = v:GetPos()
-                                    controller.LastSegmented = CurTime() + 1000000
-                                end
+                        controller.LastSegmented = CurTime() + 1
+                    else
+                        for k, v in RandomPairs(player.GetAll()) do 
+                            if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
+                                controller.PosGen = v:GetPos()
+                                controller.LastSegmented = CurTime() + 1000000
                             end
                         end
-                    else
-                        bot:SelectWeapon("weapon_zs_swissarmyknife")
-                        controller.PosGen = controller:FindSpot("random", {radius = 1000000})
-                        controller.LastSegmented = CurTime() + 5
                     end
                 end
                 -- find survivor position

@@ -2406,6 +2406,9 @@ if SERVER then
 
                         controller.LastSegmented = CurTime() + 1
                     else
+                        if bot:LBGetSurvSkill() == 0 then 
+                            bot:SelectWeapon("weapon_zs_swissarmyknife")
+                        end
                         for k, v in RandomPairs(player.GetAll()) do 
                             if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
                                 controller.PosGen = v:GetPos()
@@ -2424,6 +2427,9 @@ if SERVER then
 
                         controller.LastSegmented = CurTime() + 1
                     else
+                        if bot:LBGetSurvSkill() == 0 then 
+                            bot:SelectWeapon("weapon_zs_swissarmyknife")
+                        end
                         for k, v in RandomPairs(player.GetAll()) do 
                             if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
                                 controller.PosGen = v:GetPos()

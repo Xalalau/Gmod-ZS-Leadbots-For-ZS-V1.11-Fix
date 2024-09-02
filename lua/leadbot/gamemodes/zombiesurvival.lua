@@ -682,6 +682,8 @@ if SERVER then
         end
     end)
 
+    local feet = Vector(0, 0, -29)
+
     function LeadBot.StartCommand(bot, cmd)
         if SERVER then 
             local buttons = 0
@@ -691,8 +693,6 @@ if SERVER then
             local filterList = {controller, bot, function( ent ) return ( ent:GetClass() == "prop_physics" ) end}
 
             if !IsValid(controller) then return end
-
-            local feet = Vector(0, 0, -29)
 
             local prt = util.QuickTrace(bot:EyePos(), bot:GetAimVector() * 10000000000, filterList)
 

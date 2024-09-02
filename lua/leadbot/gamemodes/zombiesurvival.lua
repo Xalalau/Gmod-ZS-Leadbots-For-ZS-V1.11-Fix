@@ -726,7 +726,7 @@ if SERVER then
                         controller.Target = prt.Entity
                         controller.ForgetTarget = CurTime() + 4
                     else
-                        if bot:LBGetTargPri() == 0 then
+                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
                             if target:GetPos():DistToSqr(bot:GetPos()) > prt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
                                 controller.Target = prt.Entity
                                 controller.ForgetTarget = CurTime() + 4
@@ -747,7 +747,7 @@ if SERVER then
                         controller.Target = pot.Entity
                         controller.ForgetTarget = CurTime() + 4
                     else
-                        if bot:LBGetTargPri() == 0 then
+                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
                             if target:GetPos():DistToSqr(bot:GetPos()) > pot.Entity:GetPos():DistToSqr(bot:GetPos()) then  
                                 controller.Target = pot.Entity
                                 controller.ForgetTarget = CurTime() + 4
@@ -768,7 +768,7 @@ if SERVER then
                         controller.Target = pet.Entity
                         controller.ForgetTarget = CurTime() + 4
                     else
-                        if bot:LBGetTargPri() == 0 then
+                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
                             if target:GetPos():DistToSqr(bot:GetPos()) > pet.Entity:GetPos():DistToSqr(bot:GetPos()) then  
                                 controller.Target = pet.Entity
                                 controller.ForgetTarget = CurTime() + 4
@@ -789,7 +789,7 @@ if SERVER then
                         controller.Target = pwrt.Entity
                         controller.ForgetTarget = CurTime() + 4
                     else
-                        if bot:LBGetTargPri() == 0 then
+                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
                             if target:GetPos():DistToSqr(bot:GetPos()) > pwrt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
                                 controller.Target = pwrt.Entity
                                 controller.ForgetTarget = CurTime() + 4
@@ -810,7 +810,7 @@ if SERVER then
                         controller.Target = pwlt.Entity
                         controller.ForgetTarget = CurTime() + 4
                     else
-                        if bot:LBGetTargPri() == 0 then
+                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
                             if target:GetPos():DistToSqr(bot:GetPos()) > pwlt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
                                 controller.Target = pwlt.Entity
                                 controller.ForgetTarget = CurTime() + 4
@@ -831,7 +831,7 @@ if SERVER then
                         controller.Target = pwdrt.Entity
                         controller.ForgetTarget = CurTime() + 4
                     else
-                        if bot:LBGetTargPri() == 0 then
+                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
                             if target:GetPos():DistToSqr(bot:GetPos()) > pwdrt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
                                 controller.Target = pwdrt.Entity
                                 controller.ForgetTarget = CurTime() + 4
@@ -852,7 +852,7 @@ if SERVER then
                         controller.Target = pwdlt.Entity
                         controller.ForgetTarget = CurTime() + 4
                     else
-                        if bot:LBGetTargPri() == 0 then
+                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
                             if target:GetPos():DistToSqr(bot:GetPos()) > pwdlt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
                                 controller.Target = pwdlt.Entity
                                 controller.ForgetTarget = CurTime() + 4
@@ -873,7 +873,7 @@ if SERVER then
                         controller.Target = pwdrat.Entity
                         controller.ForgetTarget = CurTime() + 4
                     else
-                        if bot:LBGetTargPri() == 0 then
+                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
                             if target:GetPos():DistToSqr(bot:GetPos()) > pwdrat.Entity:GetPos():DistToSqr(bot:GetPos()) then  
                                 controller.Target = pwdrat.Entity
                                 controller.ForgetTarget = CurTime() + 4
@@ -894,7 +894,7 @@ if SERVER then
                         controller.Target = pwdlat.Entity
                         controller.ForgetTarget = CurTime() + 4
                     else
-                        if bot:LBGetTargPri() == 0 then
+                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
                             if target:GetPos():DistToSqr(bot:GetPos()) > pwdlat.Entity:GetPos():DistToSqr(bot:GetPos()) then  
                                 controller.Target = pwdlat.Entity
                                 controller.ForgetTarget = CurTime() + 4
@@ -915,7 +915,7 @@ if SERVER then
                         controller.Target = ptn.Entity
                         controller.ForgetTarget = CurTime() + 4
                     else
-                        if bot:LBGetTargPri() == 0 then
+                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
                             if target:GetPos():DistToSqr(bot:GetPos()) > ptn.Entity:GetPos():DistToSqr(bot:GetPos()) then  
                                 controller.Target = ptn.Entity
                                 controller.ForgetTarget = CurTime() + 4
@@ -936,7 +936,7 @@ if SERVER then
                         controller.Target = ptp.Entity
                         controller.ForgetTarget = CurTime() + 4
                     else
-                        if bot:LBGetTargPri() == 0 then
+                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
                             if target:GetPos():DistToSqr(bot:GetPos()) > ptp.Entity:GetPos():DistToSqr(bot:GetPos()) then  
                                 controller.Target = ptp.Entity
                                 controller.ForgetTarget = CurTime() + 4
@@ -957,7 +957,7 @@ if SERVER then
                         controller.Target = ptne.Entity
                         controller.ForgetTarget = CurTime() + 4
                     else
-                        if bot:LBGetTargPri() == 0 then
+                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
                             if target:GetPos():DistToSqr(bot:GetPos()) > ptne.Entity:GetPos():DistToSqr(bot:GetPos()) then  
                                 controller.Target = ptne.Entity
                                 controller.ForgetTarget = CurTime() + 4
@@ -978,7 +978,7 @@ if SERVER then
                         controller.Target = ptpe.Entity
                         controller.ForgetTarget = CurTime() + 4
                     else
-                        if bot:LBGetTargPri() == 0 then
+                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
                             if target:GetPos():DistToSqr(bot:GetPos()) > ptpe.Entity:GetPos():DistToSqr(bot:GetPos()) then  
                                 controller.Target = ptpe.Entity
                                 controller.ForgetTarget = CurTime() + 4
@@ -1075,7 +1075,7 @@ if SERVER then
 
             if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS or bot:Team() == TEAM_ZOMBIE then
                 if !bot:IsFrozen() then 
-                    if controller.NextDuck > CurTime() or controller.NextJump == 0 and !bot:IsOnGround() then
+                    if controller.NextDuck > CurTime() or controller.NextJump == 0 and !bot:IsOnGround() and bot:WaterLevel() == 0 then
                         buttons = buttons + IN_DUCK
                     elseif controller.NextJump == 0 then
                         controller.NextJump = CurTime() + 1

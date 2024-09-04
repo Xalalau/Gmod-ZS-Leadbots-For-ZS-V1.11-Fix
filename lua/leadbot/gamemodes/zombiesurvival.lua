@@ -2489,7 +2489,7 @@ if SERVER then
                                     mv:SetForwardSpeed(-1200)
                                 end
                             end
-                            if bot:LBGetSurvSkill() == 0 then
+                            if bot:LBGetSurvSkill() == 0 and IsValid(prt.Entity) then
                                 if controller.strafeAngle == 1 then
                                     mv:SetSideSpeed(1500)
                                 elseif controller.strafeAngle == 2 then

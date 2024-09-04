@@ -40,6 +40,7 @@ local survivorBreak = false
 local survivorBoxBreak = false
 local zombiePropCheck = true
 local zombieBreakCheck = true
+local prt
 local playerCSSpeed = 200
 resource.AddFile("sound/intermission.mp3")
 
@@ -694,7 +695,7 @@ if SERVER then
 
             if !IsValid(controller) then return end
 
-            local prt = util.QuickTrace(bot:EyePos(), bot:GetAimVector() * 10000000000, filterList)
+            prt = util.QuickTrace(bot:EyePos(), bot:GetAimVector() * 10000000000, filterList)
 
             local pot = util.QuickTrace(bot:GetPos(), bot:GetForward() * 10000000000, filterList)
 
@@ -2462,7 +2463,7 @@ if SERVER then
                 if controller.Target:IsPlayer() then 
                     if bot:Team() == TEAM_ZOMBIE then 
                         mv:SetForwardSpeed(1200)
-                        if distance > 45000 and bot:LBGetZomSkill() == 1 then
+                        if distance > 45000 and bot:LBGetZomSkill() == 1 and IsValid(prt.Entity) then
                             if controller.strafeAngle == 1 then
                                 mv:SetSideSpeed(1500)
                             elseif controller.strafeAngle == 2 then
@@ -2496,7 +2497,7 @@ if SERVER then
                                 end
                             end
                         else
-                            if distance <= 45000 then 
+                            if distance <= 45000 and IsValid(prt.Entity) then 
                                 mv:SetForwardSpeed(-1200)
                                 if controller.strafeAngle == 1 then
                                     mv:SetSideSpeed(1500)
@@ -2504,7 +2505,7 @@ if SERVER then
                                     mv:SetSideSpeed(-1500)
                                 end
                             end
-                            if bot:Health() <= 40 then 
+                            if bot:Health() <= 40 and IsValid(prt.Entity) then 
                                 if controller.Target:GetZombieClass() == 2 or controller.Target:GetZombieClass() > 5 and controller.Target:GetZombieClass() < 9 then 
                                     if controller.strafeAngle == 1 then
                                         mv:SetSideSpeed(1500)

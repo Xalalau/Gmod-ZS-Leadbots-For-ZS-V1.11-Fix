@@ -2330,7 +2330,7 @@ if SERVER then
             end
 
             if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_physics" then
-                if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or bot:Team() == TEAM_SURVIVORS and dt.Entity:GetMaxHealth() > 1 then
+                if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or ( bot:Team() == TEAM_SURVIVORS and dt.Entity:GetModel() ~= "models/props_debris/wood_board05a.mdl" or bot:Team() == TEAM_ZOMBIE ) and dt.Entity:GetMaxHealth() > 1 then
                     if dt.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
                         if dt.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
                             if zombiePropCheck then
@@ -2343,7 +2343,7 @@ if SERVER then
 
             if bot:GetMoveType() == MOVETYPE_LADDER then 
                 if IsValid(dtpse.Entity) and dtpse.Entity:GetClass() == "prop_physics" then
-                    if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and dt.Entity:GetMaxHealth() > 1 then
+                    if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or ( bot:Team() == TEAM_SURVIVORS and dt.Entity:GetModel() ~= "models/props_debris/wood_board05a.mdl" or bot:Team() == TEAM_ZOMBIE ) and dt.Entity:GetMaxHealth() > 1 then
                         if dtpse.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
                             if dtpse.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
                                 if zombiePropCheck then

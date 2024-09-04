@@ -1075,11 +1075,12 @@ if SERVER then
 
             if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS or bot:Team() == TEAM_ZOMBIE then
                 if !bot:IsFrozen() then 
-                    if controller.NextDuck > CurTime() or controller.NextJump == 0 and !bot:IsOnGround() and bot:WaterLevel() == 0 then
-                        buttons = buttons + IN_DUCK
-                    elseif controller.NextJump == 0 then
+                    if controller.NextJump == 0 then
                         controller.NextJump = CurTime() + 1
                         buttons = buttons + IN_JUMP
+                    end
+                    if controller.NextDuck > CurTime() or controller.NextJump > CurTime() and !bot:IsOnGround() and bot:WaterLevel() == 0 then
+                        buttons = buttons + IN_DUCK
                     end
                 end
             end
@@ -2606,7 +2607,7 @@ if SERVER then
                 end
 
                 if controller.NextCenter < CurTime() then
-                    if bot:GetVelocity():Length2DSqr() <= 225 or IsValid(controller.Target) then
+                    if curgoal.area:GetAttributes() ~= NAV_MESH_JUMP and ( bot:GetVelocity():Length2DSqr() <= 225 or IsValid(controller.Target) ) then
                         if !bot:IsFrozen() then 
                             controller.strafeAngle = ((controller.strafeAngle == 1 and 2) or 1)
                             controller.NextCenter = CurTime() + math.Rand(0.3, 0.9)

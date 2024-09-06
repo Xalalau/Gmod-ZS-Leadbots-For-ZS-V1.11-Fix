@@ -533,12 +533,11 @@ if SERVER then
             bot:RemoveEFlags(EFL_NO_DAMAGE_FORCES)
         end
 
-        --local classes = math.random(1, 8)
-        local classes = math.random(1, 6)
-        local HALFclasses = math.random(1, 14)
-        local UNclasses = math.random(1, 16)
-
         if bot:Team() == TEAM_ZOMBIE then
+
+            local classes = math.random(1, 6)
+            local HALFclasses = math.random(1, 14)
+            local UNclasses = math.random(1, 16)
 
             bot:StripWeapon("weapon_zs_swissarmyknife")
             bot:StripWeapon("weapon_zs_battleaxe")
@@ -626,6 +625,8 @@ if SERVER then
             else
                 bot:SetZombieClass(1)
             end
+        else
+            bot:SetZombieClass(1)
         end
     end
 

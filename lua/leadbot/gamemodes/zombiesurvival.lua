@@ -506,7 +506,7 @@ if SERVER then
     end
 
     function LeadBot.Think()
-        for _, bot in ipairs(player.GetAll()) do
+        for _, bot in ipairs(player.GetBots()) do
             if bot:IsLBot() then
                 if LeadBot.RespawnAllowed and bot.NextSpawnTime and !bot:Alive() and bot.NextSpawnTime < CurTime() then
                     bot:Spawn()

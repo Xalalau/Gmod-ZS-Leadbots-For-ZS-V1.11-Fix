@@ -506,7 +506,7 @@ if SERVER then
     end
 
     function LeadBot.Think()
-        for _, bot in ipairs(player.GetBots()) do
+        for _, bot in ipairs(player.GetAll()) do
             if bot:IsLBot() then
                 if LeadBot.RespawnAllowed and bot.NextSpawnTime and !bot:Alive() and bot.NextSpawnTime < CurTime() then
                     bot:Spawn()
@@ -1004,7 +1004,7 @@ if SERVER then
                     else
                         if botWeapon:Clip1() > 0 then 
                             if math.random(1, 2) == 1 then 
-                                if not target:IsPlayer() or target:IsPlayer() and not target:HasGodMode() and ( IsValid(prt.Entity) or target:GetPos():DistToSqr(bot:GetPos()) <= 5625 ) and ( target:GetPos():DistToSqr(bot:GetPos()) > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() > 4 or target:GetZombieClass() < 4 ) then 
+                                if not target:IsPlayer() or target:IsPlayer() and not target:HasGodMode() and ( IsValid(prt.Entity) or target:GetPos():DistToSqr(bot:GetPos()) <= 5625 or target:GetZombieClass() == 10 ) and ( target:GetPos():DistToSqr(bot:GetPos()) > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() > 4 or target:GetZombieClass() < 4 ) then 
                                     buttons = buttons + IN_ATTACK
                                 end
                             end
@@ -2415,7 +2415,7 @@ if SERVER then
                         for k, v in RandomPairs(player.GetAll()) do 
                             if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
                                 controller.PosGen = v:GetPos()
-                                controller.LastSegmented = CurTime() + 1000000
+                                controller.LastSegmented = CurTime() + 10
                             end
                         end
                     end
@@ -2436,7 +2436,7 @@ if SERVER then
                         for k, v in RandomPairs(player.GetAll()) do 
                             if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
                                 controller.PosGen = v:GetPos()
-                                controller.LastSegmented = CurTime() + 1000000
+                                controller.LastSegmented = CurTime() + 10
                             end
                         end
                     end

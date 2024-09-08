@@ -458,7 +458,7 @@ if SERVER then
             if not game.SinglePlayer() then 
                 if not ply:IsBot() and leadbot_zchance:GetInt() < 1 and INFLICTION < 0.5 or not ply:IsBot() and leadbot_zchance:GetInt() < 1 and (CurTime() <= GetConVar("zs_roundtime"):GetInt()*0.5 and not GetConVar("zs_human_deadline"):GetBool()) then 
                     timer.Simple(2, function() 
-                        --ply:Redeem() 
+                        ply:Redeem() 
                         if leadbot_mapchanges:GetInt() >= 1 then 
                             if game.GetMap() == "zs_buntshot" then 
                                 ply:SetPos( Vector(-520.605774 + math.random(-25, 25), -90.801414 + math.random(-25, 25), -211.968750) ) 
@@ -472,7 +472,7 @@ if SERVER then
                 if ply:IsBot() then
                     if GetConVar("leadbot_quota"):GetInt() > 1 and leadbot_hordes:GetInt() < 1 then
                         for k, v in ipairs(player.GetBots()) do 
-                            --v:Redeem()
+                            v:Redeem()
                             v:SetMaxHealth(1000000)
                             if leadbot_mapchanges:GetInt() >= 1 then 
                                 if game.GetMap() == "zs_buntshot" then 

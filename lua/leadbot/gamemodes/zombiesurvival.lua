@@ -1,3 +1,4 @@
+if CLIENT then return end
 -- basically finished :I --f
 --      By Tony Dosk Enginooy. 8====================================================================================D 
 --         This file was creater to Zombie Survival v1.11 Fix, by Xalalau. Ty, Tony - Xala
@@ -46,7 +47,7 @@ resource.AddFile("sound/intermission.mp3")
 
 if SERVER then 
     timer.Simple(3, function() 
-        if game.GetMap() == "zs_embassy" or game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_pub" or game.GetMap() == "zs_bog_shityhouse" or game.GetMap() == "zs_ancient_castle_opt" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_gu_frostbite_v2" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_imashouse_b2" then
+        if game.GetMap() == "zs_overandunderground_v2" or game.GetMap() == "zs_embassy" or game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_pub" or game.GetMap() == "zs_bog_shityhouse" or game.GetMap() == "zs_ancient_castle_opt" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_gu_frostbite_v2" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_imashouse_b2" then
             survivorBreak = true
         end
 
@@ -79,14 +80,14 @@ if SERVER then
                 v:Remove()
             end
 
-            if game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_embassy" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" or game.GetMap() == "zs_fen" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_pub" then 
+            if game.GetMap() == "zs_overandunderground_v2" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_embassy" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_lila_panic_v3" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_mall_dl" or game.GetMap() == "zs_fen" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_pub" then 
                 for k, v in ipairs( ents.FindByClass( "func_breakable" ) ) do
                     v:Remove()
                 end
             end
 
             for k, v in ipairs( ents.FindByClass( "func_physbox" ) ) do
-                if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_embassy" and v:Health() > 1 or game.GetMap() == "zs_the_pub_beta1" and ( v:GetModel() == "*46" or v:GetModel() == "*47" ) then 
+                if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_house_number_23" or game.GetMap() == "zs_embassy" and v:Health() > 1 or game.GetMap() == "zs_the_pub_beta1" and ( v:GetModel() == "*46" or v:GetModel() == "*47" ) or game.GetMap() == "zs_overandunderground_v2" and ( v:GetModel() == "*170" or v:GetModel() == "*169" or v:GetModel() == "*35" or v:GetModel() == "*34" or v:GetModel() == "*71" or v:GetModel() == "*22" ) then 
                     v:Remove()
                 end
                 if game.GetMap() == "zs_termites_v2" then 
@@ -102,6 +103,9 @@ if SERVER then
                     v:Remove()
                 end
                 if game.GetMap() == "zs_panic_house_v2" and v:GetModel() == "models/props_debris/wood_board06a.mdl" then  
+                    v:Remove()
+                end
+                if game.GetMap() == "zs_overandunderground_v2" and v:GetModel() == "models/props_debris/metal_panel01a.mdl" then  
                     v:Remove()
                 end
                 if game.GetMap() == "zs_termites_v2" then 
@@ -454,7 +458,7 @@ if SERVER then
             if not game.SinglePlayer() then 
                 if not ply:IsBot() and leadbot_zchance:GetInt() < 1 and INFLICTION < 0.5 or not ply:IsBot() and leadbot_zchance:GetInt() < 1 and (CurTime() <= GetConVar("zs_roundtime"):GetInt()*0.5 and not GetConVar("zs_human_deadline"):GetBool()) then 
                     timer.Simple(2, function() 
-                        ply:Redeem() 
+                        --ply:Redeem() 
                         if leadbot_mapchanges:GetInt() >= 1 then 
                             if game.GetMap() == "zs_buntshot" then 
                                 ply:SetPos( Vector(-520.605774 + math.random(-25, 25), -90.801414 + math.random(-25, 25), -211.968750) ) 
@@ -468,7 +472,7 @@ if SERVER then
                 if ply:IsBot() then
                     if GetConVar("leadbot_quota"):GetInt() > 1 and leadbot_hordes:GetInt() < 1 then
                         for k, v in ipairs(player.GetBots()) do 
-                            v:Redeem()
+                            --v:Redeem()
                             v:SetMaxHealth(1000000)
                             if leadbot_mapchanges:GetInt() >= 1 then 
                                 if game.GetMap() == "zs_buntshot" then 

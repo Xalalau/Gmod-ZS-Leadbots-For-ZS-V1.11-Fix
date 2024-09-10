@@ -46,6 +46,8 @@ local playerCSSpeed = 200
 resource.AddFile("sound/intermission.mp3")
 
 if SERVER then 
+    include("zombiesurvival/playermeta.lua")
+
     timer.Simple(3, function() 
         if game.GetMap() == "zs_overandunderground_v2" or game.GetMap() == "zs_embassy" or game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_pub" or game.GetMap() == "zs_bog_shityhouse" or game.GetMap() == "zs_ancient_castle_opt" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_gu_frostbite_v2" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_imashouse_b2" then
             survivorBreak = true
@@ -131,90 +133,6 @@ if SERVER then
         end 
     end )
 
-    local player_meta = FindMetaTable("Player")
-    local oldInfo = player_meta.GetInfo
-
-    function player_meta.IsLBot(self, realbotsonly)
-        if realbotsonly == true then
-            return self.LeadBot and self:IsBot() or false
-        end
-
-        return self.LeadBot or false
-    end
-
-    function player_meta.LBGetStrategy(self)
-        if self.LeadBot_Config then
-            return self.LeadBot_Config[4]
-        else
-            return 0
-        end
-    end
-
-    function player_meta.LBGetSurvSkill(self)
-        if self.LeadBot_Config then
-            return self.LeadBot_Config[5]
-        else
-            return 0
-        end
-    end
-
-    function player_meta.LBGetZomSkill(self)
-        if self.LeadBot_Config then
-            return self.LeadBot_Config[6]
-        else
-            return 0
-        end
-    end
-
-    function player_meta.LBGetTargPri(self)
-        if self.LeadBot_Config then
-            return self.LeadBot_Config[7]
-        else
-            return 0
-        end
-    end
-
-    function player_meta.LBGetModel(self)
-        if self.LeadBot_Config then
-            return self.LeadBot_Config[1]
-        else
-            return "kleiner"
-        end
-    end
-
-    function player_meta.LBGetColor(self, weapon)
-        if self.LeadBot_Config then
-            if weapon == true then
-                return self.LeadBot_Config[3]
-            else
-                return self.LeadBot_Config[2]
-            end
-        else
-            return Vector(0, 0, 0)
-        end
-    end
-
-    function player_meta.GetInfo(self, convar)
-        if self:IsBot() and self:IsLBot() then
-            if convar == "cl_playermodel" then
-                return self:LBGetModel() --self.LeadBot_Config[1]
-            elseif convar == "cl_playercolor" then
-                return self:LBGetColor() --self.LeadBot_Config[2]
-            elseif convar == "cl_weaponcolor" then
-                return self:LBGetColor(true) --self.LeadBot_Config[3]
-            else
-                return ""
-            end
-        else
-            return oldInfo(self, convar)
-        end
-    end
-
-    function player_meta.GetController(self)
-        if self:IsLBot() then
-            return self.ControllerBot
-        end
-    end
 
     local name_Default = {
         alyx = "Alyx Vance",

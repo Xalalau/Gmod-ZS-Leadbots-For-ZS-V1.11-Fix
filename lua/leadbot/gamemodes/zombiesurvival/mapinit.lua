@@ -284,15 +284,15 @@ local function InitMap()
 
         local removePropPhysicsList = ZSBots:GetMapValue("removePropPhysicsList")
 
-        local countPropPyysicsRemovals = table.Count(removePropPhysicsList)
+        local countPropPhysicsRemovals = table.Count(removePropPhysicsList)
 
         for k, v in ipairs(propPhysicsEnts) do
             if removePropPhysicsList[v] then
                 v:Remove()
-                countPropPyysicsRemovals = countPropPyysicsRemovals - 1
+                countPropPhysicsRemovals = countPropPhysicsRemovals - 1
             end
 
-            if countPropPyysicsRemovals == 0 then
+            if countPropPhysicsRemovals == 0 then
                 break
             end
         end

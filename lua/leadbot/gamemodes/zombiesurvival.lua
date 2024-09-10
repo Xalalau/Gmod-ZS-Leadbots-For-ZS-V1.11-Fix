@@ -1,7 +1,7 @@
 if CLIENT then return end
 -- basically finished :I --f
 --      By Tony Dosk Enginooy. 8====================================================================================D 
---         This file was creater to Zombie Survival v1.11 Fix, by Xalalau. Ty, Tony - Xala
+--         This module is intended to run with ZS v1.11 Fix by Xalalau
 
 LeadBot.Gamemode = "zombiesurvival"
 LeadBot.RespawnAllowed = true -- allows bots to respawn automatically when dead

@@ -1311,11 +1311,15 @@ function LeadBot.PlayerMove(bot, cmd, mv)
             end
         end
 
+        local survivorBreak = ZSBots:GetMapValue("survivorBreak")
+
         if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_breakable" and dt.Entity:GetMaxHealth() > 1 then
             if bot:Team() == TEAM_ZOMBIE or survivorBreak then
                 controller.Target = dt.Entity
             end
         end
+
+        local zombieBreakCheck = ZSBots:GetMapValue("zombieBreakCheck")
 
         if IsValid(dtn.Entity) and dtn.Entity:GetClass() == "func_breakable" and dtn.Entity:GetMaxHealth() > 1 then
             if not zombieBreakCheck then
@@ -1350,10 +1354,12 @@ function LeadBot.PlayerMove(bot, cmd, mv)
         end
 
         if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_physbox" then
-            if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or survivorBoxBreak and dt.Entity:GetMaxHealth() > 1 then
+            if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or ZSBots:GetMapValue("survivorBoxBreak") and dt.Entity:GetMaxHealth() > 1 then
                 controller.Target = dt.Entity
             end
         end
+
+        local zombiePropCheck = ZSBots:GetMapValue("zombiePropCheck")
 
         if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_physics" then
             if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or ( bot:Team() == TEAM_SURVIVORS and dt.Entity:Health() <= 50 and ( dt.Entity:GetModel() ~= "models/props_debris/wood_board04a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board05a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board06a.mdl" ) or bot:Team() == TEAM_ZOMBIE ) and dt.Entity:GetMaxHealth() > 1 then

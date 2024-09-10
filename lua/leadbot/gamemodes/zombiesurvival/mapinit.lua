@@ -223,11 +223,6 @@ function ZSBots:SetMapValue(key, value)
     self.currentMap[key] = value
 end
 
-local survivorBreak = ZSBots:GetMapValue("survivorBreak")
-local survivorBoxBreak = ZSBots:GetMapValue("survivorBoxBreak")
-local zombiePropCheck = ZSBots:GetMapValue("zombiePropCheck")
-local zombieBreakCheck = ZSBots:GetMapValue("zombieBreakCheck")
-
 local function RemoveFromMap(key, class, entTab, filter)
     if ZSBots:GetMapValue(key) then
         for k, v in ipairs(entTab or ents.FindByClass(class)) do

@@ -700,7 +700,6 @@ resource.AddFile("sound/intermission.mp3")
                         end
                     end
                 end
-                print(targ)
             end
         end
     end

@@ -42,10 +42,10 @@ local survivorBoxBreak = false
 local zombiePropCheck = true
 local zombieBreakCheck = true
 local prt
+local dtnse
 local playerCSSpeed = 200
 resource.AddFile("sound/intermission.mp3")
 
-if SERVER then 
     timer.Simple(3, function() 
         if game.GetMap() == "zs_overandunderground_v2" or game.GetMap() == "zs_embassy" or game.GetMap() == "zs_buntshot" or game.GetMap() == "zs_termites_v2" or game.GetMap() == "zs_pub" or game.GetMap() == "zs_bog_shityhouse" or game.GetMap() == "zs_ancient_castle_opt" or game.GetMap() == "zs_deadblock_v2" or game.GetMap() == "zs_gu_frostbite_v2" or game.GetMap() == "zs_house_outbreak_b2" or game.GetMap() == "zs_imashouse_b2" then
             survivorBreak = true
@@ -317,7 +317,6 @@ if SERVER then
     }
 
     function LeadBot.AddBot()
-        if SERVER then 
             if !navmesh.IsLoaded() and !LeadBot.NoNavMesh and not game.SinglePlayer() then
                 if GetConVar("sv_cheats"):GetInt() == 1 then
                     RunConsoleCommand("nav_generate")
@@ -438,7 +437,6 @@ if SERVER then
             bot.LeadBot = true
             LeadBot.AddBotOverride(bot)
             LeadBot.AddBotControllerOverride(bot, bot.ControllerBot)
-        end
     end
 
     if not game.SinglePlayer() and leadbot_hordes:GetInt() >= 1 then
@@ -454,11 +452,11 @@ if SERVER then
     end
 
     hook.Add( "PlayerInitialSpawn", "BotSpawnLogic", function( ply )
-        if SERVER then 
+        if CLIENT then return end
             if not game.SinglePlayer() then 
                 if not ply:IsBot() and leadbot_zchance:GetInt() < 1 and INFLICTION < 0.5 or not ply:IsBot() and leadbot_zchance:GetInt() < 1 and (CurTime() <= GetConVar("zs_roundtime"):GetInt()*0.5 and not GetConVar("zs_human_deadline"):GetBool()) then 
                     timer.Simple(2, function() 
-                        ply:Redeem() 
+                        ply:Redeem()
                         if leadbot_mapchanges:GetInt() >= 1 then 
                             if game.GetMap() == "zs_buntshot" then 
                                 ply:SetPos( Vector(-520.605774 + math.random(-25, 25), -90.801414 + math.random(-25, 25), -211.968750) ) 
@@ -495,7 +493,6 @@ if SERVER then
                     timer.Stop("INTERMISSION_MESSAGE")
                 end
             end
-        end
     end )
 
     function LeadBot.AddBotOverride(bot)
@@ -515,12 +512,6 @@ if SERVER then
                 if LeadBot.RespawnAllowed and bot.NextSpawnTime and !bot:Alive() and bot.NextSpawnTime < CurTime() then
                     bot:Spawn()
                     return
-                end
-
-                local wep = bot:GetActiveWeapon()
-                if IsValid(wep) then
-                    local ammoty = wep:GetPrimaryAmmoType() or wep.Primary.Ammo
-                    bot:SetAmmo(999, ammoty)
                 end
             end
         end
@@ -690,8 +681,31 @@ if SERVER then
 
     local feet = Vector(0, 0, -29)
 
+    function TargetPractice(ai, pt, targ, control)
+        if IsValid(pt.Entity) and not pt.Entity:IsWorld() and ( pt.Entity:IsPlayer() and pt.Entity:Team() ~= ai:Team() or ai:Team() == TEAM_HUMAN and pt.Entity:IsNPC() ) then
+            if pt.Entity:IsPlayer() and ( pt.Entity:GetZombieClass() ~= 4 or pt.Entity:GetZombieClass() == 4 and pt.Entity:GetPos():DistToSqr(ai:GetPos()) > 67500 ) or pt.Entity:IsNPC() then
+                if !IsValid(targ) then
+                    control.Target = pt.Entity
+                    control.ForgetTarget = CurTime() + 4
+                else
+                     if ai:LBGetTargPri() == 0 or ai:Team() == TEAM_HUMAN then
+                         if targ:GetPos():DistToSqr(ai:GetPos()) > pt.Entity:GetPos():DistToSqr(ai:GetPos()) then  
+                             control.Target = pt.Entity
+                             control.ForgetTarget = CurTime() + 4
+                        end
+                    else
+                        if targ:Health() > pt.Entity:Health() then  
+                            control.Target = pt.Entity
+                            control.ForgetTarget = CurTime() + 4
+                        end
+                    end
+                end
+                print(targ)
+            end
+        end
+    end
+
     function LeadBot.StartCommand(bot, cmd)
-        if SERVER then 
             local buttons = 0
             local botWeapon = bot:GetActiveWeapon()
             local controller = bot.ControllerBot
@@ -726,278 +740,17 @@ if SERVER then
 
             local ptpe = util.QuickTrace(bot:GetPos(), bot:GetForward() * 10000000000 + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked(), filterList)
 
-            if IsValid(prt.Entity) and prt.Entity:IsPlayer() and prt.Entity:Team() ~= bot:Team() then
-                if prt.Entity:GetZombieClass() ~= 4 or prt.Entity:GetZombieClass() == 4 and prt.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
-                    if !IsValid(target) then
-                        controller.Target = prt.Entity
-                        controller.ForgetTarget = CurTime() + 4
-                    else
-                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
-                            if target:GetPos():DistToSqr(bot:GetPos()) > prt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
-                                controller.Target = prt.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        else
-                            if target:Health() > prt.Entity:Health() then  
-                                controller.Target = prt.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        end
-                    end
-                end
-            end
-
-            if IsValid(pot.Entity) and pot.Entity:IsPlayer() and pot.Entity:Team() ~= bot:Team() then
-                if pot.Entity:GetZombieClass() ~= 4 or pot.Entity:GetZombieClass() == 4 and pot.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
-                    if !IsValid(target) then
-                        controller.Target = pot.Entity
-                        controller.ForgetTarget = CurTime() + 4
-                    else
-                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
-                            if target:GetPos():DistToSqr(bot:GetPos()) > pot.Entity:GetPos():DistToSqr(bot:GetPos()) then  
-                                controller.Target = pot.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        else
-                            if target:Health() > pot.Entity:Health() then  
-                                controller.Target = pot.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        end
-                    end
-                end
-            end
-
-            if IsValid(pet.Entity) and pet.Entity:IsPlayer() and pet.Entity:Team() ~= bot:Team() then
-                if pet.Entity:GetZombieClass() ~= 4 or pet.Entity:GetZombieClass() == 4 and pet.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
-                    if !IsValid(target) then
-                        controller.Target = pet.Entity
-                        controller.ForgetTarget = CurTime() + 4
-                    else
-                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
-                            if target:GetPos():DistToSqr(bot:GetPos()) > pet.Entity:GetPos():DistToSqr(bot:GetPos()) then  
-                                controller.Target = pet.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        else
-                            if target:Health() > pet.Entity:Health() then  
-                                controller.Target = pet.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        end
-                    end
-                end
-            end
-
-            if IsValid(pwrt.Entity) and pwrt.Entity:IsPlayer() and pwrt.Entity:Team() ~= bot:Team() then
-                if pwrt.Entity:GetZombieClass() ~= 4 or pwrt.Entity:GetZombieClass() == 4 and pwrt.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
-                    if !IsValid(target) then
-                        controller.Target = pwrt.Entity
-                        controller.ForgetTarget = CurTime() + 4
-                    else
-                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
-                            if target:GetPos():DistToSqr(bot:GetPos()) > pwrt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
-                                controller.Target = pwrt.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        else
-                            if target:Health() > pwrt.Entity:Health() then  
-                                controller.Target = pwrt.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        end
-                    end
-                end
-            end
-
-            if IsValid(pwlt.Entity) and pwlt.Entity:IsPlayer() and pwlt.Entity:Team() ~= bot:Team() then
-                if pwlt.Entity:GetZombieClass() ~= 4 or pwlt.Entity:GetZombieClass() == 4 and pwlt.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
-                    if !IsValid(target) then
-                        controller.Target = pwlt.Entity
-                        controller.ForgetTarget = CurTime() + 4
-                    else
-                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
-                            if target:GetPos():DistToSqr(bot:GetPos()) > pwlt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
-                                controller.Target = pwlt.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        else
-                            if target:Health() > pwlt.Entity:Health() then  
-                                controller.Target = pwlt.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        end
-                    end
-                end
-            end
-
-            if IsValid(pwdrt.Entity) and pwdrt.Entity:IsPlayer() and pwdrt.Entity:Team() ~= bot:Team() then
-                if pwdrt.Entity:GetZombieClass() ~= 4 or pwdrt.Entity:GetZombieClass() == 4 and pwdrt.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
-                    if !IsValid(target) then
-                        controller.Target = pwdrt.Entity
-                        controller.ForgetTarget = CurTime() + 4
-                    else
-                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
-                            if target:GetPos():DistToSqr(bot:GetPos()) > pwdrt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
-                                controller.Target = pwdrt.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        else
-                            if target:Health() > pwdrt.Entity:Health() then  
-                                controller.Target = pwdrt.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        end
-                    end
-                end
-            end
-
-            if IsValid(pwdlt.Entity) and pwdlt.Entity:IsPlayer() and pwdlt.Entity:Team() ~= bot:Team() then
-                if pwdlt.Entity:GetZombieClass() ~= 4 or pwdlt.Entity:GetZombieClass() == 4 and pwdlt.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
-                    if !IsValid(target) then
-                        controller.Target = pwdlt.Entity
-                        controller.ForgetTarget = CurTime() + 4
-                    else
-                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
-                            if target:GetPos():DistToSqr(bot:GetPos()) > pwdlt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
-                                controller.Target = pwdlt.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        else
-                            if target:Health() > pwdlt.Entity:Health() then  
-                                controller.Target = pwdlt.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        end
-                    end
-                end
-            end
-
-            if IsValid(pwdrat.Entity) and pwdrat.Entity:IsPlayer() and pwdrat.Entity:Team() ~= bot:Team() then
-                if pwdrat.Entity:GetZombieClass() ~= 4 or pwdrat.Entity:GetZombieClass() == 4 and pwdrat.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
-                    if !IsValid(target) then
-                        controller.Target = pwdrat.Entity
-                        controller.ForgetTarget = CurTime() + 4
-                    else
-                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
-                            if target:GetPos():DistToSqr(bot:GetPos()) > pwdrat.Entity:GetPos():DistToSqr(bot:GetPos()) then  
-                                controller.Target = pwdrat.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        else
-                            if target:Health() > pwdrat.Entity:Health() then  
-                                controller.Target = pwdrat.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        end
-                    end
-                end
-            end
-
-            if IsValid(pwdlat.Entity) and pwdlat.Entity:IsPlayer() and pwdlat.Entity:Team() ~= bot:Team() then
-                if pwdlat.Entity:GetZombieClass() ~= 4 or pwdlat.Entity:GetZombieClass() == 4 and pwdlat.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
-                    if !IsValid(target) then
-                        controller.Target = pwdlat.Entity
-                        controller.ForgetTarget = CurTime() + 4
-                    else
-                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
-                            if target:GetPos():DistToSqr(bot:GetPos()) > pwdlat.Entity:GetPos():DistToSqr(bot:GetPos()) then  
-                                controller.Target = pwdlat.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        else
-                            if target:Health() > pwdlat.Entity:Health() then  
-                                controller.Target = pwdlat.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        end
-                    end
-                end
-            end
-
-            if IsValid(ptn.Entity) and ptn.Entity:IsPlayer() and ptn.Entity:Team() ~= bot:Team() then
-                if ptn.Entity:GetZombieClass() ~= 4 or ptn.Entity:GetZombieClass() == 4 and ptn.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
-                    if !IsValid(target) then
-                        controller.Target = ptn.Entity
-                        controller.ForgetTarget = CurTime() + 4
-                    else
-                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
-                            if target:GetPos():DistToSqr(bot:GetPos()) > ptn.Entity:GetPos():DistToSqr(bot:GetPos()) then  
-                                controller.Target = ptn.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        else
-                            if target:Health() > ptn.Entity:Health() then  
-                                controller.Target = ptn.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        end
-                    end
-                end
-            end
-
-            if IsValid(ptp.Entity) and ptp.Entity:IsPlayer() and ptp.Entity:Team() ~= bot:Team() then
-                if ptp.Entity:GetZombieClass() ~= 4 or ptp.Entity:GetZombieClass() == 4 and ptp.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
-                    if !IsValid(target) then
-                        controller.Target = ptp.Entity
-                        controller.ForgetTarget = CurTime() + 4
-                    else
-                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
-                            if target:GetPos():DistToSqr(bot:GetPos()) > ptp.Entity:GetPos():DistToSqr(bot:GetPos()) then  
-                                controller.Target = ptp.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        else
-                            if target:Health() > ptp.Entity:Health() then  
-                                controller.Target = ptp.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        end
-                    end
-                end
-            end
-
-            if IsValid(ptne.Entity) and ptne.Entity:IsPlayer() and ptne.Entity:Team() ~= bot:Team() then
-                if ptne.Entity:GetZombieClass() ~= 4 or ptne.Entity:GetZombieClass() == 4 and ptne.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
-                    if !IsValid(target) then
-                        controller.Target = ptne.Entity
-                        controller.ForgetTarget = CurTime() + 4
-                    else
-                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
-                            if target:GetPos():DistToSqr(bot:GetPos()) > ptne.Entity:GetPos():DistToSqr(bot:GetPos()) then  
-                                controller.Target = ptne.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        else
-                            if target:Health() > ptne.Entity:Health() then  
-                                controller.Target = ptne.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        end
-                    end
-                end
-            end
-
-            if IsValid(ptpe.Entity) and ptpe.Entity:IsPlayer() and ptpe.Entity:Team() ~= bot:Team() then
-                if ptpe.Entity:GetZombieClass() ~= 4 or ptpe.Entity:GetZombieClass() == 4 and ptpe.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
-                    if !IsValid(target) then
-                        controller.Target = ptpe.Entity
-                        controller.ForgetTarget = CurTime() + 4
-                    else
-                        if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
-                            if target:GetPos():DistToSqr(bot:GetPos()) > ptpe.Entity:GetPos():DistToSqr(bot:GetPos()) then  
-                                controller.Target = ptpe.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        else
-                            if target:Health() > ptpe.Entity:Health() then  
-                                controller.Target = ptpe.Entity
-                                controller.ForgetTarget = CurTime() + 4
-                            end
-                        end
-                    end
-                end
-            end
+            TargetPractice(bot, prt, target, controller)
+            TargetPractice(bot, pot, target, controller)
+            TargetPractice(bot, pet, target, controller)
+            TargetPractice(bot, pwrt, target, controller)
+            TargetPractice(bot, pwlt, target, controller)
+            TargetPractice(bot, pwdrt, target, controller)
+            TargetPractice(bot, pwdlat, target, controller)
+            TargetPractice(bot, ptn, target, controller)
+            TargetPractice(bot, ptp, target, controller)
+            TargetPractice(bot, ptne, target, controller)
+            TargetPractice(bot, ptpe, target, controller)
 
             if bot:Team() == TEAM_SURVIVORS then 
                 if IsValid(botWeapon) then 
@@ -1008,7 +761,7 @@ if SERVER then
                     else
                         if botWeapon:Clip1() > 0 then 
                             if math.random(1, 2) == 1 then 
-                                if not target:IsPlayer() or target:IsPlayer() and not target:HasGodMode() and ( IsValid(prt.Entity) or target:GetPos():DistToSqr(bot:GetPos()) <= 5625 or target:GetZombieClass() == 10 ) and ( target:GetPos():DistToSqr(bot:GetPos()) > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() > 4 or target:GetZombieClass() < 4 ) then 
+                                if not target:IsPlayer() and not target:IsNPC() or target:IsNPC() and IsValid(prt.Entity) or target:IsPlayer() and not target:HasGodMode() and ( IsValid(prt.Entity) or target:GetPos():DistToSqr(bot:GetPos()) <= 5625) and ( target:GetPos():DistToSqr(bot:GetPos()) > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() > 4 or target:GetZombieClass() < 4 ) then 
                                     buttons = buttons + IN_ATTACK
                                 end
                             end
@@ -1023,11 +776,11 @@ if SERVER then
                 if IsValid(target) then
                     if math.random(1, 2) == 1 then 
                         if bot:GetZombieClass() > 5 and bot:GetZombieClass() < 9 then 
-                            if IsValid(prt.Entity) or not target:IsPlayer() then 
+                            if IsValid(prt.Entity) or not target:IsPlayer() and not target:IsNPC() then 
                                 buttons = buttons + IN_ATTACK
                             end
                         else
-                            if target:GetPos():DistToSqr(bot:GetPos()) < 10750 or not target:IsPlayer() then 
+                            if target:GetPos():DistToSqr(bot:GetPos()) < 10750 or not target:IsPlayer() and not target:IsNPC() then 
                                 buttons = buttons + IN_ATTACK
                             end
                         end
@@ -1058,6 +811,112 @@ if SERVER then
                         buttons = buttons + IN_ATTACK
                     end
                 end
+            end
+
+            local dt = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90, bot)
+
+            local dtn = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 - bot:GetViewOffsetDucked(), bot)
+
+            local dtp = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 + bot:GetViewOffsetDucked(), bot)
+
+            dtnse = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 - bot:GetViewOffsetDucked() - bot:GetViewOffsetDucked() - bot:GetViewOffsetDucked(), bot)
+
+            local dtpse = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked(), bot)
+
+            if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_placid" then 
+                if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_door_rotating" then
+                    dt.Entity:Fire("Break", bot, 0)
+                end
+            end
+
+            if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_movelinear" then
+                if dt.Entity:GetName() ~= "BunkerDoor" then
+                    dt.Entity:Fire("Open", bot, 0)
+                else
+                    dt.Entity:Fire("Close", bot, 0)
+                end
+            end
+
+            if IsValid(dt.Entity) and ( dt.Entity:IsNPC() or bot:Team() == TEAM_ZOMBIE and dt.Entity:IsPlayer() ) and not bot:GetNoCollideWithTeammates() then
+                controller.Target = dt.Entity
+            end
+
+            if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_breakable" and dt.Entity:GetMaxHealth() > 1 then
+                if bot:Team() == TEAM_ZOMBIE or survivorBreak then
+                    controller.Target = dt.Entity
+                end
+            end
+
+            if IsValid(dtn.Entity) and dtn.Entity:GetClass() == "func_breakable" and dtn.Entity:GetMaxHealth() > 1 then
+                if not zombieBreakCheck then
+                    if bot:Team() == TEAM_ZOMBIE or survivorBreak then
+                        controller.Target = dtn.Entity
+                    end
+                end
+            end
+
+            if IsValid(dtp.Entity) and dtp.Entity:GetClass() == "func_breakable" and dtp.Entity:GetMaxHealth() > 1 then
+                if not zombieBreakCheck then
+                    if bot:Team() == TEAM_ZOMBIE or survivorBreak then
+                        controller.Target = dtp.Entity
+                    end
+                end
+            end
+
+            if IsValid(dtnse.Entity) and dtnse.Entity:GetClass() == "func_breakable" and dtnse.Entity:GetMaxHealth() > 1 then
+                    if not zombieBreakCheck then
+                        if bot:Team() == TEAM_ZOMBIE or survivorBreak then
+                            controller.Target = dtnse.Entity
+                        end
+                    end
+                end
+
+            if IsValid(dtpse.Entity) and dtpse.Entity:GetClass() == "func_breakable" and dtpse.Entity:GetMaxHealth() > 1 then
+                if not zombieBreakCheck then
+                    if bot:Team() == TEAM_ZOMBIE or survivorBreak then
+                        controller.Target = dtpse.Entity
+                    end
+                end
+            end
+
+            if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_physbox" then
+                if bot:Team() == TEAM_ZOMBIE or survivorBoxBreak and dt.Entity:GetMaxHealth() > 1 then
+                    controller.Target = dt.Entity
+                end
+            end
+
+            if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_physics" then
+                if bot:Team() == TEAM_ZOMBIE or ( bot:Team() == TEAM_HUMAN and dt.Entity:Health() <= 50 and ( dt.Entity:GetModel() ~= "models/props_debris/wood_board04a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board05a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board06a.mdl" ) or bot:Team() == TEAM_ZOMBIE ) and dt.Entity:GetMaxHealth() > 1 then
+                    if dt.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
+                        if dt.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
+                            if zombiePropCheck then
+                                controller.Target = dt.Entity
+                            end
+                        end
+                    end
+                end
+            end
+
+            if bot:GetMoveType() == MOVETYPE_LADDER then 
+                if IsValid(dtpse.Entity) and dtpse.Entity:GetClass() == "prop_physics" then
+                    if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or ( bot:Team() == TEAM_SURVIVORS and dt.Entity:Health() <= 50 and ( dt.Entity:GetModel() ~= "models/props_debris/wood_board04a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board05a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board06a.mdl" ) or bot:Team() == TEAM_ZOMBIE ) and dt.Entity:GetMaxHealth() > 1 then
+                        if dtpse.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
+                            if dtpse.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
+                                if zombiePropCheck then
+                                    controller.Target = dt.Entity
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
+            if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_breakable_surf" then
+                controller.Target = dt.Entity
+            end
+
+            if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_dynamic" and dt.Entity:GetMaxHealth() > 1 then
+                controller.Target = dt.Entity
             end
 
             if bot:GetMoveType() == MOVETYPE_LADDER then
@@ -1116,7 +975,6 @@ if SERVER then
             cmd:ClearButtons()
             cmd:ClearMovement()
             cmd:SetButtons(buttons)
-        end
     end
 
     if game.GetMap() == "zs_panic_house_v2" then 
@@ -1941,7 +1799,6 @@ if SERVER then
 
     function LeadBot.PlayerMove(bot, cmd, mv)
 
-        if SERVER then 
             local controller = bot.ControllerBot
 
             local openvar = math.random(-90, 90)
@@ -2253,7 +2110,7 @@ if SERVER then
                 mv:SetForwardSpeed(1200)
             end
 
-            if (bot.NextSpawnTime and bot.NextSpawnTime + 1 > CurTime()) or !IsValid(controller.Target) or controller.ForgetTarget < CurTime() or controller.Target:Health() < 1 or !bot:Alive() then
+            if not IsValid(controller.Target) or controller.ForgetTarget < CurTime() or controller.Target:Health() < 1 then
                 controller.Target = nil
             end
 
@@ -2266,108 +2123,6 @@ if SERVER then
                 end
             elseif controller.ForgetTarget < CurTime() and pet.Entity == controller.Target then
                 controller.ForgetTarget = CurTime() + 4
-            end
-
-            local dt = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90, bot)
-
-            local dtn = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 - bot:GetViewOffsetDucked(), bot)
-
-            local dtp = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 + bot:GetViewOffsetDucked(), bot)
-
-            local dtnse = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 - bot:GetViewOffsetDucked() - bot:GetViewOffsetDucked() - bot:GetViewOffsetDucked(), bot)
-
-            local dtpse = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked(), bot)
-
-            if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_placid" then 
-                if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_door_rotating" then
-                    dt.Entity:Fire("Break", bot, 0)
-                end
-            end
-
-            if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_movelinear" then
-                if dt.Entity:GetName() ~= "BunkerDoor" then
-                    dt.Entity:Fire("Open", bot, 0)
-                else
-                    dt.Entity:Fire("Close", bot, 0)
-                end
-            end
-
-            if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_breakable" and dt.Entity:GetMaxHealth() > 1 then
-                if bot:Team() == TEAM_ZOMBIE or survivorBreak then
-                    controller.Target = dt.Entity
-                end
-            end
-
-            if IsValid(dtn.Entity) and dtn.Entity:GetClass() == "func_breakable" and dtn.Entity:GetMaxHealth() > 1 then
-                if not zombieBreakCheck then
-                    if bot:Team() == TEAM_ZOMBIE or survivorBreak then
-                        controller.Target = dtn.Entity
-                    end
-                end
-            end
-
-            if IsValid(dtp.Entity) and dtp.Entity:GetClass() == "func_breakable" and dtp.Entity:GetMaxHealth() > 1 then
-                if not zombieBreakCheck then
-                    if bot:Team() == TEAM_ZOMBIE or survivorBreak then
-                        controller.Target = dtp.Entity
-                    end
-                end
-            end
-
-            if IsValid(dtnse.Entity) and dtnse.Entity:GetClass() == "func_breakable" and dtnse.Entity:GetMaxHealth() > 1 then
-                    if not zombieBreakCheck then
-                        if bot:Team() == TEAM_ZOMBIE or survivorBreak then
-                            controller.Target = dtnse.Entity
-                        end
-                    end
-                end
-
-            if IsValid(dtpse.Entity) and dtpse.Entity:GetClass() == "func_breakable" and dtpse.Entity:GetMaxHealth() > 1 then
-                if not zombieBreakCheck then
-                    if bot:Team() == TEAM_ZOMBIE or survivorBreak then
-                        controller.Target = dtpse.Entity
-                    end
-                end
-            end
-
-            if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_physbox" then
-                if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or survivorBoxBreak and dt.Entity:GetMaxHealth() > 1 then
-                    controller.Target = dt.Entity
-                end
-            end
-
-            if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_physics" then
-                if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or ( bot:Team() == TEAM_SURVIVORS and dt.Entity:Health() <= 50 and ( dt.Entity:GetModel() ~= "models/props_debris/wood_board04a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board05a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board06a.mdl" ) or bot:Team() == TEAM_ZOMBIE ) and dt.Entity:GetMaxHealth() > 1 then
-                    if dt.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
-                        if dt.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
-                            if zombiePropCheck then
-                                controller.Target = dt.Entity
-                            end
-                        end
-                    end
-                end
-            end
-
-            if bot:GetMoveType() == MOVETYPE_LADDER then 
-                if IsValid(dtpse.Entity) and dtpse.Entity:GetClass() == "prop_physics" then
-                    if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or ( bot:Team() == TEAM_SURVIVORS and dt.Entity:Health() <= 50 and ( dt.Entity:GetModel() ~= "models/props_debris/wood_board04a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board05a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board06a.mdl" ) or bot:Team() == TEAM_ZOMBIE ) and dt.Entity:GetMaxHealth() > 1 then
-                        if dtpse.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
-                            if dtpse.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
-                                if zombiePropCheck then
-                                    controller.Target = dt.Entity
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-
-            if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_breakable_surf" then
-                controller.Target = dt.Entity
-            end
-
-            if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_dynamic" and dt.Entity:GetMaxHealth() > 1 then
-                controller.Target = dt.Entity
             end
 
             if DEBUG then
@@ -2457,15 +2212,16 @@ if SERVER then
             elseif IsValid(controller.Target) then
                 -- move to our target
                 local distance = controller.Target:GetPos():DistToSqr(bot:GetPos())
-                if controller.Target:IsPlayer() then 
+                if bot:IsPlayer() and controller.Target:IsPlayer() and bot:Team() ~= controller.Target:Team() or bot:Team() == TEAM_HUMAN and controller.Target:IsNPC() then 
                     controller.PosGen = controller.Target:GetPos()
+                    controller.LastSegmented = CurTime() + 0.1
                 end
 
                 -- back up if the target is really close
                 -- TODO: find a random spot rather than trying to back up into what could just be a wall
                 -- something like controller.PosGen = controller:FindSpot("random", {pos = bot:GetPos() - bot:GetForward() * 350, radius = 1000})?
 
-                if controller.Target:IsPlayer() then 
+                if controller.Target:IsPlayer() or controller.Target:IsNPC() then 
                     if bot:Team() == TEAM_ZOMBIE then 
                         mv:SetForwardSpeed(1200)
                         if distance > 45000 and bot:LBGetZomSkill() == 1 and IsValid(prt.Entity) then
@@ -2511,7 +2267,7 @@ if SERVER then
                                 end
                             end
                             if bot:Health() <= 40 and IsValid(prt.Entity) then 
-                                if controller.Target:GetZombieClass() == 2 or controller.Target:GetZombieClass() > 5 and controller.Target:GetZombieClass() < 9 then 
+                                if controller.Target:IsPlayer() and ( controller.Target:GetZombieClass() == 2 or controller.Target:GetZombieClass() > 5 and controller.Target:GetZombieClass() < 9 ) or controller.Target:IsNPC() then 
                                     if controller.strafeAngle == 1 then
                                         mv:SetSideSpeed(1500)
                                     elseif controller.strafeAngle == 2 then
@@ -2525,35 +2281,80 @@ if SERVER then
                     mv:SetForwardSpeed(1200)
                 end
 
-                local tier2 = GetConVar("zs_rewards_1"):GetInt()
-                local tier3 = GetConVar("zs_rewards_3"):GetInt()
-                local tier4 = GetConVar("zs_rewards_4"):GetInt()
-
-                if bot:Team() == TEAM_SURVIVORS and distance > 30000 then 
-                    if bot:Frags() < tier2 then 
-                        bot:SelectWeapon("weapon_zs_battleaxe")
-                        bot:SelectWeapon("weapon_zs_peashooter")
-                    elseif bot:Frags() >= tier2 and bot:Frags() < tier3 then
-                        bot:SelectWeapon("weapon_zs_deagle")
-                        bot:SelectWeapon("weapon_zs_magnum")
-                        bot:SelectWeapon("weapon_zs_glock3")
-                    elseif bot:Frags() >= tier3 then
-                        bot:SelectWeapon("weapon_zs_uzi")
-                        bot:SelectWeapon("weapon_zs_smg")
-                    end
-                elseif bot:Team() == TEAM_SURVIVORS and distance <= 30000 then 
-                    if bot:Frags() < tier2 then 
-                        bot:SelectWeapon("weapon_zs_battleaxe")
-                        bot:SelectWeapon("weapon_zs_peashooter")
-                    elseif bot:Frags() >= tier2 and bot:Frags() < tier3 then
-                        bot:SelectWeapon("weapon_zs_deagle")
-                        bot:SelectWeapon("weapon_zs_magnum")
-                        bot:SelectWeapon("weapon_zs_glock3")
-                    elseif bot:Frags() >= tier3 and bot:Frags() < tier4 then
-                        bot:SelectWeapon("weapon_zs_uzi")
-                        bot:SelectWeapon("weapon_zs_smg")
-                    elseif bot:Frags() >= tier4 then
-                        bot:SelectWeapon("weapon_zs_sweepershotgun")
+                if bot:Team() == TEAM_SURVIVORS then 
+                    local tier2 = GetConVar("zs_rewards_1"):GetInt()
+                    local tier3 = GetConVar("zs_rewards_3"):GetInt()
+                    local tier4 = GetConVar("zs_rewards_4"):GetInt()
+                    local botwep = bot:GetActiveWeapon()
+                    local botclip = botwep:Clip1()
+                    if distance > 30000 then 
+                        if bot:Frags() < tier2 then
+                            if bot:GetAmmoCount("Pistol") > 0 then 
+                                bot:SelectWeapon("weapon_zs_battleaxe")
+                                bot:SelectWeapon("weapon_zs_peashooter")
+                            elseif botclip <= 0 and bot:GetAmmoCount("Pistol") <= 0 then
+                                bot:SelectWeapon("weapon_zs_swissarmyknife")
+                            end
+                        elseif bot:Frags() >= tier2 and bot:Frags() < tier3 then
+                            if bot:GetAmmoCount("Pistol") > 0 then 
+                                bot:SelectWeapon("weapon_zs_deagle")
+                                bot:SelectWeapon("weapon_zs_glock3")
+                                bot:SelectWeapon("weapon_zs_magnum")
+                            elseif botclip <= 0 and bot:GetAmmoCount("Pistol") <= 0 then
+                                bot:SelectWeapon("weapon_zs_swissarmyknife")
+                            end
+                        elseif bot:Frags() >= tier3 then
+                            if bot:GetAmmoCount("SMG1") > 0 then 
+                                bot:SelectWeapon("weapon_zs_uzi")
+                                bot:SelectWeapon("weapon_zs_smg")
+                            elseif bot:GetAmmoCount("SMG1") <= 0 and bot:GetAmmoCount("Pistol") > 0 then 
+                                bot:SelectWeapon("weapon_zs_deagle")
+                                bot:SelectWeapon("weapon_zs_glock3")
+                                bot:SelectWeapon("weapon_zs_magnum")
+                            elseif botclip <= 0 and bot:GetAmmoCount("SMG1") <= 0 and bot:GetAmmoCount("Pistol") <= 0 then 
+                                bot:SelectWeapon("weapon_zs_swissarmyknife")
+                            end
+                        end
+                    else
+                        if bot:Frags() < tier2 then
+                            if bot:GetAmmoCount("Pistol") > 0 then 
+                                bot:SelectWeapon("weapon_zs_battleaxe")
+                                bot:SelectWeapon("weapon_zs_peashooter")
+                            elseif botclip <= 0 and bot:GetAmmoCount("Pistol") <= 0 then
+                                bot:SelectWeapon("weapon_zs_swissarmyknife")
+                            end
+                        elseif bot:Frags() >= tier2 and bot:Frags() < tier3 then
+                            if bot:GetAmmoCount("Pistol") > 0 then 
+                                bot:SelectWeapon("weapon_zs_deagle")
+                                bot:SelectWeapon("weapon_zs_glock3")
+                                bot:SelectWeapon("weapon_zs_magnum")
+                            elseif botclip <= 0 and bot:GetAmmoCount("Pistol") <= 0 then
+                                bot:SelectWeapon("weapon_zs_swissarmyknife")
+                            end
+                        elseif bot:Frags() >= tier3 and bot:Frags() < tier4 then
+                            if bot:GetAmmoCount("SMG1") > 0 then 
+                                bot:SelectWeapon("weapon_zs_uzi")
+                                bot:SelectWeapon("weapon_zs_smg")
+                            elseif bot:GetAmmoCount("SMG1") <= 0 and bot:GetAmmoCount("Pistol") > 0 then 
+                                bot:SelectWeapon("weapon_zs_deagle")
+                                bot:SelectWeapon("weapon_zs_glock3")
+                                bot:SelectWeapon("weapon_zs_magnum")
+                            elseif botclip <= 0 and bot:GetAmmoCount("SMG1") <= 0 and bot:GetAmmoCount("Pistol") <= 0 then
+                                bot:SelectWeapon("weapon_zs_swissarmyknife")
+                            end
+                        elseif bot:Frags() >= tier4 then
+                            if bot:GetAmmoCount("Buckshot") > 0 then 
+                                bot:SelectWeapon("weapon_zs_sweepershotgun")
+                            elseif bot:GetAmmoCount("Buckshot") <= 0 and bot:GetAmmoCount("SMG1") > 0 then
+                                bot:SelectWeapon("weapon_zs_uzi")
+                                bot:SelectWeapon("weapon_zs_smg")
+                            elseif bot:GetAmmoCount("Buckshot") <= 0 and bot:GetAmmoCount("SMG1") <= 0 and bot:GetAmmoCount("Pistol") > 0 then 
+                                bot:SelectWeapon("weapon_zs_deagle")
+                                bot:SelectWeapon("weapon_zs_glock3")
+                            elseif botclip <= 0 and bot:GetAmmoCount("Buckshot") <= 0 and bot:GetAmmoCount("SMG1") <= 0 and bot:GetAmmoCount("Pistol") <= 0 then
+                                bot:SelectWeapon("weapon_zs_swissarmyknife")
+                            end
+                        end
                     end
                 end
             end
@@ -2669,14 +2470,14 @@ if SERVER then
 
             if IsValid(controller.Target) and controller.Target:IsPlayer() then
                 if bot:Team() == TEAM_SURVIVORS then
-                    if controller.Target:GetZombieClass() >= 2 and controller.Target:GetZombieClass() < 5 or controller.Target:GetZombieClass() < 2 or controller.Target:GetZombieClass() == 5 then
+                    if controller.Target:GetZombieClass() >= 2 and controller.Target:GetZombieClass() < 5 or controller.Target:GetZombieClass() < 2 or controller.Target:GetZombieClass() == 5 or controller.Target:GetZombieClass() == 10 then
                         if !controller.Target:Crouching() then 
                             bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:EyePos() - controller.Target:GetViewOffsetDucked() - bot:GetShootPos()):Angle()))
                         else
                             bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:EyePos() - bot:GetShootPos()):Angle()))
                         end
                     end
-                    if controller.Target:GetZombieClass() >= 6 then
+                    if controller.Target:GetZombieClass() >= 6 and controller.Target:GetZombieClass() < 10 then
                         if !controller.Target:Crouching() then 
                             bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:EyePos() - controller.Target:GetViewOffsetDucked() - controller.Target:GetViewOffsetDucked() - bot:GetShootPos()):Angle()))
                         else
@@ -2706,39 +2507,34 @@ if SERVER then
                     end
                 end
             end
-        end
     end
 
     hook.Add("PlayerDisconnected", "LeadBot_Disconnect", function(bot)
-        if SERVER then
+        if CLIENT then return end
             if IsValid(bot.ControllerBot) then
                 bot.ControllerBot:Remove()
             end
-        end
     end)
 
     hook.Add("SetupMove", "LeadBot_Control", function(bot, mv, cmd)
-        if SERVER then
+        if CLIENT then return end
             if bot:IsLBot() then
                 LeadBot.PlayerMove(bot, cmd, mv)
             end
-        end
     end)
 
     hook.Add("StartCommand", "LeadBot_Control", function(bot, cmd)
-        if SERVER then
+        if CLIENT then return end
             if bot:IsLBot() then
                 LeadBot.StartCommand(bot, cmd)
             end
-        end
     end)
 
     hook.Add("PostPlayerDeath", "LeadBot_Death", function(bot)
-        if SERVER then
+        if CLIENT then return end
             if bot:IsLBot() then
                 LeadBot.PostPlayerDeath(bot)
             end
-        end
     end)
 
     -- Credit goes out to 女儿 for this infinite ammo code :D --
@@ -2759,12 +2555,6 @@ if SERVER then
                     local maxClip2 = weapon:GetMaxClip2()
                     local primAmmoType = weapon:GetPrimaryAmmoType()
                     local secAmmoType = weapon:GetSecondaryAmmoType()
-                    if maxClip == -1 and maxClip2 == -1 then
-                        maxClip = 9999
-                        maxClip2 = 9999
-                    end
-                    if maxClip <= 0 and primAmmoType ~= -1 then maxClip = 1 end
-                    if maxClip2 == -1 and secAmmoType ~= -1 then maxClip2 = 1 end
                     if n == 1 then
                         if maxClip >= 0 then weapon:SetClip1(maxClip) end
                         if maxClip2 >= 0 then weapon:SetClip2(maxClip2) end
@@ -2781,17 +2571,7 @@ if SERVER then
     end
 
     hook.Add("Think", "LeadBot_Think", function()
-        if SERVER then 
-            local startZombsPercent = player.GetCount() * (leadbot_minzombies:GetInt() * 0.01)
-
-            if player.GetCount() >= GetConVar("leadbot_quota"):GetInt() then
-                for k, v in ipairs(player.GetBots()) do
-                    if k <= math.ceil(startZombsPercent) and v:Team() == TEAM_SURVIVORS and team.NumPlayers(TEAM_ZOMBIE) < math.ceil(startZombsPercent) then
-                        v:Kill()
-                    end
-                end
-            end
-
+        if CLIENT then return end
             if INTERMISSION == 1 and leadbot_hordes:GetInt() >= 1 and GetConVar("leadbot_quota"):GetInt() < 2 then 
                 for k, v in ipairs(player.GetHumans()) do
                     if v:Team() == TEAM_ZOMBIE then 
@@ -2822,41 +2602,52 @@ if SERVER then
                 end
             end
 
+            local startZombsPercent = player.GetCount() * (leadbot_minzombies:GetInt() * 0.01)
+
+            if player.GetCount() >= GetConVar("leadbot_quota"):GetInt() then
+                for k, v in ipairs(player.GetBots()) do
+                    if k <= math.ceil(startZombsPercent) and v:Team() == TEAM_SURVIVORS and team.NumPlayers(TEAM_ZOMBIE) < math.ceil(startZombsPercent) then
+                        v:Kill()
+                    end
+                end
+            end
+
             if team.NumPlayers(TEAM_ZOMBIE) >= 1 and team.NumPlayers(TEAM_ZOMBIE) < player.GetCount() then 
                 INTERMISSION = 0
             end
 
+            --[[
             if leadbot_collision:GetInt() < 1 then
-                for k, v in ipairs(player.GetAll()) do
+                for k, v in ipairs(player.GetBots()) do
                     v:SetNoCollideWithTeammates(true)
                 end
             else 
-                for k, v in ipairs(player.GetAll()) do
+                for k, v in ipairs(player.GetBots()) do
                     v:SetNoCollideWithTeammates(false)
                 end
             end
+            ]]
 
             InfiniteAmmoForSurvivorBots()
             LeadBot.Think()
-        end
     end)
 
     hook.Add("PlayerSpawn", "LeadBot_Spawn", function(bot)
-        if SERVER then 
+        if CLIENT then return end
             if bot:Team() == TEAM_ZOMBIE and leadbot_cs:GetInt() >= 1 then 
                 timer.Create(bot:SteamID64() .. " csHealth", 1, 1, function() 
                     bot:SetMaxHealth(1000)
                     bot:SetHealth(1000) 
                 end )
             end
+
             if bot:IsLBot() then
                 LeadBot.PlayerSpawn(bot)
             end
-        end
     end)
 
     hook.Add("EntityTakeDamage", "LeadBot_Hurt", function(ply, dmgi) 
-        if SERVER then
+        if CLIENT then return end
             local bot = dmgi:GetAttacker()
             local hp = ply:Health()
             local dmg = dmgi:GetDamage()
@@ -2869,14 +2660,13 @@ if SERVER then
                 end
              end
 
-            if IsValid(ply) and IsValid(bot) and ply:IsPlayer() and ply:IsLBot() and bot:IsPlayer() then
+            if IsValid(ply) and IsValid(bot) and ply:IsPlayer() and ply:IsLBot() and ( bot:IsPlayer() or bot:IsNPC() ) then
                 LeadBot.PlayerHurt(ply, bot, hp, dmg)
             end
-        end
     end)
 
     hook.Add( "PlayerDeath", "SurvivorBotHealPerKill", function( victim, inflictor, attacker )
-        if SERVER then
+        if CLIENT then return end
             timer.Create(victim:SteamID64().."secondwindstopper1", 2.1, 1, function()
                 if IsValid(victim) and victim:IsBot() and victim:Alive() and victim:Team() == TEAM_ZOMBIE then
                     victim:Kill()
@@ -2912,11 +2702,10 @@ if SERVER then
                     victim:EmitSound("npc/fast_zombie/fz_scream1.wav", CHAN_REPLACE)  
                 end
             end
-        end
     end )
 
     timer.Create("zombieIgnore", 5, -1, function() 
-        if SERVER then
+        if CLIENT then return end
             for k, v in ipairs(player.GetBots()) do
                 if v:Team() == TEAM_ZOMBIE and team.NumPlayers(TEAM_SURVIVORS) ~= 0 then 
                     for _, ply in RandomPairs(player.GetAll()) do
@@ -2930,28 +2719,10 @@ if SERVER then
                     end
                 end
             end
-        end 
     end )
 
-    timer.Create("zombieStuckDetector", 20, -1, function() 
-        if SERVER then 
-            for k, v in ipairs(player.GetBots()) do
-                local controller = v.ControllerBot 
-                if v:Team() == TEAM_ZOMBIE then
-                    if v:GetVelocity():Length2DSqr() <= 225 and v:Team() == TEAM_ZOMBIE then
-                        if !v:IsFrozen() then 
-                            if controller.Target == nil or IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:Health() <= 0 or v:GetZombieClass() > 3 or v:GetVelocity():Length2DSqr() == 0 then 
-                                v:Kill()
-                            end
-                        end
-                    end
-                end
-            end
-        end 
-    end )
-
-    timer.Create("zombieNearDetector", 20, -1, function() 
-        if SERVER then
+    timer.Create("zombieNearDetector", 20, -1, function()
+    if CLIENT then return end 
             for _, z in ipairs(player.GetBots()) do  
                 local controller = z.ControllerBot 
                 if controller.PosGen and !IsValid(controller.Target) then 
@@ -2965,12 +2736,9 @@ if SERVER then
                     end
                 end
             end
-        end
     end )
 
     timer.Start("zombieIgnore")
-    timer.Start("zombieStuckDetector")
     timer.Start("zombieNearDetector")
 
     if !DEBUG then return end
-end

@@ -550,16 +550,18 @@ resource.AddFile("sound/intermission.mp3")
             if leadbot_cs:GetInt() < 1 then 
                 if INFLICTION < ZombieClasses[2].Threshold then 
                     if bot:GetZombieClass() ~= 9 then 
-                        if classes > 3 and INFLICTION >= ZombieClasses[1].Threshold then 
-                            bot:SetZombieClass(1)
-                        elseif classes == 1 and INFLICTION >= ZombieClasses[5].Threshold then
-                            bot:SetZombieClass(5)
-                        elseif classes == 2 and INFLICTION >= ZombieClasses[6].Threshold then
-                            bot:SetZombieClass(6)
-                        elseif classes == 3 and INFLICTION >= ZombieClasses[7].Threshold then
-                            bot:SetZombieClass(7)
-                        else
-                            bot:SetZombieClass(1)
+                        if bot:GetZombieClass() ~= 11 then 
+                            if classes > 3 and INFLICTION >= ZombieClasses[1].Threshold then 
+                                bot:SetZombieClass(1)
+                            elseif classes == 1 and INFLICTION >= ZombieClasses[5].Threshold then
+                                bot:SetZombieClass(5)
+                            elseif classes == 2 and INFLICTION >= ZombieClasses[6].Threshold then
+                                bot:SetZombieClass(6)
+                            elseif classes == 3 and INFLICTION >= ZombieClasses[7].Threshold then
+                                bot:SetZombieClass(7)
+                            else
+                                bot:SetZombieClass(1)
+                            end
                         end
                     end
                 elseif INFLICTION >= ZombieClasses[2].Threshold and INFLICTION < ZombieClasses[4].Threshold then
@@ -567,22 +569,24 @@ resource.AddFile("sound/intermission.mp3")
                         bot:SetZombieClass(2)
                     else
                         if bot:GetZombieClass() ~= 9 then 
-                            if HALFclasses == 1 and INFLICTION >= ZombieClasses[1].Threshold then 
-                                bot:SetZombieClass(1)
-                            elseif HALFclasses == 2 and INFLICTION >= ZombieClasses[2].Threshold then
-                                bot:SetZombieClass(2)
-                            elseif HALFclasses == 3 and INFLICTION >= ZombieClasses[3].Threshold then
-                                bot:SetZombieClass(3)
-                            elseif HALFclasses == 4 and INFLICTION >= ZombieClasses[5].Threshold then
-                                bot:SetZombieClass(5)
-                            elseif HALFclasses == 5 and INFLICTION >= ZombieClasses[6].Threshold then
-                                bot:SetZombieClass(6)
-                            elseif HALFclasses == 6 and INFLICTION >= ZombieClasses[7].Threshold then
-                                bot:SetZombieClass(7)
-                            elseif HALFclasses == 7 and INFLICTION >= ZombieClasses[8].Threshold then
-                                bot:SetZombieClass(8)
-                            else
-                                bot:SetZombieClass(2)
+                            if bot:GetZombieClass() ~= 11 then 
+                                if HALFclasses == 1 and INFLICTION >= ZombieClasses[1].Threshold then 
+                                    bot:SetZombieClass(1)
+                                elseif HALFclasses == 2 and INFLICTION >= ZombieClasses[2].Threshold then
+                                    bot:SetZombieClass(2)
+                                elseif HALFclasses == 3 and INFLICTION >= ZombieClasses[3].Threshold then
+                                    bot:SetZombieClass(3)
+                                elseif HALFclasses == 4 and INFLICTION >= ZombieClasses[5].Threshold then
+                                    bot:SetZombieClass(5)
+                                elseif HALFclasses == 5 and INFLICTION >= ZombieClasses[6].Threshold then
+                                    bot:SetZombieClass(6)
+                                elseif HALFclasses == 6 and INFLICTION >= ZombieClasses[7].Threshold then
+                                    bot:SetZombieClass(7)
+                                elseif HALFclasses == 7 and INFLICTION >= ZombieClasses[8].Threshold then
+                                    bot:SetZombieClass(8)
+                                else
+                                    bot:SetZombieClass(2)
+                                end
                             end
                         end
                     end
@@ -593,24 +597,26 @@ resource.AddFile("sound/intermission.mp3")
                         bot:SetZombieClass(4)
                     elseif UNclasses <= 8 then
                         if bot:GetZombieClass() ~= 9 then 
-                            if UNclasses == 1 and INFLICTION >= ZombieClasses[1].Threshold then 
-                                bot:SetZombieClass(1)
-                            elseif UNclasses == 2 and INFLICTION >= ZombieClasses[2].Threshold then
-                                bot:SetZombieClass(2)
-                            elseif UNclasses == 3 and INFLICTION >= ZombieClasses[3].Threshold then
-                                bot:SetZombieClass(3)
-                            elseif UNclasses == 4 and INFLICTION >= ZombieClasses[4].Threshold then 
-                                bot:SetZombieClass(4)
-                            elseif UNclasses == 5 and INFLICTION >= ZombieClasses[5].Threshold then
-                                bot:SetZombieClass(5)
-                            elseif UNclasses == 6 and INFLICTION >= ZombieClasses[6].Threshold then
-                                bot:SetZombieClass(6)
-                            elseif UNclasses == 7 and INFLICTION >= ZombieClasses[7].Threshold then
-                                bot:SetZombieClass(7)
-                            elseif UNclasses == 8 and INFLICTION >= ZombieClasses[8].Threshold then
-                                bot:SetZombieClass(8)
-                            else
-                                bot:SetZombieClass(4)
+                            if bot:GetZombieClass() ~= 11 then 
+                                if UNclasses == 1 and INFLICTION >= ZombieClasses[1].Threshold then 
+                                    bot:SetZombieClass(1)
+                                elseif UNclasses == 2 and INFLICTION >= ZombieClasses[2].Threshold then
+                                    bot:SetZombieClass(2)
+                                elseif UNclasses == 3 and INFLICTION >= ZombieClasses[3].Threshold then
+                                    bot:SetZombieClass(3)
+                                elseif UNclasses == 4 and INFLICTION >= ZombieClasses[4].Threshold then 
+                                    bot:SetZombieClass(4)
+                                elseif UNclasses == 5 and INFLICTION >= ZombieClasses[5].Threshold then
+                                    bot:SetZombieClass(5)
+                                elseif UNclasses == 6 and INFLICTION >= ZombieClasses[6].Threshold then
+                                    bot:SetZombieClass(6)
+                                elseif UNclasses == 7 and INFLICTION >= ZombieClasses[7].Threshold then
+                                    bot:SetZombieClass(7)
+                                elseif UNclasses == 8 and INFLICTION >= ZombieClasses[8].Threshold then
+                                    bot:SetZombieClass(8)
+                                else
+                                    bot:SetZombieClass(4)
+                                end
                             end
                         end
                     else
@@ -2469,7 +2475,7 @@ resource.AddFile("sound/intermission.mp3")
 
             if IsValid(controller.Target) and controller.Target:IsPlayer() then
                 if bot:Team() == TEAM_SURVIVORS then
-                    if controller.Target:GetZombieClass() >= 2 and controller.Target:GetZombieClass() < 5 or controller.Target:GetZombieClass() < 2 or controller.Target:GetZombieClass() == 5 or controller.Target:GetZombieClass() == 10 then
+                    if controller.Target:GetZombieClass() >= 2 and controller.Target:GetZombieClass() < 5 or controller.Target:GetZombieClass() < 2 or controller.Target:GetZombieClass() == 5 or controller.Target:GetZombieClass() >= 10 then
                         if !controller.Target:Crouching() then 
                             bot:SetEyeAngles(LerpAngle(lerp, bot:EyeAngles(), (controller.Target:EyePos() - controller.Target:GetViewOffsetDucked() - bot:GetShootPos()):Angle()))
                         else
@@ -2664,16 +2670,57 @@ resource.AddFile("sound/intermission.mp3")
             end
     end)
 
+    local posoffset = Vector(0, 0, -20)
+
     hook.Add( "PlayerDeath", "SurvivorBotHealPerKill", function( victim, inflictor, attacker )
         if CLIENT then return end
+        if IsValid(victim) and victim:IsBot() and victim:Alive() and victim:Team() == TEAM_ZOMBIE then
+            if victim:GetZombieClass() ~= 1 then 
+                if victim:GetZombieClass() ~= 9 then 
+                    if victim:GetZombieClass() ~= 11 then
+                        victim:SetZombieClass(1)
+                    end
+                end
+            end
+            local pos = victim:GetPos()
+            if victim:IsOnGround() then 
+                victim:SetPos(pos)
+            else
+                victim:SetPos(pos + posoffset)
+            end
+        end
             timer.Create(victim:SteamID64().."secondwindstopper1", 2.1, 1, function()
                 if IsValid(victim) and victim:IsBot() and victim:Alive() and victim:Team() == TEAM_ZOMBIE then
-                    victim:Kill()
+                    if victim:GetZombieClass() ~= 1 then 
+                        if victim:GetZombieClass() ~= 9 then 
+                            if victim:GetZombieClass() ~= 11 then
+                                victim:SetZombieClass(1)
+                            end
+                        end
+                    end
+                    local pos = victim:GetPos()
+                    if victim:IsOnGround() then 
+                        victim:SetPos(pos)
+                    else
+                        victim:SetPos(pos + posoffset)
+                    end
                 end
             end)
             timer.Create(victim:SteamID64().."secondwindstopper2", 2.6, 1, function()
                 if IsValid(victim) and victim:IsBot() and victim:Alive() and victim:Team() == TEAM_ZOMBIE then
-                    victim:Kill()
+                    if victim:GetZombieClass() ~= 1 then 
+                        if victim:GetZombieClass() ~= 9 then 
+                            if victim:GetZombieClass() ~= 11 then
+                                victim:SetZombieClass(1)
+                            end
+                        end
+                    end
+                    local pos = victim:GetPos()
+                    if victim:IsOnGround() then 
+                        victim:SetPos(pos)
+                    else
+                        victim:SetPos(pos + posoffset)
+                    end
                 end
             end)
             if leadbot_hregen:GetInt() >= 1 then 

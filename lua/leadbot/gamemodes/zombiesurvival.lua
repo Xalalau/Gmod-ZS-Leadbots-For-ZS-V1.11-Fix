@@ -24,12 +24,12 @@ local leadbot_zchance = CreateConVar("leadbot_zchance", "0", {FCVAR_ARCHIVE}, "I
 local leadbot_hordes = CreateConVar("leadbot_hordes", "0", {FCVAR_ARCHIVE}, "If you want to play horde mode instead of using quota", 0 , 1)
 local leadbot_hinfammo = CreateConVar("leadbot_hinfammo", "1", {FCVAR_ARCHIVE}, "If you want survivor bots to have an infinite amount of clip ammo so that they survive longer", 0 , 1)
 local leadbot_hregen = CreateConVar("leadbot_hregen", "0", {FCVAR_ARCHIVE}, "If you want survivor bots to heal every time a survivor dies so that they survive longer", 0 , 1)
-local leadbot_freeroam = CreateConVar("leadbot_freeroam", "0", {FCVAR_ARCHIVE}, "If you want survivor bots to run around instead of camp", 0 , 1)
 local leadbot_zcheats = CreateConVar("leadbot_zcheats", "0", {FCVAR_ARCHIVE}, "If you want zombie bots to cheat a little so that they're better at killing humans'", 0 , 1)
 local leadbot_collision = CreateConVar("leadbot_collision", "0", {FCVAR_ARCHIVE}, "If you want bots to not collide with each other or others", 0 , 1)
 local leadbot_knockback = CreateConVar("leadbot_knockback", "1", {FCVAR_ARCHIVE}, "If you want to not experience any knockback", 0 , 1)
 local leadbot_mapchanges = CreateConVar("leadbot_mapchanges", "0", {FCVAR_ARCHIVE}, "If you want certain things to be removed from certain maps in order for bots to not get stuck and/or confused", 0, 1)
 local leadbot_cs = CreateConVar("leadbot_cs", "0", {FCVAR_ARCHIVE}, "If you want THE counter strike ZM experience", 0 , 1)
+local leadbot_skill = CreateConVar("leadbot_skill", "1", {FCVAR_ARCHIVE}, "Changes how good the bots' aims are", 0 , 3)
 local DEBUG = false
 local nextCheck = 0
 local INTERMISSION = 1
@@ -405,6 +405,7 @@ resource.AddFile("sound/intermission.mp3")
             survskill = math.random(0, 1)
             zomskill = math.random(0, 1)
             targetpriority = math.random(0, 1)
+            bot.freeroam = true
 
             if LeadBot.PlayerColor ~= "default" then
                 if model == "" then
@@ -657,7 +658,8 @@ resource.AddFile("sound/intermission.mp3")
             end
 
             if ply:Team() == TEAM_ZOMBIE then
-                if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and hurtdistance < ply:GetPos():DistToSqr(controller.PosGen) then
+                local distance = ply:GetPos():DistToSqr(controller.PosGen)
+                if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and hurtdistance < distance then
                     controller.PosGen = bot:GetPos()
                     controller.LastSegmented = CurTime() + 5 
                     controller.LookAtTime = CurTime() + 2
@@ -667,8 +669,9 @@ resource.AddFile("sound/intermission.mp3")
                 end
             end
 
-            if ply:Team() == TEAM_ZOMBIE then
-                if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and IsValid(controller.Target) and ply:GetPos():DistToSqr(controller.Target:GetPos()) > hurtdistance then
+            if ply:Team() == TEAM_ZOMBIE and IsValid(controller.Target) then
+                local distance = ply:GetPos():DistToSqr(controller.Target:GetPos())
+                if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and distance > hurtdistance then
                     controller.Target = bot
                     controller.ForgetTarget = CurTime() + 4
                 end
@@ -688,16 +691,19 @@ resource.AddFile("sound/intermission.mp3")
     local feet = Vector(0, 0, -29)
 
     function TargetPractice(ai, pt, targ, control)
-        if IsValid(pt.Entity) and not pt.Entity:IsWorld() and ( pt.Entity:IsPlayer() and pt.Entity:Team() ~= ai:Team() or ai:Team() == TEAM_HUMAN and pt.Entity:IsNPC() ) then
-            if pt.Entity:IsPlayer() and ( pt.Entity:GetZombieClass() ~= 4 or pt.Entity:GetZombieClass() == 4 and pt.Entity:GetPos():DistToSqr(ai:GetPos()) > 67500 ) or pt.Entity:IsNPC() then
+        if IsValid(pt.Entity) and not pt.Entity:IsWorld() and ( pt.Entity:IsPlayer() and pt.Entity:Team() ~= ai:Team() or ai:Team() == TEAM_SURVIVORS and pt.Entity:IsNPC() ) then
+            local chemdistance = pt.Entity:GetPos():DistToSqr(ai:GetPos())
+            if pt.Entity:IsPlayer() and ( pt.Entity:GetZombieClass() ~= 4 or pt.Entity:GetZombieClass() == 4 and chemdistance > 67500 ) or pt.Entity:IsNPC() then
                 if !IsValid(targ) then
                     control.Target = pt.Entity
                     control.ForgetTarget = CurTime() + 4
                 else
-                     if ai:LBGetTargPri() == 0 or ai:Team() == TEAM_HUMAN then
-                         if targ:GetPos():DistToSqr(ai:GetPos()) > pt.Entity:GetPos():DistToSqr(ai:GetPos()) then  
-                             control.Target = pt.Entity
-                             control.ForgetTarget = CurTime() + 4
+                     if ai:LBGetTargPri() == 0 or ai:Team() == TEAM_SURVIVORS then
+                        local distance = targ:GetPos():DistToSqr(ai:GetPos())
+                        local otherdistance = pt.Entity:GetPos():DistToSqr(ai:GetPos())
+                        if distance > otherdistance then  
+                            control.Target = pt.Entity
+                            control.ForgetTarget = CurTime() + 4
                         end
                     else
                         if targ:Health() > pt.Entity:Health() then  
@@ -725,6 +731,8 @@ resource.AddFile("sound/intermission.mp3")
 
             local pet = util.QuickTrace(bot:GetPos() + feet, bot:GetForward() * 10000000000, filterList)
 
+            local pbt = util.QuickTrace(bot:GetPos(), bot:GetForward() * -10000000000, filterList)
+
             local pwrt = util.QuickTrace(bot:GetPos(), bot:GetRight() * 10000000000, filterList)
 
             local pwlt = util.QuickTrace(bot:GetPos(), bot:GetRight() * -10000000000, filterList)
@@ -748,6 +756,7 @@ resource.AddFile("sound/intermission.mp3")
             TargetPractice(bot, prt, target, controller)
             TargetPractice(bot, pot, target, controller)
             TargetPractice(bot, pet, target, controller)
+            TargetPractice(bot, pbt, target, controller)
             TargetPractice(bot, pwrt, target, controller)
             TargetPractice(bot, pwlt, target, controller)
             TargetPractice(bot, pwdrt, target, controller)
@@ -766,7 +775,8 @@ resource.AddFile("sound/intermission.mp3")
                     else
                         if botWeapon:Clip1() > 0 then 
                             if math.random(1, 2) == 1 then 
-                                if not target:IsPlayer() and not target:IsNPC() or target:IsNPC() and IsValid(prt.Entity) or target:IsPlayer() and not target:HasGodMode() and ( IsValid(prt.Entity) or target:GetPos():DistToSqr(bot:GetPos()) <= 5625) and ( target:GetPos():DistToSqr(bot:GetPos()) > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() > 4 or target:GetZombieClass() < 4 ) then 
+                                local distance = target:GetPos():DistToSqr(bot:GetPos())
+                                if not target:IsPlayer() and not target:IsNPC() or target:IsNPC() and IsValid(prt.Entity) or target:IsPlayer() and not target:HasGodMode() and ( IsValid(prt.Entity) or distance <= 5625) and ( distance > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() > 4 or target:GetZombieClass() < 4 ) then 
                                     buttons = buttons + IN_ATTACK
                                 end
                             end
@@ -785,14 +795,20 @@ resource.AddFile("sound/intermission.mp3")
                                 buttons = buttons + IN_ATTACK
                             end
                         else
-                            if target:GetPos():DistToSqr(bot:GetPos()) < 10750 or not target:IsPlayer() and not target:IsNPC() then 
+                            if not target:IsPlayer() and not target:IsNPC() then
                                 buttons = buttons + IN_ATTACK
+                            end
+                            for _, fin in ipairs(ents.FindInSphere(bot:GetShootPos() + bot:GetAimVector() * 50, 20)) do
+                                if IsValid(fin) and not fin:IsWorld() and not fin:IsNextBot() then 
+                                    buttons = buttons + IN_ATTACK
+                                end
                             end
                         end
                     else
                         if target:IsPlayer() and IsValid(prt.Entity) and bot:LBGetZomSkill() == 1 then 
                             if bot:GetZombieClass() == 3 or bot:GetZombieClass() == 8 then
-                                if target:GetPos():DistToSqr(bot:GetPos()) <= 90000 then 
+                                local distance = target:GetPos():DistToSqr(bot:GetPos())
+                                if distance <= 90000 then 
                                     buttons = buttons + IN_ATTACK2
                                 end
                             elseif bot:GetZombieClass() == 2 then 
@@ -828,6 +844,14 @@ resource.AddFile("sound/intermission.mp3")
 
             local dtpse = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked(), bot)
 
+            for _, fin in ipairs(ents.FindInSphere(bot:GetShootPos() + bot:GetAimVector() * 50, 20)) do
+                if bot:Team() == TEAM_ZOMBIE and IsValid(fin) and not fin:IsWorld() and not fin:IsPlayer() and not fin:IsNextBot() and not fin:IsWeapon() and fin:GetClass() ~= "predicted_viewmodel" then 
+                    controller.Target = fin
+                    controller.ForgetTarget = CurTime() + 4
+                    break
+                end
+            end
+
             if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_placid" then 
                 if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_door_rotating" then
                     dt.Entity:Fire("Break", bot, 0)
@@ -844,11 +868,13 @@ resource.AddFile("sound/intermission.mp3")
 
             if IsValid(dt.Entity) and ( dt.Entity:IsNPC() or bot:Team() == TEAM_ZOMBIE and dt.Entity:IsPlayer() ) and not bot:GetNoCollideWithTeammates() then
                 controller.Target = dt.Entity
+                controller.ForgetTarget = CurTime() + 4
             end
 
             if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_breakable" and dt.Entity:GetMaxHealth() > 1 then
                 if bot:Team() == TEAM_ZOMBIE or survivorBreak then
                     controller.Target = dt.Entity
+                    controller.ForgetTarget = CurTime() + 4
                 end
             end
 
@@ -856,6 +882,7 @@ resource.AddFile("sound/intermission.mp3")
                 if not zombieBreakCheck then
                     if bot:Team() == TEAM_ZOMBIE or survivorBreak then
                         controller.Target = dtn.Entity
+                        controller.ForgetTarget = CurTime() + 4
                     end
                 end
             end
@@ -864,6 +891,7 @@ resource.AddFile("sound/intermission.mp3")
                 if not zombieBreakCheck then
                     if bot:Team() == TEAM_ZOMBIE or survivorBreak then
                         controller.Target = dtp.Entity
+                        controller.ForgetTarget = CurTime() + 4
                     end
                 end
             end
@@ -872,6 +900,7 @@ resource.AddFile("sound/intermission.mp3")
                     if not zombieBreakCheck then
                         if bot:Team() == TEAM_ZOMBIE or survivorBreak then
                             controller.Target = dtnse.Entity
+                            controller.ForgetTarget = CurTime() + 4
                         end
                     end
                 end
@@ -880,6 +909,7 @@ resource.AddFile("sound/intermission.mp3")
                 if not zombieBreakCheck then
                     if bot:Team() == TEAM_ZOMBIE or survivorBreak then
                         controller.Target = dtpse.Entity
+                        control.ForgetTarget = CurTime() + 4
                     end
                 end
             end
@@ -887,15 +917,17 @@ resource.AddFile("sound/intermission.mp3")
             if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_physbox" then
                 if bot:Team() == TEAM_ZOMBIE or survivorBoxBreak and dt.Entity:GetMaxHealth() > 1 then
                     controller.Target = dt.Entity
+                    controller.ForgetTarget = CurTime() + 4
                 end
             end
 
             if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_physics" then
-                if bot:Team() == TEAM_ZOMBIE or ( bot:Team() == TEAM_HUMAN and dt.Entity:Health() <= 50 and ( dt.Entity:GetModel() ~= "models/props_debris/wood_board04a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board05a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board06a.mdl" ) or bot:Team() == TEAM_ZOMBIE ) and dt.Entity:GetMaxHealth() > 1 then
+                if bot:Team() == TEAM_ZOMBIE or ( bot:Team() == TEAM_SURVIVORS and dt.Entity:Health() <= 50 and ( dt.Entity:GetModel() ~= "models/props_debris/wood_board04a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board05a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board06a.mdl" ) or bot:Team() == TEAM_ZOMBIE ) and dt.Entity:GetMaxHealth() > 1 then
                     if dt.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
                         if dt.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
                             if zombiePropCheck then
                                 controller.Target = dt.Entity
+                                controller.ForgetTarget = CurTime() + 4
                             end
                         end
                     end
@@ -909,6 +941,7 @@ resource.AddFile("sound/intermission.mp3")
                             if dtpse.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
                                 if zombiePropCheck then
                                     controller.Target = dt.Entity
+                                    controller.ForgetTarget = CurTime() + 4
                                 end
                             end
                         end
@@ -917,11 +950,13 @@ resource.AddFile("sound/intermission.mp3")
             end
 
             if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_breakable_surf" then
-                controller.Target = dt.Entity
+                dt.Entity:Fire("Break")
+                -- controller.Target = dt.Entity
             end
 
             if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_dynamic" and dt.Entity:GetMaxHealth() > 1 then
                 controller.Target = dt.Entity
+                controller.ForgetTarget = CurTime() + 4
             end
 
             if bot:GetMoveType() == MOVETYPE_LADDER then
@@ -1810,7 +1845,7 @@ resource.AddFile("sound/intermission.mp3")
             local hallvar = math.random(-45, 45)
             local doorvar = math.random(-15, 15)
 
-                if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS then
+            if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS then
                     if bot:LBGetStrategy() == 1 and sigil3Valid then 
                         if bot:GetPos():DistToSqr(sigil3:GetPos()) <= 5000 then 
                             if game.GetMap() == "zs_panic_house_v2" then 
@@ -2064,7 +2099,7 @@ resource.AddFile("sound/intermission.mp3")
                             end
                         end
                     end
-                end
+            end
 
             if bot:Team() == TEAM_ZOMBIE then 
                 if bot:GetZombieClass() > 5 then 
@@ -2084,6 +2119,14 @@ resource.AddFile("sound/intermission.mp3")
 
             if leadbot_hordes:GetInt() >= 1 and bot:Team() == TEAM_SURVIVORS and GetConVar("leadbot_quota"):GetInt() < 2 then 
                 bot:Kill()
+            end
+
+            if bot:Team() == TEAM_SURVIVORS then 
+                if bot:Health() <= 60 or team.NumPlayers(TEAM_SURVIVORS) <= team.NumPlayers(TEAM_ZOMBIE) then
+                    bot.freeroam = false
+                else
+                    bot.freeroam = true
+                end
             end
 
             if !IsValid(controller) then
@@ -2107,7 +2150,7 @@ resource.AddFile("sound/intermission.mp3")
                 controller:SetAngles(bot:EyeAngles())
             end
 
-            if bot:LBGetStrategy() > 0 and bot:Team() == TEAM_SURVIVORS then 
+            if bot:Team() == TEAM_SURVIVORS then 
                 if controller.Target == nil then 
                     mv:SetForwardSpeed(1200)
                 end
@@ -2120,10 +2163,9 @@ resource.AddFile("sound/intermission.mp3")
             end
 
             if !IsValid(controller.Target) then
-                for _, ply in RandomPairs(player.GetAll()) do
-                    if ply ~= bot and ply:Team() ~= bot:Team() and ply:Alive() and IsValid(ply) and ply:GetPos():DistToSqr(bot:GetPos()) <= 1200 then
-                        controller.Target = ply
-                        controller.ForgetTarget = CurTime() + 4
+                for _, fin in ipairs(ents.FindInSphere(bot:GetShootPos() + bot:GetAimVector() * 50, 20)) do
+                    if IsValid(fin) and fin:IsPlayer() and fin ~= bot and fin:Team() ~= fin:Team() and fin:Alive() and not fin:IsWorld() and not fin:IsNextBot() then 
+                        controller.Target = fin
                     end
                 end
             elseif controller.ForgetTarget < CurTime() and pet.Entity == controller.Target then
@@ -2137,87 +2179,110 @@ resource.AddFile("sound/intermission.mp3")
             end
 
             if !IsValid(controller.Target) and (!controller.PosGen or bot:GetPos():DistToSqr(controller.PosGen) < 1000 or controller.LastSegmented < CurTime()) then
-            -- find a random spot on the map if human, and then do it again in 5 seconds!
-                if bot:Team() == TEAM_SURVIVORS and ( bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 ) then
-                    if bot:LBGetSurvSkill() == 0 then 
-                        bot:SelectWeapon("weapon_zs_swissarmyknife")
-                    end
-                    controller.PosGen = controller:FindSpot("random", {radius = 1000000})
-                    controller.LastSegmented = CurTime() + 5
-                elseif bot:Team() == TEAM_SURVIVORS and bot:LBGetStrategy() == 1 then 
-                    -- camping ai 
-                    if sigil3Valid then 
-                        local dist = bot:GetPos():DistToSqr(sigil3:GetPos())
-                            if dist <= 2500 then -- we're here
-                                controller.PosGen = nil
-                            else -- we need to run...
-                                controller.PosGen = sigil3:GetPos()
-                            end
-
-                        controller.LastSegmented = CurTime() + 1
-                    else
+                -- find a random spot on the map if human, and then do it again in 5 seconds!
+                if bot:Team() == TEAM_SURVIVORS then
+                    if bot.freeroam or bot:LBGetStrategy() == 0 then
                         if bot:LBGetSurvSkill() == 0 then 
                             bot:SelectWeapon("weapon_zs_swissarmyknife")
                         end
-                        controller.PosGen = controller:FindSpot("random", {radius = 1000000})
-                        controller.LastSegmented = CurTime() + 5
-                    end
-                elseif bot:Team() == TEAM_SURVIVORS and bot:LBGetStrategy() == 2 then
-                    if sigil2Valid then 
-                        local dist = bot:GetPos():DistToSqr(sigil2:GetPos())
-                            if dist <= 2500 then -- we're here
-                                controller.PosGen = nil
-                            else -- we need to run...
-                                controller.PosGen = sigil2:GetPos()
-                            end
-
-                        controller.LastSegmented = CurTime() + 1
-                    else
-                        if bot:LBGetSurvSkill() == 0 then 
-                            bot:SelectWeapon("weapon_zs_swissarmyknife")
-                        end
-                        for k, v in RandomPairs(player.GetAll()) do 
-                            if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
-                                controller.PosGen = v:GetPos()
-                                controller.LastSegmented = CurTime() + 10
-                            end
-                        end
-                    end
-                elseif bot:Team() == TEAM_SURVIVORS and bot:LBGetStrategy() == 3 then
-                    if sigil1Valid then 
-                        local dist = bot:GetPos():DistToSqr(sigil1:GetPos())
-                            if dist <= 2500 then -- we're here
-                                controller.PosGen = nil
-                            else -- we need to run...
-                                controller.PosGen = sigil1:GetPos()
-                            end
-
-                        controller.LastSegmented = CurTime() + 1
-                    else
-                        if bot:LBGetSurvSkill() == 0 then 
-                            bot:SelectWeapon("weapon_zs_swissarmyknife")
-                        end
-                        for k, v in RandomPairs(player.GetAll()) do 
-                            if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
-                                controller.PosGen = v:GetPos()
-                                controller.LastSegmented = CurTime() + 10
-                            end
-                        end
-                    end
-                end
-                -- find survivor position
-                if bot:Team() == TEAM_ZOMBIE and team.NumPlayers(TEAM_SURVIVORS) ~= 0 then
-                    for k, v in RandomPairs(player.GetAll()) do 
-                        if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
-                            controller.PosGen = v:GetPos()
+                        if bot:LBGetStrategy() <= 2 then 
+                            controller.PosGen = controller:FindSpot("random", {radius = 1000000})
                             controller.LastSegmented = CurTime() + 1000000
+                        else
+                            if team.NumPlayers(TEAM_ZOMBIE) > 0 then 
+                                for k, v in RandomPairs(player.GetAll()) do 
+                                    if IsValid(v) and v:Team() == TEAM_ZOMBIE and not v:HasGodMode() then 
+                                        controller.PosGen = v:GetPos()
+                                        controller.LastSegmented = CurTime() + 10
+                                        break
+                                    end
+                                end
+                            else
+                                controller.PosGen = controller:FindSpot("random", {radius = 1000000})
+                                controller.LastSegmented = CurTime() + 1000000
+                            end
+                        end
+                    else
+                        if bot:LBGetStrategy() == 1 then 
+                            -- camping ai 
+                            if sigil3Valid then 
+                                local dist = bot:GetPos():DistToSqr(sigil3:GetPos())
+                                    if dist <= 2500 then -- we're here
+                                        controller.PosGen = nil
+                                    else -- we need to run...
+                                        controller.PosGen = sigil3:GetPos()
+                                    end
+
+                                controller.LastSegmented = CurTime() + 1
+                            else
+                                if bot:LBGetSurvSkill() == 0 then 
+                                    bot:SelectWeapon("weapon_zs_swissarmyknife")
+                                end
+                                controller.PosGen = controller:FindSpot("random", {radius = 1000000})
+                                controller.LastSegmented = CurTime() + 5
+                            end
+                        elseif bot:LBGetStrategy() == 2 then
+                            if sigil2Valid then 
+                                local dist = bot:GetPos():DistToSqr(sigil2:GetPos())
+                                    if dist <= 2500 then
+                                        controller.PosGen = nil
+                                    else
+                                        controller.PosGen = sigil2:GetPos()
+                                    end
+
+                                controller.LastSegmented = CurTime() + 1
+                            else
+                                if bot:LBGetSurvSkill() == 0 then 
+                                    bot:SelectWeapon("weapon_zs_swissarmyknife")
+                                end
+                                for k, v in RandomPairs(player.GetAll()) do 
+                                    if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
+                                        controller.PosGen = v:GetPos()
+                                        controller.LastSegmented = CurTime() + 10
+                                        break
+                                    end
+                                end
+                            end
+                        elseif bot:LBGetStrategy() == 3 then
+                            if sigil1Valid then 
+                                local dist = bot:GetPos():DistToSqr(sigil1:GetPos())
+                                    if dist <= 2500 then
+                                        controller.PosGen = nil
+                                    else
+                                        controller.PosGen = sigil1:GetPos()
+                                    end
+
+                                controller.LastSegmented = CurTime() + 1
+                            else
+                                if bot:LBGetSurvSkill() == 0 then 
+                                    bot:SelectWeapon("weapon_zs_swissarmyknife")
+                                end
+                                for k, v in RandomPairs(player.GetAll()) do 
+                                    if IsValid(v) and v:Team() == TEAM_ZOMBIE and not v:HasGodMode() then 
+                                        controller.PosGen = v:GetPos()
+                                        controller.LastSegmented = CurTime() + 10
+                                        break
+                                    end
+                                end
+                            end
+                        end
+                    end
+                else
+                    -- find survivor position
+                    if team.NumPlayers(TEAM_SURVIVORS) ~= 0 then
+                        for k, v in RandomPairs(player.GetAll()) do 
+                            if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
+                                controller.PosGen = v:GetPos()
+                                controller.LastSegmented = CurTime() + 1000000
+                                break
+                            end
                         end
                     end
                 end
             elseif IsValid(controller.Target) then
                 -- move to our target
                 local distance = controller.Target:GetPos():DistToSqr(bot:GetPos())
-                if bot:IsPlayer() and controller.Target:IsPlayer() and bot:Team() ~= controller.Target:Team() or bot:Team() == TEAM_HUMAN and controller.Target:IsNPC() then 
+                if bot:IsPlayer() and controller.Target:IsPlayer() and bot:Team() ~= controller.Target:Team() or bot:Team() == TEAM_SURVIVORS and controller.Target:IsNPC() then 
                     controller.PosGen = controller.Target:GetPos()
                     controller.LastSegmented = CurTime() + 0.1
                 end
@@ -2237,7 +2302,7 @@ resource.AddFile("sound/intermission.mp3")
                             end
                         end
                     else
-                        if bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 then 
+                        if bot:LBGetStrategy() == 0 or bot.freeroam then 
                             if bot:Health() > 70 then 
                                 if distance <= 45000 then
                                     mv:SetForwardSpeed(-1200)
@@ -2380,19 +2445,29 @@ resource.AddFile("sound/intermission.mp3")
             local lerp
             local lerpc
             local mva
+            local aimskill
+            if GetConVar("leadbot_skill"):GetInt() == 0 then
+                aimskill = 4
+            elseif GetConVar("leadbot_skill"):GetInt() == 1 then
+                aimskill = 8
+            elseif GetConVar("leadbot_skill"):GetInt() == 2 then
+                aimskill = 18
+            else
+                aimskill = 32
+            end
 
             if bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) then
-                if bot:LBGetStrategy() > 0 and leadbot_freeroam:GetInt() < 1 then 
-                    lerp = FrameTime() * 16
-                    lerpc = FrameTime() * 16
+                if bot:LBGetStrategy() > 0 and not bot.freeroam then 
+                    lerp = FrameTime() * aimskill / 2
+                    lerpc = FrameTime() * aimskill / 2
                 else
-                    lerp = FrameTime() * 32
-                    lerpc = FrameTime() * 32
+                    lerp = FrameTime() * aimskill
+                    lerpc = FrameTime() * aimskill
                 end
             end
             if bot:Team() == TEAM_SURVIVORS and !IsValid(controller.Target) or bot:Team() == TEAM_ZOMBIE then
-                lerp = FrameTime() * math.random(8, 10)
-                lerpc = FrameTime() * 8
+                lerp = FrameTime() * (aimskill / 4)
+                lerpc = FrameTime() * (aimskill / 4)
             end
 
             -- got nowhere to go, why keep moving?
@@ -2428,7 +2503,7 @@ resource.AddFile("sound/intermission.mp3")
                 end
 
                 if controller.NextCenter > CurTime() then
-                    if curgoal.area:GetAttributes() ~= NAV_MESH_JUMP and bot:GetVelocity():Length2DSqr() <= 10000 and ( !IsValid(controller.Target) and bot:GetMoveType() ~= MOVETYPE_LADDER or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and ( bot:LBGetStrategy() == 0 or leadbot_freeroam:GetInt() >= 1 ) or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and bot:LBGetStrategy() > 1 ) then
+                    if curgoal.area:GetAttributes() ~= NAV_MESH_JUMP and bot:GetVelocity():Length2DSqr() <= 10000 and ( !IsValid(controller.Target) and bot:GetMoveType() ~= MOVETYPE_LADDER or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and ( bot:LBGetStrategy() == 0 or bot.freeroam ) or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and bot:LBGetStrategy() > 1 ) then
                         if !bot:IsFrozen() then 
                             if controller.strafeAngle == 1 then
                                 mv:SetSideSpeed(1500)
@@ -2723,24 +2798,12 @@ resource.AddFile("sound/intermission.mp3")
                     end
                 end
             end)
-            if leadbot_hregen:GetInt() >= 1 then 
-                if attacker:IsPlayer() and victim:IsPlayer() and attacker:Team() == TEAM_ZOMBIE and attacker ~= victim then 
-                    for k, v in ipairs(player.GetBots()) do 
-                        if v:Team() == TEAM_SURVIVORS then 
-                            v:SetHealth(v:Health() + 30)
-                        end
-                    end
-                end
-                if attacker:IsPlayer() and victim:IsPlayer() and attacker:Team() == TEAM_SURVIVORS and attacker ~= victim then 
-                    if team.NumPlayers(TEAM_SURVIVORS) > player.GetCount() / 2 then 
-                        attacker:SetHealth(attacker:Health() + 10)
-                    end
-                    if team.NumPlayers(TEAM_SURVIVORS) <= player.GetCount() / 2 and team.NumPlayers(TEAM_SURVIVORS) > player.GetCount() / 4 then 
-                        attacker:SetHealth(attacker:Health() + 20)
-                    end
-                    if team.NumPlayers(TEAM_SURVIVORS) <= player.GetCount() / 4 then 
-                        attacker:SetHealth(attacker:Health() + 30)
-                    end
+            if leadbot_hregen:GetInt() >= 1 then
+                if attacker:IsPlayer() and attacker:IsBot() and victim:IsPlayer() and attacker:Team() == TEAM_SURVIVORS and attacker ~= victim then
+                    local class = victim:GetZombieClass()
+                    local classtab = ZombieClasses[class]
+                    local newhp = classtab.Health / 10
+                    attacker:SetHealth(attacker:Health() + math.floor(newhp) )
                 end
             end
             if leadbot_cs:GetInt() >= 1 then 
@@ -2750,33 +2813,19 @@ resource.AddFile("sound/intermission.mp3")
             end
     end )
 
-    timer.Create("zombieIgnore", 5, -1, function() 
-        if CLIENT then return end
-            for k, v in ipairs(player.GetBots()) do
-                if v:Team() == TEAM_ZOMBIE and team.NumPlayers(TEAM_SURVIVORS) ~= 0 then 
-                    for _, ply in RandomPairs(player.GetAll()) do
-                        if ply:Team() == TEAM_SURVIVORS then
-                            local controller = v.ControllerBot 
-                            if IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:Health() <= 0 then 
-                                controller.Target = ply
-                                controller.ForgetTarget = CurTime() + 5
-                            end
-                        end
-                    end
-                end
-            end
-    end )
-
     timer.Create("zombieNearDetector", 20, -1, function()
-    if CLIENT then return end 
+    if CLIENT or team.NumPlayers(TEAM_ZOMBIE) <= 0 then return end
             for _, z in ipairs(player.GetBots()) do  
                 local controller = z.ControllerBot 
                 if controller.PosGen and !IsValid(controller.Target) then 
                     if z:Team() == TEAM_ZOMBIE and z:LBGetZomSkill() == 1 then 
-                        for _, h in ipairs(player.GetAll()) do 
-                            if IsValid(h) and h:Team() == TEAM_SURVIVORS and h:GetPos():DistToSqr(z:GetPos()) < controller.PosGen:DistToSqr(z:GetPos()) then 
+                        for _, h in ipairs(player.GetAll()) do
+                            local distance = h:GetPos():DistToSqr(z:GetPos())
+                            local otherdistance = controller.PosGen:DistToSqr(z:GetPos())
+                            if IsValid(h) and h:Team() == TEAM_SURVIVORS and distance < otherdistance then 
                                 controller.PosGen = h:GetPos()
                                 controller.LastSegmented = CurTime() + 4000000
+                                break
                             end
                         end
                     end
@@ -2784,7 +2833,21 @@ resource.AddFile("sound/intermission.mp3")
             end
     end )
 
-    timer.Start("zombieIgnore")
+    timer.Create("zombieStuckDetector", 20, 9999, function()
+        if CLIENT or team.NumPlayers(TEAM_ZOMBIE) <= 0 then return end
+        for k, v in ipairs(player.GetBots()) do
+            local controller = v.ControllerBot 
+            if v:Team() == TEAM_ZOMBIE then
+                if v:GetVelocity():Length2DSqr() <= 225 and not v:IsFrozen() and v:Team() == TEAM_ZOMBIE then
+                    if controller.Target == nil or IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:Health() <= 0 or v:GetZombieClass() > 3 or v:GetVelocity():Length2DSqr() == 0 then 
+                        v:Kill()
+                    end
+                end
+            end
+        end
+    end)
+
     timer.Start("zombieNearDetector")
+    timer.Start("zombieStuckDetector")
 
     if !DEBUG then return end

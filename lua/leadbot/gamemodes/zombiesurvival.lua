@@ -1153,8 +1153,6 @@ function LeadBot.PlayerMove(bot, cmd, mv)
     if bot:Team() == TEAM_SURVIVORS then 
         if bot:Health() <= 60 or team.NumPlayers(TEAM_SURVIVORS) <= team.NumPlayers(TEAM_ZOMBIE) then
             bot.freeroam = false
-        else
-            bot.freeroam = true
         end
     end
 

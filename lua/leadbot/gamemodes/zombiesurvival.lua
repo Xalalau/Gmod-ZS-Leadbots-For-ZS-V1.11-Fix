@@ -1807,6 +1807,7 @@ hook.Add( "PlayerDeath", "SurvivorBotHealPerKill", function( victim, inflictor, 
             else
                 victim:SetPos(pos + posoffset)
             end
+        end
     end)
     timer.Create(victim:SteamID64().."secondwindstopper2", 2.6, 1, function()
         if IsValid(victim) and victim:IsBot() and victim:Alive() and victim:Team() == TEAM_ZOMBIE then
@@ -1823,6 +1824,7 @@ hook.Add( "PlayerDeath", "SurvivorBotHealPerKill", function( victim, inflictor, 
             else
                 victim:SetPos(pos + posoffset)
             end
+        end
     end)
     if leadbot_hregen:GetInt() >= 1 then
         if attacker:IsPlayer() and attacker:IsBot() and victim:IsPlayer() and attacker:Team() == TEAM_SURVIVORS and attacker ~= victim then

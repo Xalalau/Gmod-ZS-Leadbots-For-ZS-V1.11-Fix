@@ -3,18 +3,23 @@ if CLIENT then return end
 --      By Tony Dosk Enginooy. 8====================================================================================D 
 --         This module is intended to run with ZS v1.11 Fix by Xalalau
 
+--[[GAMEMODE CONFIGURATION START]]--
+
 LeadBot.Gamemode = "zombiesurvival"
 LeadBot.RespawnAllowed = true -- allows bots to respawn automatically when dead
 LeadBot.PlayerColor = true -- disable this to get the default gmod style players
-LeadBot.NoNavMesh = false -- disable the nav mesh check
+LeadBot.CheckNavMesh = true -- disable the nav mesh check
 LeadBot.TeamPlay = true -- don't hurt players on the bots team
 LeadBot.AFKBotOverride = false -- KEEP THIS FALSE OR ELSE CODE BREAKS!
 LeadBot.SuicideAFK = false -- kill the player when entering/exiting afk
 LeadBot.NoFlashlight = true -- disable flashlight being enabled in dark areas
 LeadBot.Strategies = 3 -- how many strategies can the bot pick from
 
-concommand.Add("leadbot_add", function(ply, _, args) if IsValid(ply) and not ply:IsSuperAdmin() then return end local amount = 1 if tonumber(args[1]) then amount = tonumber(args[1]) end for i = 1, amount do timer.Simple(i * 0.1, function() LeadBot.AddBot() end) end end, nil, "Adds a LeadBot")
-concommand.Add("leadbot_kick", function(ply, _, args) if not args[1] or IsValid(ply) and not ply:IsSuperAdmin() then return end if args[1] ~= "all" then for k, v in ipairs(player.GetBots()) do if string.find(v:GetName(), args[1]) then v:Kick() return end end else for k, v in ipairs(player.GetBots()) do v:Kick() end end end, nil, "Kicks LeadBots (all is avaliable!)")
+--[[GAMEMODE CONFIGURATION END]]--
+
+
+concommand.Add("leadbot_add", CmdAddBot, nil, "Adds a LeadBot")
+concommand.Add("leadbot_kick", CmdKickBot, nil, "Kicks LeadBots (all is avaliable!)")
 CreateConVar("leadbot_strategy", "1", {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Enables the strategy system for newly created bots.")
 CreateConVar("leadbot_names", "", {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Bot names, seperated by commas.")
 CreateConVar("leadbot_models", "", {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Bot models, seperated by commas.")
@@ -41,6 +46,17 @@ local playerCSSpeed = 200
 resource.AddFile("sound/intermission.mp3")
 
 if CLIENT then return end
+
+cvars.AddChangeCallback("leadbot_quota", function(_, oldval, val)
+    oldval = tonumber(oldval)
+    val = tonumber(val)
+
+    if oldval and val and oldval > 0 and val < 1 then
+        RunConsoleCommand("leadbot_kick", "all")
+    end
+end)
+
+
 
 ZSBots = {
     testing = false
@@ -150,7 +166,48 @@ local defaultBotNames = {
     refugee04 = "Yance",
 }
 
--- If a bot panics he does the worst choices
+
+
+
+
+function CmdKickBot(ply, _, args)
+    if not args[1] or IsValid(ply) and not ply:IsSuperAdmin() then return end
+    
+    if args[1] ~= "all" then
+        for k, v in ipairs(player.GetBots()) do
+            if string.find(v:GetName(), args[1]) then
+                v:Kick()
+                return
+            end
+        end
+    else
+        for k, v in ipairs(player.GetBots()) do
+            v:Kick()
+        end
+    end
+end
+
+function CmdAddBot(ply, _, args)
+    if IsValid(ply) and not ply:IsSuperAdmin() then return end
+    
+    local amount = 1
+    
+    if tonumber(args[1]) then
+        amount = tonumber(args[1])
+    end
+    
+    for i = 1, amount do
+        timer.Simple(i * 0.1, function()
+            LeadBot.AddBot()
+        end)
+    end
+end
+
+
+
+
+
+
 local function chance(chance)
     return math.random(0, 100) <= chance
 end
@@ -170,27 +227,44 @@ local function IsFacingEnt(ent1, ent2)
     return dotProduct > 0.55
 end
 
-function LeadBot.AddBot()
-    if not navmesh.IsLoaded() and not LeadBot.NoNavMesh and not game.SinglePlayer() then
+
+
+
+
+
+
+function LeadBot.InitPostEntity()
+    if not game.SinglePlayer() and leadbot_hordes:GetInt() >= 1 then
+        timer.Create("Hordes", 60, -1, function() 
+            RunConsoleCommand("leadbot_add", "1")
+            INTERMISSION = 0
+        end )
+    
+        timer.Create("INTERMISSION_MESSAGE", 1, 60, function() 
+            PrintMessage( 4, "Infection begins in " .. INTERMISSION_FAKE_TIMER .. " Seconds!")
+            INTERMISSION_FAKE_TIMER = INTERMISSION_FAKE_TIMER - 1
+        end)
+    end
+end
+
+
+
+
+
+local function ForceNavGeneration()
+    if LeadBot.CheckNavMesh and not game.SinglePlayer() and not navmesh.IsLoaded() then
+        print(LeadBot.CheckNavMesh, game.SinglePlayer(), navmesh.IsLoaded(), LeadBot.CheckNavMesh and not game.SinglePlayer() and not navmesh.IsLoaded())
         if GetConVar("sv_cheats"):GetInt() == 1 then
+            RunConsoleCommand("nav_analyze")
             RunConsoleCommand("nav_generate")
+        else
+            ErrorNoHalt("There is no navmesh! Generate one using \"nav_generate\"!\n")
         end
-
-        ErrorNoHalt("There is no navmesh! Generate one using \"nav_generate\"!\n")
-        return
     end
+end
 
-    if player.GetCount() == game.MaxPlayers() then
-        MsgN("[LeadBot] Player limit reached!")
-        return
-    end
-
+local function GetBotName()
     local original_name
-    local generated = "Leadbot #" .. #player.GetBots() + 1
-    local model = ""
-    local color = Vector(-1, -1, -1)
-    local weaponcolor = Vector(0.30, 1.80, 2.10)
-    local strategy = 0
 
     if GetConVar("leadbot_names"):GetString() ~= "" then
         generated = table.Random(string.Split(GetConVar("leadbot_names"):GetString(), ","))
@@ -245,21 +319,12 @@ function LeadBot.AddBot()
     generated = GetConVar("leadbot_name_prefix"):GetString() .. generated
 
     local name = LeadBot.Prefix .. generated
-    local bot = player.CreateNextBot(name)
 
-    if !IsValid(bot) then
-        MsgN("[LeadBot] Unable to create bot!")
-        return
-    end
+    return name, original_name
+end
 
-    if GetConVar("leadbot_strategy"):GetBool() then
-        strategy = math.random(0, LeadBot.Strategies)
-    end
-
-    survskill = math.random(0, 1)
-    zomskill = math.random(0, 1)
-    shootskill = math.random(4, 16)
-    bot.freeroam = true
+local function GetBotModel()
+    local model = ""
 
     if LeadBot.PlayerColor ~= "default" then
         if model == "" then
@@ -269,87 +334,29 @@ function LeadBot.AddBot()
                 model = player_manager.TranslateToPlayerModelName(table.Random(player_manager.AllValidModels()))
             end
         end
-
-        if color == Vector(-1, -1, -1) then
-            local botcolor = ColorRand()
-            local botweaponcolor = ColorRand()
-            color = Vector(botcolor.r / 255, botcolor.g / 255, botcolor.b / 255)
-            weaponcolor = Vector(botweaponcolor.r / 255, botweaponcolor.g / 255, botweaponcolor.b / 255)
-        end
     else
         model = "kleiner"
+    end
+
+    return model
+end
+
+local function GetBotColors()
+    local color = Vector(-1, -1, -1)
+    local weaponcolor = Vector(0.30, 1.80, 2.10)
+
+    if LeadBot.PlayerColor ~= "default" then
+        local botcolor = ColorRand()
+        local botweaponcolor = ColorRand()
+        
+        color = Vector(botcolor.r / 255, botcolor.g / 255, botcolor.b / 255)
+        weaponcolor = Vector(botweaponcolor.r / 255, botweaponcolor.g / 255, botweaponcolor.b / 255)
+    else
         color = Vector(0.24, 0.34, 0.41)
     end
 
-    bot.LeadBot_Config = {model, color, weaponcolor, strategy, survskill, zomskill, shootskill}
-
-    -- for legacy purposes, will be removed soon when gamemodes are updated
-    bot.BotStrategy = strategy
-    bot.OriginalName = original_name
-    bot.ControllerBot = ents.Create("leadbot_navigator")
-    bot.ControllerBot:Spawn()
-    bot.ControllerBot:SetOwner(bot)
-    bot.LeadBot = true
-    LeadBot.AddBotOverride(bot)
-    LeadBot.AddBotControllerOverride(bot, bot.ControllerBot)
+    return color, weaponcolor
 end
-
-if not game.SinglePlayer() and leadbot_hordes:GetInt() >= 1 then
-    timer.Create("Hordes", 60, -1, function() 
-        RunConsoleCommand("leadbot_add", "1")
-        INTERMISSION = 0
-    end )
-
-    timer.Create("INTERMISSION_MESSAGE", 1, 60, function() 
-        PrintMessage( 4, "Infection begins in " .. INTERMISSION_FAKE_TIMER .. " Seconds!")
-        INTERMISSION_FAKE_TIMER = INTERMISSION_FAKE_TIMER - 1
-    end )
-end
-
-hook.Add( "PlayerInitialSpawn", "BotSpawnLogic", function( ply )
-    if CLIENT then return end
-
-    if not game.SinglePlayer() then 
-        if not ply:IsBot() and leadbot_zchance:GetInt() < 1 and INFLICTION < 0.5 or not ply:IsBot() and leadbot_zchance:GetInt() < 1 and (CurTime() <= GetConVar("zs_roundtime"):GetInt()*0.5 and not GetConVar("zs_human_deadline"):GetBool()) then 
-            timer.Simple(2, function() 
-                ply:Redeem() 
-                if leadbot_mapchanges:GetInt() >= 1 then 
-                    if mapName == "zs_buntshot" then 
-                        ply:SetPos( Vector(-520.605774 + math.random(-25, 25), -90.801414 + math.random(-25, 25), -211.968750) ) 
-                    elseif mapName == "zs_snow" then 
-                        ply:SetPos( Vector(-566.444092 + math.random(-25, 25), 1023.660217 + math.random(-25, 25), -38.856033) ) 
-                    end
-                end
-            end)
-        end
-
-        if ply:IsBot() then
-            if GetConVar("leadbot_quota"):GetInt() > 1 and leadbot_hordes:GetInt() < 1 then
-                for k, v in ipairs(player.GetBots()) do 
-                    v:Redeem()
-                    v:SetMaxHealth(1000000)
-                    if leadbot_mapchanges:GetInt() >= 1 then 
-                        if mapName == "zs_buntshot" then 
-                            v:SetPos( Vector(550.256470 + math.random(-25, 25), -595.521240 + math.random(-25, 25), -203.968750) )
-                        elseif mapName == "zs_snow" then 
-                            v:SetPos( Vector(-154.754593 + math.random(-25, 25), 1325.260010 + math.random(-25, 25), -571.968750) )
-                        end
-                    end
-                end   
-            end
-        end
-
-        if leadbot_hordes:GetInt() >= 1 and player.GetCount() == 1 then
-            ply:EmitSound("intermission.mp3", CHAN_REPLACE)
-            timer.Start("Hordes")
-            timer.Start("INTERMISSION_MESSAGE")
-        end
-        if leadbot_hordes:GetInt() < 1 and player.GetCount() >= 1 then
-            timer.Stop("Hordes")
-            timer.Stop("INTERMISSION_MESSAGE")
-        end
-    end
-end)
 
 function LeadBot.AddBotOverride(bot)
     if math.random(1, 2) == 1 then
@@ -362,7 +369,207 @@ end
 function LeadBot.AddBotControllerOverride(bot, controller)
 end
 
+function LeadBot.AddBot()
+    if player.GetCount() == game.MaxPlayers() then
+        MsgN("[LeadBot] Player limit reached!")
+        return
+    end
+
+    ForceNavGeneration()
+
+    local generated = "Leadbot #" .. #player.GetBots() + 1
+    local model = ""
+    local color, weaponcolor = GetBotColors()
+    local strategy = 0
+    local name, original_name = GetBotName()
+    local survskill = math.random(0, 1)
+    local zomskill = math.random(0, 1)
+    local shootskill = math.random(4, 16)
+
+    local bot = player.CreateNextBot(name)
+
+    if !IsValid(bot) then
+        MsgN("[LeadBot] Unable to create bot!")
+        return
+    end
+
+    if GetConVar("leadbot_strategy"):GetBool() then
+        strategy = math.random(0, LeadBot.Strategies)
+    end
+
+    bot.freeroam = true
+    bot.LeadBot_Config = { model, color, weaponcolor, strategy, survskill, zomskill, shootskill }
+
+    -- for legacy purposes, will be removed soon when gamemodes are updated
+    bot.BotStrategy = strategy
+    bot.OriginalName = original_name
+    bot.ControllerBot = ents.Create("leadbot_navigator")
+    bot.ControllerBot:Spawn()
+    bot.ControllerBot:SetOwner(bot)
+    bot.LeadBot = true
+    LeadBot.AddBotOverride(bot)
+    LeadBot.AddBotControllerOverride(bot, bot.ControllerBot)
+end
+
+
+
+
+
+function LeadBot.PlayerInitialSpawn(ply)
+    if CLIENT then return end
+
+    if not game.SinglePlayer() then
+        if not ply:IsBot() and leadbot_zchance:GetInt() < 1 and INFLICTION < 0.5 or not ply:IsBot() and leadbot_zchance:GetInt() < 1 and (CurTime() <= GetConVar("zs_roundtime"):GetInt()*0.5 and not GetConVar("zs_human_deadline"):GetBool()) then 
+            timer.Simple(2, function() 
+                ply:Redeem() 
+                if leadbot_mapchanges:GetInt() >= 1 then 
+                    if mapName == "zs_buntshot" then 
+                        ply:SetPos( Vector(-520.605774 + math.random(-25, 25), -90.801414 + math.random(-25, 25), -211.968750) ) 
+                    elseif mapName == "zs_snow" then 
+                        ply:SetPos( Vector(-566.444092 + math.random(-25, 25), 1023.660217 + math.random(-25, 25), -38.856033) ) 
+                    end
+                end
+            end)
+        end
+    end
+end
+
+function LeadBot.InitialSpawn(ply)
+    if CLIENT then return end
+
+    if not game.SinglePlayer() then 
+        if GetConVar("leadbot_quota"):GetInt() > 1 and leadbot_hordes:GetInt() < 1 then
+            for k, bot in ipairs(player.GetBots()) do 
+                bot:Redeem()
+                bot:SetMaxHealth(1000000)
+                if leadbot_mapchanges:GetInt() >= 1 then 
+                    if mapName == "zs_buntshot" then 
+                        bot:SetPos( Vector(550.256470 + math.random(-25, 25), -595.521240 + math.random(-25, 25), -203.968750) )
+                    elseif mapName == "zs_snow" then 
+                        bot:SetPos( Vector(-154.754593 + math.random(-25, 25), 1325.260010 + math.random(-25, 25), -571.968750) )
+                    end
+                end
+            end   
+        end
+
+        if leadbot_hordes:GetInt() >= 1 and player.GetCount() == 1 then
+            ply:EmitSound("intermission.mp3", CHAN_REPLACE)
+            timer.Start("Hordes")
+            timer.Start("INTERMISSION_MESSAGE")
+        end
+        if leadbot_hordes:GetInt() < 1 and player.GetCount() >= 1 then
+            timer.Stop("Hordes")
+            timer.Stop("INTERMISSION_MESSAGE")
+        end
+    end
+end
+
+
+
+
+
+function LeadBot.Disconnected(bot)
+    if IsValid(bot.ControllerBot) then
+        bot.ControllerBot:Remove()
+    end
+end
+
+
+
+
+
+-- Credit goes out to 女儿 for this infinite ammo code :D --
+
+local n = 1
+
+function InfiniteAmmoForSurvivorBots()
+    if leadbot_hinfammo:GetInt() < 1 then 
+        n = 2
+    else
+        n = 1
+    end
+    if n > 0 then
+        for k,v in ipairs (player.GetBots()) do
+            weapon = v:GetActiveWeapon()
+            if IsValid(weapon) and v:Team() == TEAM_SURVIVORS then
+                local maxClip = weapon:GetMaxClip1()
+                local maxClip2 = weapon:GetMaxClip2()
+                local primAmmoType = weapon:GetPrimaryAmmoType()
+                local secAmmoType = weapon:GetSecondaryAmmoType()
+                if n == 1 then
+                    if maxClip >= 0 then weapon:SetClip1(maxClip) end
+                    if maxClip2 >= 0 then weapon:SetClip2(maxClip2) end
+                end
+                if primAmmoType ~= -1 then
+                    v:SetAmmo( maxClip, primAmmoType)
+                end
+                if secAmmoType ~= -1 and secAmmoType ~= primAmmoType then
+                    v:SetAmmo( maxClip2, secAmmoType)
+                end
+            end
+        end
+    end
+end
+
 function LeadBot.Think()
+    if INTERMISSION == 1 and leadbot_hordes:GetInt() >= 1 and GetConVar("leadbot_quota"):GetInt() < 2 then 
+        for k, v in ipairs(player.GetHumans()) do
+            if v:Team() == TEAM_ZOMBIE then 
+                v:Redeem()
+            end
+        end
+    end
+
+    if leadbot_cs:GetInt() >= 1 then 
+        for k, v in ipairs(player.GetAll()) do
+            if v:Team() == TEAM_ZOMBIE then
+                playerCSSpeed = playerCSSpeed + 10
+                if v:Health() ~= 1000 then 
+                    GAMEMODE:SetPlayerSpeed(v, math.min(playerCSSpeed, 200))
+                else
+                    GAMEMODE:SetPlayerSpeed(v, 200)
+                end
+                if v:GetZombieClass() ~= 1 then 
+                    v:Kill()
+                    v:SetZombieClass(1)
+                end
+            else
+                if v:Health() > 30 then 
+                    v:SetMaxHealth(30)
+                    v:SetHealth(30)
+                end
+            end
+        end
+    end
+
+    local startZombsPercent = player.GetCount() * (leadbot_minzombies:GetInt() * 0.01)
+
+    if player.GetCount() >= GetConVar("leadbot_quota"):GetInt() then
+        for k, v in ipairs(player.GetBots()) do
+            if k <= math.ceil(startZombsPercent) and v:Team() == TEAM_SURVIVORS and team.NumPlayers(TEAM_ZOMBIE) < math.ceil(startZombsPercent) then
+                v:Kill()
+            end
+        end
+    end
+
+    if team.NumPlayers(TEAM_ZOMBIE) >= 1 and team.NumPlayers(TEAM_ZOMBIE) < player.GetCount() then 
+        INTERMISSION = 0
+    end
+
+    --[[
+    if leadbot_collision:GetInt() < 1 then
+        for k, v in ipairs(player.GetBots()) do
+            v:SetNoCollideWithTeammates(true)
+        end
+    else 
+        for k, v in ipairs(player.GetBots()) do
+            v:SetNoCollideWithTeammates(false)
+        end
+    end
+    ]]
+
+    InfiniteAmmoForSurvivorBots()
+
     for _, bot in ipairs(player.GetBots()) do
         if bot:IsLBot() then
             if LeadBot.RespawnAllowed and bot.NextSpawnTime and !bot:Alive() and bot.NextSpawnTime < CurTime() then
@@ -373,10 +580,24 @@ function LeadBot.Think()
     end
 end
 
-function LeadBot.PostPlayerDeath(bot)
+
+
+
+
+function LeadBot.PostDeath(bot)
 end
 
-function LeadBot.PlayerSpawn(bot)
+
+
+
+
+function LeadBot.Spawn(bot)
+    if bot:Team() == TEAM_ZOMBIE and leadbot_cs:GetInt() >= 1 then 
+        timer.Create(bot:SteamID64() .. " csHealth", 1, 1, function() 
+            bot:SetMaxHealth(1000)
+            bot:SetHealth(1000) 
+        end )
+    end
 
     if leadbot_knockback:GetInt() < 1 then 
         bot:AddEFlags(EFL_NO_DAMAGE_FORCES)
@@ -487,44 +708,55 @@ function LeadBot.PlayerSpawn(bot)
     end
 end
 
-function LeadBot.PlayerHurt(ply, bot, hp, dmg)
+
+
+
+
+function LeadBot.Hurt(bot, victim, hp, dmg)
+    if leadbot_cs:GetInt() >= 1 then
+        if victim:IsPlayer() and bot:IsPlayer() and victim:Team() == TEAM_ZOMBIE and bot:Team() == TEAM_SURVIVORS then 
+            playerCSSpeed = 1
+            victim:SetVelocity(victim:GetVelocity() + (force / 4))
+        end
+    end
+
     if bot:IsPlayer() or bot:IsNPC() then
-        local controller = ply:GetController()
-        local hurtdistance = ply:GetPos():DistToSqr(bot:GetPos())
+        local controller = victim:GetController()
+        local hurtdistance = victim:GetPos():DistToSqr(bot:GetPos())
             
         --[[if hp <= dmg and math.random(1, 2) == 1 and bot:IsPlayer() then
             LeadBot.TalkToMe(bot, "taunt")
         end
 
-        if hp >= dmg and ply:Team() == TEAM_SURVIVOFRS and ply:Health() <= 10 and math.random(10) == 1 then -- don't spam
+        if hp >= dmg and victim:Team() == TEAM_SURVIVOFRS and victim:Health() <= 10 and math.random(10) == 1 then -- don't spam
             LeadBot.TalkToMe(bot, "help")
         end
 
-        if hp >= dmg and ply:Team() == TEAM_SURVIVORS and not bot:IsNPC() and ply:Health() <= 40 and math.random(1, 2) == 1 then -- don't spam
+        if hp >= dmg and victim:Team() == TEAM_SURVIVORS and not bot:IsNPC() and victim:Health() <= 40 and math.random(1, 2) == 1 then -- don't spam
             LeadBot.TalkToMe(bot, "pain")
         end]]
 
-        if ply:Team() == TEAM_SURVIVORS then 
-            if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() or hp >= dmg and bot:IsNPC() then
+        if victim:Team() == TEAM_SURVIVORS then 
+            if hp >= dmg and not bot:IsNPC() and bot:Team() ~= victim:Team() or hp >= dmg and bot:IsNPC() then
                 controller.Target = bot
                 controller.ForgetTarget = CurTime() + 4
             end
         end
 
-        if ply:Team() == TEAM_ZOMBIE then
-            local distance = ply:GetPos():DistToSqr(controller.PosGen)
-            if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and hurtdistance < distance then                controller.PosGen = bot:GetPos()
+        if victim:Team() == TEAM_ZOMBIE then
+            local distance = victim:GetPos():DistToSqr(controller.PosGen)
+            if hp >= dmg and not bot:IsNPC() and bot:Team() ~= victim:Team() and hurtdistance < distance then                controller.PosGen = bot:GetPos()
                 controller.LastSegmented = CurTime() + 5 
                 controller.LookAtTime = CurTime() + 2
                 if !bot:IsFrozen() then 
-                    controller.LookAt = (bot:GetPos() - ply:GetPos()):Angle()
+                    controller.LookAt = (bot:GetPos() - victim:GetPos()):Angle()
                 end
             end
         end
 
-        if ply:Team() == TEAM_ZOMBIE and IsValid(controller.Target) then
-            local distance = ply:GetPos():DistToSqr(controller.Target:GetPos())
-            if hp >= dmg and not bot:IsNPC() and bot:Team() ~= ply:Team() and distance > hurtdistance then
+        if victim:Team() == TEAM_ZOMBIE and IsValid(controller.Target) then
+            local distance = victim:GetPos():DistToSqr(controller.Target:GetPos())
+            if hp >= dmg and not bot:IsNPC() and bot:Team() ~= victim:Team() and distance > hurtdistance then
                 controller.Target = bot
                 controller.ForgetTarget = CurTime() + 4
             end
@@ -532,14 +764,9 @@ function LeadBot.PlayerHurt(ply, bot, hp, dmg)
     end
 end
 
-cvars.AddChangeCallback("leadbot_quota", function(_, oldval, val)
-    oldval = tonumber(oldval)
-    val = tonumber(val)
 
-    if oldval and val and oldval > 0 and val < 1 then
-        RunConsoleCommand("leadbot_kick", "all")
-    end
-end)
+
+
 
 -- Practire attacking enemies (players or bots)
 local function TargetPractice(bot, newTarget, controller)
@@ -966,7 +1193,9 @@ end
 
 
 
-function LeadBot.PlayerMove(bot, cmd, mv)
+
+
+function LeadBot.SetupMove(bot, cmd, mv)
     local controller = bot.ControllerBot
 
     local openvar = math.random(-90, 90)
@@ -1731,169 +1960,13 @@ function LeadBot.PlayerMove(bot, cmd, mv)
     end
 end
 
-hook.Add("PlayerDisconnected", "LeadBot_Disconnect", function(bot)
-    if CLIENT then return end
 
-    if IsValid(bot.ControllerBot) then
-        bot.ControllerBot:Remove()
-    end
-end)
 
-hook.Add("SetupMove", "LeadBot_Control", function(bot, mv, cmd)
-    if CLIENT then return end
 
-    if bot:IsLBot() then
-        LeadBot.PlayerMove(bot, cmd, mv)
-    end
-end)
-
-hook.Add("StartCommand", "LeadBot_Control", function(bot, cmd)
-    if CLIENT then return end
-
-    if bot:IsLBot() then
-        LeadBot.StartCommand(bot, cmd)
-    end
-end)
-
-hook.Add("PostPlayerDeath", "LeadBot_Death", function(bot)
-    if CLIENT then return end
-
-    if bot:IsLBot() then
-        LeadBot.PostPlayerDeath(bot)
-    end
-end)
-
--- Credit goes out to 女儿 for this infinite ammo code :D --
-
-local n = 1
-
-function InfiniteAmmoForSurvivorBots()
-    if leadbot_hinfammo:GetInt() < 1 then 
-        n = 2
-    else
-        n = 1
-    end
-    if n > 0 then
-        for k,v in ipairs (player.GetBots()) do
-            weapon = v:GetActiveWeapon()
-            if IsValid(weapon) and v:Team() == TEAM_SURVIVORS then
-                local maxClip = weapon:GetMaxClip1()
-                local maxClip2 = weapon:GetMaxClip2()
-                local primAmmoType = weapon:GetPrimaryAmmoType()
-                local secAmmoType = weapon:GetSecondaryAmmoType()
-                if n == 1 then
-                    if maxClip >= 0 then weapon:SetClip1(maxClip) end
-                    if maxClip2 >= 0 then weapon:SetClip2(maxClip2) end
-                end
-                if primAmmoType ~= -1 then
-                    v:SetAmmo( maxClip, primAmmoType)
-                end
-                if secAmmoType ~= -1 and secAmmoType ~= primAmmoType then
-                    v:SetAmmo( maxClip2, secAmmoType)
-                end
-            end
-        end
-    end
-end
-
-hook.Add("Think", "LeadBot_Think", function()
-    if CLIENT then return end
-    
-    if INTERMISSION == 1 and leadbot_hordes:GetInt() >= 1 and GetConVar("leadbot_quota"):GetInt() < 2 then 
-        for k, v in ipairs(player.GetHumans()) do
-            if v:Team() == TEAM_ZOMBIE then 
-                v:Redeem()
-            end
-        end
-    end
-
-    if leadbot_cs:GetInt() >= 1 then 
-        for k, v in ipairs(player.GetAll()) do
-            if v:Team() == TEAM_ZOMBIE then
-                playerCSSpeed = playerCSSpeed + 10
-                if v:Health() ~= 1000 then 
-                    GAMEMODE:SetPlayerSpeed(v, math.min(playerCSSpeed, 200))
-                else
-                    GAMEMODE:SetPlayerSpeed(v, 200)
-                end
-                if v:GetZombieClass() ~= 1 then 
-                    v:Kill()
-                    v:SetZombieClass(1)
-                end
-            else
-                if v:Health() > 30 then 
-                    v:SetMaxHealth(30)
-                    v:SetHealth(30)
-                end
-            end
-        end
-    end
-
-    local startZombsPercent = player.GetCount() * (leadbot_minzombies:GetInt() * 0.01)
-
-    if player.GetCount() >= GetConVar("leadbot_quota"):GetInt() then
-        for k, v in ipairs(player.GetBots()) do
-            if k <= math.ceil(startZombsPercent) and v:Team() == TEAM_SURVIVORS and team.NumPlayers(TEAM_ZOMBIE) < math.ceil(startZombsPercent) then
-                v:Kill()
-            end
-        end
-    end
-
-    if team.NumPlayers(TEAM_ZOMBIE) >= 1 and team.NumPlayers(TEAM_ZOMBIE) < player.GetCount() then 
-        INTERMISSION = 0
-    end
-
-    --[[
-    if leadbot_collision:GetInt() < 1 then
-        for k, v in ipairs(player.GetBots()) do
-            v:SetNoCollideWithTeammates(true)
-        end
-    else 
-        for k, v in ipairs(player.GetBots()) do
-            v:SetNoCollideWithTeammates(false)
-        end
-    end
-    ]]
-
-    InfiniteAmmoForSurvivorBots()
-    LeadBot.Think()
-end)
-
-hook.Add("PlayerSpawn", "LeadBot_Spawn", function(bot)
-    if CLIENT then return end
-    if bot:Team() == TEAM_ZOMBIE and leadbot_cs:GetInt() >= 1 then 
-        timer.Create(bot:SteamID64() .. " csHealth", 1, 1, function() 
-            bot:SetMaxHealth(1000)
-            bot:SetHealth(1000) 
-        end )
-    end
-    if bot:IsLBot() then
-        LeadBot.PlayerSpawn(bot)
-    end
-end)
-
-hook.Add("EntityTakeDamage", "LeadBot_Hurt", function(ply, dmgi) 
-    if CLIENT then return end
-    local bot = dmgi:GetAttacker()
-    local hp = ply:Health()
-    local dmg = dmgi:GetDamage()
-    local force = dmgi:GetDamageForce()
-
-    if leadbot_cs:GetInt() >= 1 then
-        if ply:IsPlayer() and bot:IsPlayer() and ply:Team() == TEAM_ZOMBIE and bot:Team() == TEAM_SURVIVORS then 
-            playerCSSpeed = 1
-            ply:SetVelocity(ply:GetVelocity() + ( force / 4 ) )
-        end
-    end
-
-    if IsValid(ply) and IsValid(bot) and ply:IsPlayer() and ply:IsLBot() and ( bot:IsPlayer() or bot:IsNPC() ) then
-        LeadBot.PlayerHurt(ply, bot, hp, dmg)
-    end
-end)
 
 local posoffset = Vector(0, 0, -20)
 
-hook.Add( "PlayerDeath", "SurvivorBotHealPerKill", function( victim, inflictor, attacker )
+function LeadBot.Death(victim, attacker)
     if CLIENT then return end
     if IsValid(victim) and victim:IsBot() and victim:Alive() and victim:Team() == TEAM_ZOMBIE then
         if victim:GetZombieClass() ~= 1 then 
@@ -1945,7 +2018,7 @@ hook.Add( "PlayerDeath", "SurvivorBotHealPerKill", function( victim, inflictor, 
         end
     end)
     if leadbot_hregen:GetInt() >= 1 then
-        if attacker:IsPlayer() and attacker:IsBot() and victim:IsPlayer() and attacker:Team() == TEAM_SURVIVORS and attacker ~= victim then
+        if attacker:IsBot() and attacker:Team() == TEAM_SURVIVORS and attacker ~= victim then
             local class = victim:GetZombieClass()
             local classtab = ZombieClasses[class]
             local newhp = classtab.Health / 10
@@ -1953,11 +2026,26 @@ hook.Add( "PlayerDeath", "SurvivorBotHealPerKill", function( victim, inflictor, 
         end
     end
     if leadbot_cs:GetInt() >= 1 then 
-        if victim:IsPlayer() and attacker:IsPlayer() and attacker:Team() == TEAM_ZOMBIE and attacker ~= victim then 
+        if attacker:Team() == TEAM_ZOMBIE and attacker ~= victim then 
             victim:EmitSound("npc/fast_zombie/fz_scream1.wav", CHAN_REPLACE)  
         end
     end
-end)
+end
+
+
+
+
+
+function LeadBot.PlayerDeath(victim, attacker)
+    if leadbot_cs:GetInt() >= 1 then 
+        if attacker:Team() == TEAM_ZOMBIE and attacker ~= victim then 
+            victim:EmitSound("npc/fast_zombie/fz_scream1.wav", CHAN_REPLACE)  
+        end
+    end
+end
+
+
+
 
 timer.Create("zombieNearDetector", 20, -1, function() 
     if CLIENT or team.NumPlayers(TEAM_ZOMBIE) <= 0 then return end
@@ -1997,4 +2085,5 @@ end)
 timer.Start("zombieNearDetector")
 timer.Start("zombieStuckDetector")
 
-if !DEBUG then return end
+
+include("zombiesurvival/hooks.lua")

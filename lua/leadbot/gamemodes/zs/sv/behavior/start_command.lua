@@ -3,7 +3,7 @@ local leadbot_hinfammo = GetConVar("leadbot_hinfammo")
 
 -- Practire attacking enemies (players or bots)
 local function TargetPractice(bot, newTarget, controller)
-    if not IsValid(newTarget) then return end
+    if not IsValid(newTarget) or not newTarget:Alive() then return end
     if not newTarget:IsPlayer() and not newTarget:IsNPC() then return end
 
     if newTarget:IsPlayer() and newTarget:Team() ~= bot:Team() or newTarget:IsNPC() and bot:Team() == TEAM_SURVIVORS then

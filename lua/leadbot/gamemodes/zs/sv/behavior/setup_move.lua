@@ -364,7 +364,7 @@ function LeadBot.SetupMove(bot, cmd, mv)
                 else
                     if team.NumPlayers(TEAM_ZOMBIE) > 0 then 
                         for k, v in RandomPairs(player.GetAll()) do 
-                            if IsValid(v) and v:Team() == TEAM_ZOMBIE and not v:HasGodMode() then 
+                            if IsValid(v) and v:Team() == TEAM_ZOMBIE and not v:HasGodMode() and v:Alive() then 
                                 controller.PosGen = v:GetPos()
                                 controller.LastSegmented = CurTime() + 10
                                 break
@@ -378,7 +378,6 @@ function LeadBot.SetupMove(bot, cmd, mv)
             else
                 if bot:LBGetStrategy() == 1 then 
                     -- camping ai 
-                    print(sigil3)
                     if sigil3Valid then
                         local dist = bot:GetPos():DistToSqr(sigil3:GetPos())
                             if dist <= 2500 then -- we're here

@@ -1,14 +1,14 @@
 local convar1 = CreateConVar("leadbot_quota", "8", {FCVAR_ARCHIVE}, "TF2 Style Quota for bots\nUse leadbot_add if you want unkickable bots")
 local nextCheck = 0
 
-    cvars.AddChangeCallback("leadbot_quota", function(_, oldval, val)
-        oldval = tonumber(oldval)
-        val = tonumber(val)
+cvars.AddChangeCallback("leadbot_quota", function(_, oldval, val)
+    oldval = tonumber(oldval)
+    val = tonumber(val)
 
-        if oldval and val and oldval > 0 and val < 1 then
-            RunConsoleCommand("leadbot_kick", "all")
-        end
-    end)
+    if oldval and val and oldval > 0 and val < 1 then
+        RunConsoleCommand("leadbot_kick", "all")
+    end
+end)
 
 hook.Add("Think", "LeadBot_Quota", function()
     if !convar1:GetBool() or LeadBot.AFKBotOverride then return end

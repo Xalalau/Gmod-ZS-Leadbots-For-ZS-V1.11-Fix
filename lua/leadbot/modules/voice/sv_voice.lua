@@ -6,7 +6,7 @@ LeadBot.VoiceModels = {}
 local convar = CreateConVar("leadbot_voice", "random", {FCVAR_ARCHIVE}, "Voice Preset.\nOptions are: \n- \"random\"\n- \"" .. table.concat(table.GetKeys(LeadBot.VoicePreset), "\"\n- \"") .. "\"")
 
 function LeadBot.TalkToMe(ply, type)
-    if !ply:IsLBot(true) then return end
+    if not IsValid(ply) or not ply.IsLBot or not ply:IsLBot(true) then return end
 
     local hear = {}
     local sound = ""

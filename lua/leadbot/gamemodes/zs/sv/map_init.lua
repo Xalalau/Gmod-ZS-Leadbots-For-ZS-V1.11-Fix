@@ -253,7 +253,7 @@ local function CreateBotCampingSpots()
         local sigil = ents.Create("prop_dynamic")
         sigil:SetModel("models/dav0r/buttons/button.mdl")
         sigil:SetPos(pos)
-        sigil:SetNoDraw(ZSBots.testing)
+        sigil:SetNoDraw(ZSBots.DEBUG)
         sigil:Spawn()
         sigil:Fire("DisableMotion")
 
@@ -261,7 +261,7 @@ local function CreateBotCampingSpots()
     end
 end
 
-local function InitMap()
+function ZSBots.InitMap()
     if GetConVar("leadbot_mapchanges"):GetInt() >= 1 then 
         RemoveFromMap("removeFuncDoorRotating", "func_door_rotating")
         RemoveFromMap("removePropDoorRotating", "prop_door_rotating")
@@ -305,7 +305,3 @@ local function InitMap()
         CreateBotCampingSpots()
     end 
 end
-
-hook.Add("InitPostEntity", "initializeZSMap", function()
-	InitMap()
-end)

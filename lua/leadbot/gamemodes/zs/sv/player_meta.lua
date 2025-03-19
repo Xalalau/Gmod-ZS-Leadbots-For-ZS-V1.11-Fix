@@ -1,12 +1,15 @@
+-- Base player meta functions for LeadBot.
+-- There are more overrides and additions being done in the module files.
+
 local player_meta = FindMetaTable("Player")
 local oldInfo = player_meta.GetInfo
 
 function player_meta.IsLBot(self, realbotsonly)
     if realbotsonly == true then
-        return self.LeadBot and self:IsBot() or false
+        return self:IsBot()
+    else
+        return self:IsBot() or LeadBot.AFKBotOverride and self.Botized or false
     end
-
-    return self.LeadBot or false
 end
 
 function player_meta.LBGetStrategy(self)

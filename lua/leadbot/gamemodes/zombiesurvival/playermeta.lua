@@ -33,14 +33,6 @@ function player_meta.LBGetZomSkill(self)
     end
 end
 
-function player_meta.LBGetTargPri(self)
-    if self.LeadBot_Config then
-        return self.LeadBot_Config[7]
-    else
-        return 0
-    end
-end
-
 function player_meta.LBGetModel(self)
     if self.LeadBot_Config then
         return self.LeadBot_Config[1]

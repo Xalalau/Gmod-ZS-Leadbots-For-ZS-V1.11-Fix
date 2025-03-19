@@ -13,8 +13,8 @@ LeadBot.SuicideAFK = false -- kill the player when entering/exiting afk
 LeadBot.NoFlashlight = true -- disable flashlight being enabled in dark areas
 LeadBot.Strategies = 3 -- how many strategies can the bot pick from
 
-concommand.Add("leadbot_add", function(ply, _, args) if IsValid(ply) and !ply:IsSuperAdmin() then return end local amount = 1 if tonumber(args[1]) then amount = tonumber(args[1]) end for i = 1, amount do timer.Simple(i * 0.1, function() LeadBot.AddBot() end) end end, nil, "Adds a LeadBot")
-concommand.Add("leadbot_kick", function(ply, _, args) if !args[1] or IsValid(ply) and !ply:IsSuperAdmin() then return end if args[1] ~= "all" then for k, v in ipairs(player.GetBots()) do if string.find(v:GetName(), args[1]) then v:Kick() return end end else for k, v in ipairs(player.GetBots()) do v:Kick() end end end, nil, "Kicks LeadBots (all is avaliable!)")
+concommand.Add("leadbot_add", function(ply, _, args) if IsValid(ply) and not ply:IsSuperAdmin() then return end local amount = 1 if tonumber(args[1]) then amount = tonumber(args[1]) end for i = 1, amount do timer.Simple(i * 0.1, function() LeadBot.AddBot() end) end end, nil, "Adds a LeadBot")
+concommand.Add("leadbot_kick", function(ply, _, args) if not args[1] or IsValid(ply) and not ply:IsSuperAdmin() then return end if args[1] ~= "all" then for k, v in ipairs(player.GetBots()) do if string.find(v:GetName(), args[1]) then v:Kick() return end end else for k, v in ipairs(player.GetBots()) do v:Kick() end end end, nil, "Kicks LeadBots (all is avaliable!)")
 CreateConVar("leadbot_strategy", "1", {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Enables the strategy system for newly created bots.")
 CreateConVar("leadbot_names", "", {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Bot names, seperated by commas.")
 CreateConVar("leadbot_models", "", {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Bot models, seperated by commas.")
@@ -150,8 +150,28 @@ local defaultBotNames = {
     refugee04 = "Yance",
 }
 
+-- If a bot panics he does the worst choices
+local function chance(chance)
+    return math.random(0, 100) <= chance
+end
+
+local function IsFacingEnt(ent1, ent2)
+    if not IsValid(ent1) or not IsValid(ent2) then return false end
+
+    local eyePos = ent1:EyePos()
+    local eyeAngles = ent1:EyeAngles()
+
+    local forward = eyeAngles:Forward()
+    local toEnt = ent2:GetPos() - eyePos
+    toEnt:Normalize()
+
+    local dotProduct = forward:Dot(toEnt)
+
+    return dotProduct > 0.55
+end
+
 function LeadBot.AddBot()
-    if !navmesh.IsLoaded() and !LeadBot.NoNavMesh and not game.SinglePlayer() then
+    if not navmesh.IsLoaded() and not LeadBot.NoNavMesh and not game.SinglePlayer() then
         if GetConVar("sv_cheats"):GetInt() == 1 then
             RunConsoleCommand("nav_generate")
         end
@@ -238,7 +258,6 @@ function LeadBot.AddBot()
 
     survskill = math.random(0, 1)
     zomskill = math.random(0, 1)
-    targetpriority = math.random(0, 1)
     bot.freeroam = true
 
     if LeadBot.PlayerColor ~= "default" then
@@ -261,7 +280,7 @@ function LeadBot.AddBot()
         color = Vector(0.24, 0.34, 0.41)
     end
 
-    bot.LeadBot_Config = {model, color, weaponcolor, strategy, survskill, zomskill, targetpriority}
+    bot.LeadBot_Config = {model, color, weaponcolor, strategy, survskill, zomskill}
 
     -- for legacy purposes, will be removed soon when gamemodes are updated
     bot.BotStrategy = strategy
@@ -521,87 +540,145 @@ cvars.AddChangeCallback("leadbot_quota", function(_, oldval, val)
     end
 end)
 
-local feet = Vector(0, 0, -29)
+-- Practire attacking enemies (players or bots)
+local function TargetPractice(bot, newTarget, controller)
+    if not IsValid(newTarget) then return end
+    if not newTarget:IsPlayer() and not newTarget:IsNPC() then return end
 
-function TargetPractice(ai, pt, targ, control)
-    if IsValid(pt.Entity) and not pt.Entity:IsWorld() and ( pt.Entity:IsPlayer() and pt.Entity:Team() ~= ai:Team() or ai:Team() == TEAM_SURVIVORS and pt.Entity:IsNPC() ) then
-        local chemdistance = pt.Entity:GetPos():DistToSqr(ai:GetPos())
-        if pt.Entity:IsPlayer() and ( pt.Entity:GetZombieClass() ~= 4 or pt.Entity:GetZombieClass() == 4 and chemdistance > 67500 ) or pt.Entity:IsNPC() then
-            if !IsValid(targ) then
-                control.Target = pt.Entity
-                control.ForgetTarget = CurTime() + 4
+    if newTarget:Team() ~= bot:Team() then
+        local lastTaget = controller.Target
+
+        -- Do not kill chem zombies if they are too near (most times)
+        if newTarget:GetZombieClass() == 4 and (chance(25) or newTarget:GetPos():DistToSqr(bot:GetPos()) > 67500) then
+            return
+        end
+
+        -- No target = get target
+        if not IsValid(lastTaget) then
+            controller.Target = newTarget
+            controller.ForgetTarget = CurTime() + math.random(2, 6)
+        -- Older target = ...
+        else
+            -- Survivor
+            if bot:Team() == TEAM_SURVIVORS then
+                local targetDistance = lastTaget:GetPos():DistToSqr(bot:GetPos())
+                local newTargetDistance = newTarget:GetPos():DistToSqr(bot:GetPos())
+
+                -- "Another enemy is near me!"
+                if targetDistance > newTargetDistance then  
+                    controller.Target = newTarget
+                    controller.ForgetTarget = CurTime() + math.random(2, 6)
+                end
+            -- Zombie
             else
-                 if ai:LBGetTargPri() == 0 or ai:Team() == TEAM_SURVIVORS then
-                    local distance = targ:GetPos():DistToSqr(ai:GetPos())
-                    local otherdistance = pt.Entity:GetPos():DistToSqr(ai:GetPos())
-                    if distance > otherdistance then  
-                        control.Target = pt.Entity
-                        control.ForgetTarget = CurTime() + 4
-                    end
-                else
-                    if targ:Health() > pt.Entity:Health() then  
-                        control.Target = pt.Entity
-                        control.ForgetTarget = CurTime() + 4
-                    end
+                -- "That enemy is almost dead!"
+                if newTarget:Health() < lastTaget:Health() then
+                    controller.Target = newTarget
+                    controller.ForgetTarget = CurTime() + math.random(2, 6)
                 end
             end
         end
     end
 end
 
+local wantedCmdClasses = {
+    ["prop_door_rotating"] = true,
+    ["func_movelinear"] = true,
+    ["func_breakable"] = true,
+    ["func_physbox"] = true,
+    ["prop_physics"] = true,
+    ["func_breakable_surf"] = true,
+    ["prop_dynamic"] = true,
+    ["player"] = true,
+    ["predicted_viewmodel"] = true
+}
+local wantedCmdEnts = {
+    ["NPCs"] = {}
+}
+for k,v in pairs(wantedCmdClasses) do
+    wantedCmdEnts[k] = {}
+end
+
+local nextBotScanDelay = 0.5
+local nextBotEntsScan = {
+    -- [bot] = { next = time, foundEnts = table }
+}
+
+local function findEnts(bot)
+    local lastScan = nextBotEntsScan[bot]
+    local now = CurTime()
+
+    if lastScan and lastScan.next > now then
+        return lastScan.foundEnts
+    end
+
+    -- Find visible near targets
+        -- ents.FindInBox uses a Spatial Partition to avoid looping through all entities,
+    local nearEnts = ents.FindInBox(bot:GetPos() + Vector(1500, 1500, 1500), bot:GetPos() - Vector(1500, 1500, 1500))
+
+    local foundEnts = {
+        area = table.Copy(wantedCmdEnts),
+        near = table.Copy(wantedCmdEnts),
+        facing = table.Copy(wantedCmdEnts)
+    }
+
+    for k, ent in ipairs(nearEnts) do
+        if IsValid(ent) and (wantedCmdClasses[ent:GetClass()] or ent:IsNPC()) then
+            if bot:VisibleVec(ent:GetPos()) then
+                local index = ent:IsNPC() and "NPCs" or ent:GetClass()
+
+                table.insert(foundEnts.area[index], ent)
+
+                if IsFacingEnt(bot, ent) then
+                    table.insert(foundEnts.facing[index], ent)
+                end
+
+                if ent:GetPos():DistToSqr(bot:GetPos()) < 90 then
+                    table.insert(foundEnts.near[index], ent)
+                end
+            end
+        end
+    end
+
+    if lastScan then
+        lastScan.next = now + nextBotScanDelay
+        lastScan.foundEnts = foundEnts
+    else
+        nextBotEntsScan[bot] = {
+            next = now + nextBotScanDelay,
+            foundEnts = foundEnts    
+        }
+    end
+
+    return foundEnts    
+end
+
 function LeadBot.StartCommand(bot, cmd)
     local buttons = 0
-    local botWeapon = bot:GetActiveWeapon()
     local controller = bot.ControllerBot
-    local target = controller.Target
+
+    if not IsValid(controller) then return end
+
     local filterList = {controller, bot, function( ent ) return ( ent:GetClass() == "prop_physics" ) end}
-
-    if !IsValid(controller) then return end
-
     prt = util.QuickTrace(bot:EyePos(), bot:GetAimVector() * 10000000000, filterList)
+    dtnse = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 - bot:GetViewOffsetDucked() - bot:GetViewOffsetDucked() - bot:GetViewOffsetDucked(), bot)
 
-    local pot = util.QuickTrace(bot:GetPos(), bot:GetForward() * 10000000000, filterList)
+    local foundEnts = findEnts(bot)
+    local facingPlysOrBots = foundEnts.facing[chance(50) and "NPCs" or "player"]
 
-    local pet = util.QuickTrace(bot:GetPos() + feet, bot:GetForward() * 10000000000, filterList)
+    local newTarget = facingPlysOrBots and facingPlysOrBots[math.random(0, #facingPlysOrBots)]
 
-    local pbt = util.QuickTrace(bot:GetPos(), bot:GetForward() * -10000000000, filterList)
+    if newTarget then
+        TargetPractice(bot, newTarget, controller)
+    end
 
-    local pwrt = util.QuickTrace(bot:GetPos(), bot:GetRight() * 10000000000, filterList)
-
-    local pwlt = util.QuickTrace(bot:GetPos(), bot:GetRight() * -10000000000, filterList)
-
-    local pwdrt = util.QuickTrace(bot:GetPos(), ( bot:GetForward() + bot:GetRight() ) * 10000000000, filterList)
-
-    local pwdlt = util.QuickTrace(bot:GetPos(), ( bot:GetForward() - bot:GetRight() ) * 10000000000, filterList)
-
-    local pwdrat = util.QuickTrace(bot:GetPos(), ( bot:GetForward() + bot:GetRight() ) * -10000000000, filterList)
-
-    local pwdlat = util.QuickTrace(bot:GetPos(), ( bot:GetForward() - bot:GetRight() ) * -10000000000, filterList)
-
-    local ptn = util.QuickTrace(bot:GetPos(), bot:GetForward() * 10000000000 - bot:GetViewOffsetDucked(), filterList)
-
-    local ptp = util.QuickTrace(bot:GetPos(), bot:GetForward() * 10000000000 + bot:GetViewOffsetDucked(), filterList)
-
-    local ptne = util.QuickTrace(bot:GetPos(), bot:GetForward() * 10000000000 - bot:GetViewOffsetDucked() - bot:GetViewOffsetDucked(), filterList)
-
-    local ptpe = util.QuickTrace(bot:GetPos(), bot:GetForward() * 10000000000 + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked(), filterList)
-
-    TargetPractice(bot, prt, target, controller)
-    TargetPractice(bot, pot, target, controller)
-    TargetPractice(bot, pet, target, controller)
-    TargetPractice(bot, pbt, target, controller)
-    TargetPractice(bot, pwrt, target, controller)
-    TargetPractice(bot, pwlt, target, controller)
-    TargetPractice(bot, pwdrt, target, controller)
-    TargetPractice(bot, pwdlat, target, controller)
-    TargetPractice(bot, ptn, target, controller)
-    TargetPractice(bot, ptp, target, controller)
-    TargetPractice(bot, ptne, target, controller)
-    TargetPractice(bot, ptpe, target, controller)
+    local target = controller.Target
 
     if bot:Team() == TEAM_SURVIVORS then 
+        local botWeapon = bot:GetActiveWeapon()
+
         if IsValid(botWeapon) then 
-            if !IsValid(target) then
+            if not IsValid(target) then
                 if botWeapon:Clip1() <= (botWeapon:GetMaxClip1() / 4) and leadbot_hinfammo:GetInt() < 1 then 
                     buttons = buttons + IN_RELOAD
                 end
@@ -609,7 +686,8 @@ function LeadBot.StartCommand(bot, cmd)
                 if botWeapon:Clip1() > 0 then 
                     if math.random(1, 2) == 1 then 
                         local distance = target:GetPos():DistToSqr(bot:GetPos())
-                        if not target:IsPlayer() and not target:IsNPC() or target:IsNPC() and IsValid(prt.Entity) or target:IsPlayer() and not target:HasGodMode() and ( IsValid(prt.Entity) or distance <= 5625) and ( distance > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() > 4 or target:GetZombieClass() < 4 ) then 
+ 
+                        if not target:IsPlayer() and not target:IsNPC() or target:IsNPC() and IsValid(newTarget) or target:IsPlayer() and not target:HasGodMode() and ( IsValid(newTarget) or distance <= 5625) and ( distance > 67500 and target:GetZombieClass() == 4 or target:GetZombieClass() > 4 or target:GetZombieClass() < 4 ) then 
                             buttons = buttons + IN_ATTACK
                         end
                     end
@@ -620,11 +698,13 @@ function LeadBot.StartCommand(bot, cmd)
                 end
             end
         end
-    else
+    end
+
+    if bot:Team() == TEAM_ZOMBIE then
         if IsValid(target) then
             if math.random(1, 2) == 1 then 
                 if bot:GetZombieClass() > 5 and bot:GetZombieClass() < 9 then 
-                    if IsValid(prt.Entity) or not target:IsPlayer() and not target:IsNPC() then 
+                    if IsValid(newTarget) or not target:IsPlayer() and not target:IsNPC() then 
                         buttons = buttons + IN_ATTACK
                     end
                 else
@@ -637,7 +717,7 @@ function LeadBot.StartCommand(bot, cmd)
                         end
                     end
                 end
-                if target:IsPlayer() and IsValid(prt.Entity) and bot:LBGetZomSkill() == 1 then 
+                if target:IsPlayer() and IsValid(newTarget) and bot:LBGetZomSkill() == 1 then 
                     if bot:GetZombieClass() == 3 or bot:GetZombieClass() == 8 then
                         local distance = target:GetPos():DistToSqr(bot:GetPos())
                         if distance <= 90000 then 
@@ -653,7 +733,7 @@ function LeadBot.StartCommand(bot, cmd)
                 end
             end
         end
-        if !IsValid(target) and bot:LBGetZomSkill() == 1 then
+        if not IsValid(target) and bot:LBGetZomSkill() == 1 then
             if math.random(1, 100) == 1 then 
                 if bot:IsOnGround() and ( bot:GetZombieClass() > 3 or bot:GetZombieClass() < 3 ) and ( bot:GetZombieClass() > 8 or bot:GetZombieClass() < 8 ) then
                     buttons = buttons + IN_ATTACK2
@@ -662,21 +742,24 @@ function LeadBot.StartCommand(bot, cmd)
         end
     end
 
-    if IsValid(pwlt.Entity) and pwlt.Entity:IsPlayer() and pwlt.Entity:Team() ~= bot:Team() then
-        if pwlt.Entity:GetZombieClass() ~= 4 or pwlt.Entity:GetZombieClass() == 4 and pwlt.Entity:GetPos():DistToSqr(bot:GetPos()) > 67500 then
-            if !IsValid(target) then
-                controller.Target = pwlt.Entity
-                controller.ForgetTarget = CurTime() + 4
+    local nearPlysOrBots = foundEnts.near[chance(50) and "NPCs" or "player"]
+    local newNearTarget = nearPlysOrBots and nearPlysOrBots[math.random(0, #nearPlysOrBots)]
+
+    if IsValid(newNearTarget) and newNearTarget:IsPlayer() and newNearTarget:Team() ~= bot:Team() then
+        if newNearTarget:GetZombieClass() ~= 4 or newNearTarget:GetZombieClass() == 4 and newNearTarget:GetPos():DistToSqr(bot:GetPos()) > 67500 then
+            if not IsValid(target) then
+                controller.Target = newNearTarget
+                controller.ForgetTarget = CurTime() + math.random(2, 6)
             else
-                if bot:LBGetTargPri() == 0 or bot:Team() == TEAM_SURVIVORS then
-                    if target:GetPos():DistToSqr(bot:GetPos()) > pwlt.Entity:GetPos():DistToSqr(bot:GetPos()) then  
-                        controller.Target = pwlt.Entity
-                        controller.ForgetTarget = CurTime() + 4
+                if bot:Team() == TEAM_SURVIVORS then
+                    if target:GetPos():DistToSqr(bot:GetPos()) > newNearTarget:GetPos():DistToSqr(bot:GetPos()) then  
+                        controller.Target = newNearTarget
+                        controller.ForgetTarget = CurTime() + math.random(2, 6)
                     end
                 else
-                    if target:Health() > pwlt.Entity:Health() then  
-                        controller.Target = pwlt.Entity
-                        controller.ForgetTarget = CurTime() + 4
+                    if target:Health() > newNearTarget:Health() then  
+                        controller.Target = newNearTarget
+                        controller.ForgetTarget = CurTime() + math.random(2, 6)
                     end
                 end
                 if math.random(1, 100) == 1 and bot:GetZombieClass() > 5 and bot:GetZombieClass() < 9 then 
@@ -686,105 +769,117 @@ function LeadBot.StartCommand(bot, cmd)
         end
     end
 
-    local dt = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90, bot)
-
-    local dtn = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 - bot:GetViewOffsetDucked(), bot)
-
-    local dtp = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 + bot:GetViewOffsetDucked(), bot)
-
-    dtnse = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 - bot:GetViewOffsetDucked() - bot:GetViewOffsetDucked() - bot:GetViewOffsetDucked(), bot)
-
-    local dtpse = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked() + bot:GetViewOffsetDucked(), bot)
-
-    for _, fin in ipairs(ents.FindInSphere(bot:GetShootPos() + bot:GetAimVector() * 50, 20)) do
-        if bot:Team() == TEAM_ZOMBIE and IsValid(fin) and not fin:IsWorld() and not fin:IsPlayer() and not fin:IsNextBot() and not fin:IsWeapon() and fin:GetClass() ~= "predicted_viewmodel" then 
-            controller.Target = fin
-            controller.ForgetTarget = CurTime() + 4
+    for k, ent in ipairs(foundEnts.near['predicted_viewmodel']) do
+        if bot:Team() == TEAM_ZOMBIE and IsValid(ent) and not ent:IsWorld() and not ent:IsPlayer() and not ent:IsNextBot() and not ent:IsWeapon() and ent:GetClass() ~= "predicted_viewmodel" then 
+            controller.Target = ent
+            controller.ForgetTarget = CurTime() + math.random(2, 6)
             break
         end
     end
 
-    if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_placid" then 
-        if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_door_rotating" then
-            dt.Entity:Fire("Break", bot, 0)
-        end
-    end
+    if foundEnts.near['prop_door_rotating'] then
+        if game.GetMap() == "zs_jail_v1" or game.GetMap() == "zs_placid" then
+            local door = foundEnts.near['prop_door_rotating'][math.random(1, #foundEnts.near['prop_door_rotating'])]
 
-    if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_movelinear" then
-        if dt.Entity:GetName() ~= "BunkerDoor" then
-            dt.Entity:Fire("Open", bot, 0)
-        else
-            dt.Entity:Fire("Close", bot, 0)
-        end
-    end
-
-    if IsValid(dt.Entity) and ( dt.Entity:IsNPC() or bot:Team() == TEAM_ZOMBIE and dt.Entity:IsPlayer() ) and not bot:GetNoCollideWithTeammates() then
-        controller.Target = dt.Entity
-        controller.ForgetTarget = CurTime() + 4
-    end
-
-    if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_breakable" and dt.Entity:GetMaxHealth() > 1 then
-        if bot:Team() == TEAM_ZOMBIE or survivorBreak then
-            controller.Target = dt.Entity
-            controller.ForgetTarget = CurTime() + 4
-        end
-    end
-
-    if IsValid(dtn.Entity) and dtn.Entity:GetClass() == "func_breakable" and dtn.Entity:GetMaxHealth() > 1 then
-        if not zombieBreakCheck then
-            if bot:Team() == TEAM_ZOMBIE or survivorBreak then
-                controller.Target = dtn.Entity
-                controller.ForgetTarget = CurTime() + 4
-        end
-    end
-
-    if IsValid(dtp.Entity) and dtp.Entity:GetClass() == "func_breakable" and dtp.Entity:GetMaxHealth() > 1 then
-        if not zombieBreakCheck then
-            if bot:Team() == TEAM_ZOMBIE or survivorBreak then
-                controller.Target = dtp.Entity
-                controller.ForgetTarget = CurTime() + 4
+            if IsValid(door) and door:GetClass() == "prop_door_rotating" then
+                door:Fire("Break", bot, 0)
             end
         end
     end
 
-    if IsValid(dtnse.Entity) and dtnse.Entity:GetClass() == "func_breakable" and dtnse.Entity:GetMaxHealth() > 1 then
-        if not zombieBreakCheck then
-            if bot:Team() == TEAM_ZOMBIE or survivorBreak then
-                controller.Target = dtnse.Entity
-                controller.ForgetTarget = CurTime() + 4
+    if foundEnts.near['func_movelinear'] then
+        local movelinear = foundEnts.near['func_movelinear'][math.random(1, #foundEnts.near['func_movelinear'])]
+
+        if IsValid(movelinear) then
+            if movelinear:GetName() ~= "BunkerDoor" then
+                movelinear:Fire("Open", bot, 0)
+            else
+                movelinear:Fire("Close", bot, 0)
             end
         end
     end
 
-    if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_physbox" then
-        if bot:Team() == TEAM_ZOMBIE or survivorBoxBreak and dt.Entity:GetMaxHealth() > 1 then
-            controller.Target = dt.Entity
-            controller.ForgetTarget = CurTime() + 4
+    if foundEnts.near['func_breakable'] then
+        local breakable = foundEnts.near['func_breakable'][math.random(1, #foundEnts.near['func_breakable'])]
+
+        if IsValid(breakable) and breakable:GetMaxHealth() > 1 then
+            local survivorBreak = ZSBots.mapHandler[game.GetMap()] and ZSBots.mapHandler[game.GetMap()].survivorBreak or false
+            local zombieBreakCheck = ZSBots.mapHandler[game.GetMap()] and ZSBots.mapHandler[game.GetMap()].zombieBreakCheck or false
+    
+            if bot:Team() == TEAM_SURVIVORS and survivorBreak then
+                controller.Target = breakable
+                controller.ForgetTarget = CurTime() + math.random(2, 6)
+            end
+
+            if bot:Team() == TEAM_ZOMBIE and zombieBreakCheck then
+                controller.Target = breakable
+                controller.ForgetTarget = CurTime() + math.random(2, 6)
             end
         end
     end
 
-    if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_physics" then
-        if bot:Team() == TEAM_ZOMBIE or ( bot:Team() == TEAM_SURVIVORS and dt.Entity:Health() <= 50 and ( dt.Entity:GetModel() ~= "models/props_debris/wood_board04a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board05a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board06a.mdl" ) or bot:Team() == TEAM_ZOMBIE ) and dt.Entity:GetMaxHealth() > 1 then
-            if dt.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
-                if dt.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
-                    if zombiePropCheck then
-                        controller.Target = dt.Entity
-                        controller.ForgetTarget = CurTime() + 4
+    if foundEnts.near['func_physbox'] then
+        local physbox = foundEnts.near['func_physbox'][math.random(1, #foundEnts.near['func_physbox'])]
+
+        if IsValid(physbox) then
+            local survivorBoxBreak = ZSBots.mapHandler[game.GetMap()] and ZSBots.mapHandler[game.GetMap()].survivorBoxBreak or false
+
+            if (bot:Team() == TEAM_ZOMBIE or survivorBoxBreak) and physbox:GetMaxHealth() > 1 then
+                controller.Target = physbox
+                controller.ForgetTarget = CurTime() + math.random(2, 6)
+            end
+        end
+    end
+
+    if foundEnts.near['prop_physics'] then
+        local pphysics = foundEnts.near['prop_physics'][math.random(1, #foundEnts.near['prop_physics'])]
+        local zombiePropCheck = ZSBots.mapHandler[game.GetMap()] and ZSBots.mapHandler[game.GetMap()].zombiePropCheck or false
+
+        if IsValid(pphysics) then
+            if bot:Team() == TEAM_ZOMBIE or
+                bot:Team() == TEAM_SURVIVORS and
+                pphysics:Health() <= 50 and (
+                    pphysics:GetModel() ~= "models/props_debris/wood_board04a.mdl" or
+                    pphysics:GetModel() ~= "models/props_debris/wood_board05a.mdl" or
+                    pphysics:GetModel() ~= "models/props_debris/wood_board06a.mdl"
+                ) and
+                pphysics:GetMaxHealth() > 1
+            then
+                if pphysics:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
+                    if pphysics:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
+                        if zombiePropCheck then
+                            controller.Target = pphysics
+                            controller.ForgetTarget = CurTime() + math.random(2, 6)
+                        end
                     end
                 end
             end
         end
-    end
 
-    if bot:GetMoveType() == MOVETYPE_LADDER then 
-        if IsValid(dtpse.Entity) and dtpse.Entity:GetClass() == "prop_physics" then
-            if bot:Team() == TEAM_ZOMBIE and ( IsValid(controller.Target) and not controller.Target:IsPlayer() and controller.Target:GetClass() ~= "func_breakable" or controller.Target == nil ) or ( bot:Team() == TEAM_SURVIVORS and dt.Entity:Health() <= 50 and ( dt.Entity:GetModel() ~= "models/props_debris/wood_board04a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board05a.mdl" or dt.Entity:GetModel() ~= "models/props_debris/wood_board06a.mdl" ) or bot:Team() == TEAM_ZOMBIE ) and dt.Entity:GetMaxHealth() > 1 then
-                if dtpse.Entity:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
-                    if dtpse.Entity:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
-                        if zombiePropCheck then
-                            controller.Target = dt.Entity
-                            controller.ForgetTarget = CurTime() + 4
+        if bot:GetMoveType() == MOVETYPE_LADDER then 
+            if IsValid(pphysics) then
+                if bot:Team() == TEAM_ZOMBIE and (
+                        IsValid(controller.Target) and not
+                        controller.Target:IsPlayer() and
+                        controller.Target:GetClass() ~= "func_breakable" or
+                        controller.Target == nil
+                    ) or (
+                        bot:Team() == TEAM_SURVIVORS and
+                        pphysics:Health() <= 50 and (
+                            pphysics:GetModel() ~= "models/props_debris/wood_board04a.mdl" or
+                            pphysics:GetModel() ~= "models/props_debris/wood_board05a.mdl" or
+                            pphysics:GetModel() ~= "models/props_debris/wood_board06a.mdl"
+                        ) or
+                        bot:Team() == TEAM_ZOMBIE
+                    ) and
+                    pphysics:GetMaxHealth() > 1
+                then
+                    if pphysics:GetModel() ~= "models/props_c17/playground_carousel01.mdl" then 
+                        if pphysics:GetModel() ~= "models/props_wasteland/prison_lamp001a.mdl" then
+                            if zombiePropCheck then
+                                controller.Target = pphysics
+                                controller.ForgetTarget = CurTime() + math.random(2, 6)
+                            end
                         end
                     end
                 end
@@ -792,14 +887,22 @@ function LeadBot.StartCommand(bot, cmd)
         end
     end
 
-    if IsValid(dt.Entity) and dt.Entity:GetClass() == "func_breakable_surf" then
-        dt.Entity:Fire("Break")
-        -- controller.Target = dt.Entity
+    if foundEnts.near['func_breakable_surf'] then
+        local breakableSurf = foundEnts.near['func_breakable_surf'][math.random(1, #foundEnts.near['func_breakable_surf'])]
+
+        if IsValid(breakableSurf) then
+            breakableSurf:Fire("Break")
+            -- controller.Target = breakableSurf
+        end
     end
 
-    if IsValid(dt.Entity) and dt.Entity:GetClass() == "prop_dynamic" and dt.Entity:GetMaxHealth() > 1 then
-        controller.Target = dt.Entity
-        controller.ForgetTarget = CurTime() + 4
+    if foundEnts.near['prop_dynamic'] then
+        local dynamic = foundEnts.near['prop_dynamic'][math.random(1, #foundEnts.near['prop_dynamic'])]
+
+        if IsValid(dynamic) and dynamic:GetMaxHealth() > 1 then
+            controller.Target = dynamic
+            controller.ForgetTarget = CurTime() + math.random(2, 6)
+        end
     end
 
     if bot:GetMoveType() == MOVETYPE_LADDER then
@@ -807,11 +910,11 @@ function LeadBot.StartCommand(bot, cmd)
         local ang = ((pos + bot:GetCurrentViewOffset()) - bot:GetShootPos()):Angle()
 
         if pos.z > controller:GetPos().z then
-            if !bot:IsFrozen() then 
+            if not bot:IsFrozen() then 
                 controller.LookAt = Angle(-30, ang.y, 0)
             end
         else
-            if !bot:IsFrozen() then 
+            if not bot:IsFrozen() then 
                 controller.LookAt = Angle(30, ang.y, 0)
             end
         end
@@ -821,25 +924,25 @@ function LeadBot.StartCommand(bot, cmd)
         buttons = buttons + IN_FORWARD
     end
 
-    if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS or bot:Team() == TEAM_ZOMBIE then
-        if !bot:IsFrozen() then 
+    if not IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS or bot:Team() == TEAM_ZOMBIE then
+        if not bot:IsFrozen() then 
             if controller.NextJump == 0 then
                 controller.NextJump = CurTime() + 1
                 buttons = buttons + IN_JUMP
             end
-            if controller.NextDuck > CurTime() or controller.NextJump > CurTime() and !bot:IsOnGround() and bot:WaterLevel() == 0 then
+            if controller.NextDuck > CurTime() or controller.NextJump > CurTime() and not bot:IsOnGround() and bot:WaterLevel() == 0 then
                 buttons = buttons + IN_DUCK
             end
         end
     end
 
-    if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS and controller.PosGen == nil then 
+    if not IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS and controller.PosGen == nil then 
         buttons = buttons + IN_DUCK
     end
 
     if bot:GetVelocity():Length2DSqr() <= 225 and bot:GetMoveType() ~= MOVETYPE_LADDER and controller.PosGen ~= nil then 
         if target == nil or IsValid(target) and not target:IsPlayer() and target:Health() <= 0 and controller.PosGen ~= nil then 
-            if !bot:IsFrozen() then 
+            if not bot:IsFrozen() then 
                 if math.random(1, 2) == 1 then 
                     controller.NextJump = 0
                 end

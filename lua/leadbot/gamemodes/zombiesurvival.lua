@@ -600,7 +600,7 @@ for k,v in pairs(wantedCmdClasses) do
     wantedCmdEnts[k] = {}
 end
 
-local nextBotScanDelay = 0.5
+local nextBotEntsScanDelay = 0.5
 local nextBotEntsScan = {
     -- [bot] = { next = time, foundEnts = table }
 }
@@ -642,11 +642,11 @@ local function findEnts(bot)
     end
 
     if lastScan then
-        lastScan.next = now + nextBotScanDelay
+        lastScan.next = now + nextBotEntsScanDelay
         lastScan.foundEnts = foundEnts
     else
         nextBotEntsScan[bot] = {
-            next = now + nextBotScanDelay,
+            next = now + nextBotEntsScanDelay,
             foundEnts = foundEnts    
         }
     end

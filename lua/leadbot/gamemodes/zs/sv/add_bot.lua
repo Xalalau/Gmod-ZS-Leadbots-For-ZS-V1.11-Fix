@@ -230,7 +230,7 @@ function LeadBot.AddBot()
     ForceNavGeneration()
 
     local generated = "Leadbot #" .. #player.GetBots() + 1
-    local model = ""
+    local model = GetBotModel()
     local color, weaponcolor = GetBotColors()
     local strategy = 0
     local name, original_name = GetBotName()

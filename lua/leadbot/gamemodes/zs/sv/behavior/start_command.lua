@@ -6,23 +6,23 @@ local function TargetPractice(bot, newTarget, controller)
     if not IsValid(newTarget) then return end
     if not newTarget:IsPlayer() and not newTarget:IsNPC() then return end
 
-    if newTarget:Team() ~= bot:Team() then
-        local lastTaget = controller.Target
+    if newTarget:IsPlayer() and newTarget:Team() ~= bot:Team() or newTarget:IsNPC() and bot:Team() == TEAM_SURVIVORS then
+        local lastTarget = controller.Target
 
         -- Do not kill chem zombies if they are too near (most times)
-        if newTarget:GetZombieClass() == 4 and (ZSUtil.chance(25) or newTarget:GetPos():DistToSqr(bot:GetPos()) > 67500) then
+        if newTarget:IsPlayer() and newTarget:GetZombieClass() == 4 and (ZSUtil.chance(25) or newTarget:GetPos():DistToSqr(bot:GetPos()) > 67500) then
             return
         end
 
         -- No target = get target
-        if not IsValid(lastTaget) then
+        if not IsValid(lastTarget) then
             controller.Target = newTarget
             controller.ForgetTarget = CurTime() + math.random(2, 6)
         -- Older target = ...
         else
             -- Survivor
             if bot:Team() == TEAM_SURVIVORS then
-                local targetDistance = lastTaget:GetPos():DistToSqr(bot:GetPos())
+                local targetDistance = lastTarget:GetPos():DistToSqr(bot:GetPos())
                 local newTargetDistance = newTarget:GetPos():DistToSqr(bot:GetPos())
 
                 -- "Another enemy is near me!"
@@ -33,7 +33,7 @@ local function TargetPractice(bot, newTarget, controller)
             -- Zombie
             else
                 -- "That enemy is almost dead!"
-                if newTarget:Health() < lastTaget:Health() then
+                if newTarget:Health() < lastTarget:Health() then
                     controller.Target = newTarget
                     controller.ForgetTarget = CurTime() + math.random(2, 6)
                 end

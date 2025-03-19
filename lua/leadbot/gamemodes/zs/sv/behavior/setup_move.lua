@@ -7,7 +7,7 @@ local leadbot_skill = GetConVar("leadbot_skill")
 function LeadBot.SetupMove(bot, cmd, mv)
     local filterList = {controller, bot, function( ent ) return ( ent:GetClass() == "prop_physics" ) end}
     local prt = util.QuickTrace(bot:EyePos(), bot:GetAimVector() * 10000000000, filterList)
-    local dtnse = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 - bot:GetViewOffsetDucked() - bot:GetViewOffsetDucked() - bot:GetViewOffsetDucked(), bot)
+    local dtnse = util.QuickTrace(bot:EyePos(), bot:GetForward() * 90 - ( bot:GetViewOffsetDucked() * 3 ), bot)
 
     local controller = bot.ControllerBot
 
@@ -15,13 +15,13 @@ function LeadBot.SetupMove(bot, cmd, mv)
     local hallvar = math.random(-45, 45)
     local doorvar = math.random(-15, 15)
 
-    if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS then
-        local sigil1 = ZSBots:GetMapValue("sigil1")
-        local sigil2 = ZSBots:GetMapValue("sigil2")
-        local sigil3 = ZSBots:GetMapValue("sigil3")
-        local mapName = game.GetMap()
+    local sigil1 = ZSBots:GetMapValue("sigil1")
+    local sigil2 = ZSBots:GetMapValue("sigil2")
+    local sigil3 = ZSBots:GetMapValue("sigil3")
+    local mapName = game.GetMap()
 
-        if bot:LBGetStrategy() == 1 and sigil3 then 
+    if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS then
+        if bot:LBGetStrategy() == 1 and sigil3 then
             if bot:GetPos():DistToSqr(sigil3:GetPos()) <= 5000 then 
                 if mapName == "zs_panic_house_v2" then 
                     bot:SetEyeAngles(Angle(0, 0 + doorvar, 0))
@@ -105,8 +105,8 @@ function LeadBot.SetupMove(bot, cmd, mv)
                     bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
                 end
             end
-        elseif bot:LBGetStrategy() == 2 and sigil2 then 
-            if bot:GetPos():DistToSqr(sigil2:GetPos()) <= 5000 then  
+        elseif bot:LBGetStrategy() == 2 and sigil2 then
+            if bot:GetPos():DistToSqr(sigil2:GetPos()) <= 5000 then
                 if mapName == "zs_panic_house_v2" then 
                     bot:SetEyeAngles(Angle(0, 0 + hallvar, 0))
                 elseif mapName == "zs_lila_panic_v3" then 
@@ -189,7 +189,7 @@ function LeadBot.SetupMove(bot, cmd, mv)
                     bot:SetEyeAngles(Angle(0, 112.5 + hallvar, 0))
                 end
             end
-        elseif bot:LBGetStrategy() == 3 and sigil1 then  
+        elseif bot:LBGetStrategy() == 3 and sigil1 then
             if bot:GetPos():DistToSqr(sigil1:GetPos()) <= 5000 then 
                 if mapName == "zs_panic_house_v2" then 
                     bot:SetEyeAngles(Angle(0, 90 + doorvar, 0))
@@ -297,7 +297,7 @@ function LeadBot.SetupMove(bot, cmd, mv)
     end
 
     if bot:Team() == TEAM_SURVIVORS then 
-        if bot:Health() <= 60 or team.NumPlayers(TEAM_SURVIVORS) <= team.NumPlayers(TEAM_ZOMBIE) then
+        if bot:Health() <= 50 or team.NumPlayers(TEAM_SURVIVORS) <= team.NumPlayers(TEAM_ZOMBIE) then
             bot.freeroam = false
         end
     end
@@ -378,7 +378,8 @@ function LeadBot.SetupMove(bot, cmd, mv)
             else
                 if bot:LBGetStrategy() == 1 then 
                     -- camping ai 
-                    if sigil3Valid then 
+                    print(sigil3)
+                    if sigil3Valid then
                         local dist = bot:GetPos():DistToSqr(sigil3:GetPos())
                             if dist <= 2500 then -- we're here
                                 controller.PosGen = nil

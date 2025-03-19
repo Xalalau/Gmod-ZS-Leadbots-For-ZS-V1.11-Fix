@@ -38,7 +38,7 @@ end
 
 function player_meta.LBGetShootSkill(self)
     if self.LeadBot_Config then
-        return self.LeadBot_Config[8]
+        return self.LeadBot_Config[7]
     else
         return 0
     end

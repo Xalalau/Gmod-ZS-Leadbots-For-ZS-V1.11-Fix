@@ -23,13 +23,13 @@ local leadbot_minzombies = CreateConVar("leadbot_minzombies", "1", {FCVAR_ARCHIV
 local leadbot_zchance = CreateConVar("leadbot_zchance", "0", {FCVAR_ARCHIVE}, "If you want a chance to become a zombie when you spawn", 0 , 1)
 local leadbot_hordes = CreateConVar("leadbot_hordes", "0", {FCVAR_ARCHIVE}, "If you want to play horde mode instead of using quota", 0 , 1)
 local leadbot_hinfammo = CreateConVar("leadbot_hinfammo", "1", {FCVAR_ARCHIVE}, "If you want survivor bots to have an infinite amount of clip ammo so that they survive longer", 0 , 1)
-local leadbot_hregen = CreateConVar("leadbot_hregen", "0", {FCVAR_ARCHIVE}, "If you want survivor bots to heal every time a survivor dies so that they survive longer", 0 , 1)
+local leadbot_hregen = CreateConVar("leadbot_hregen", "1", {FCVAR_ARCHIVE}, "If you want survivor bots to heal every time a survivor dies so that they survive longer", 0 , 1)
 local leadbot_zcheats = CreateConVar("leadbot_zcheats", "0", {FCVAR_ARCHIVE}, "If you want zombie bots to cheat a little so that they're better at killing humans'", 0 , 1)
 local leadbot_collision = CreateConVar("leadbot_collision", "0", {FCVAR_ARCHIVE}, "If you want bots to not collide with each other or others", 0 , 1)
 local leadbot_knockback = CreateConVar("leadbot_knockback", "1", {FCVAR_ARCHIVE}, "If you want to not experience any knockback", 0 , 1)
 local leadbot_mapchanges = CreateConVar("leadbot_mapchanges", "0", {FCVAR_ARCHIVE}, "If you want certain things to be removed from certain maps in order for bots to not get stuck and/or confused", 0, 1)
 local leadbot_cs = CreateConVar("leadbot_cs", "0", {FCVAR_ARCHIVE}, "If you want THE counter strike ZM experience", 0 , 1)
-local leadbot_skill = CreateConVar("leadbot_skill", "1", {FCVAR_ARCHIVE}, "Changes how good the bots' aims are", 0 , 3)
+local leadbot_skill = CreateConVar("leadbot_skill", "4", {FCVAR_ARCHIVE}, "Changes how good the bots' aims are (4 = random)", 0 , 4)
 local DEBUG = false
 local nextCheck = 0
 local INTERMISSION = 1
@@ -258,6 +258,7 @@ function LeadBot.AddBot()
 
     survskill = math.random(0, 1)
     zomskill = math.random(0, 1)
+    shootskill = math.random(4, 16)
     bot.freeroam = true
 
     if LeadBot.PlayerColor ~= "default" then
@@ -280,7 +281,7 @@ function LeadBot.AddBot()
         color = Vector(0.24, 0.34, 0.41)
     end
 
-    bot.LeadBot_Config = {model, color, weaponcolor, strategy, survskill, zomskill}
+    bot.LeadBot_Config = {model, color, weaponcolor, strategy, survskill, zomskill, shootskill}
 
     -- for legacy purposes, will be removed soon when gamemodes are updated
     bot.BotStrategy = strategy
@@ -1255,8 +1256,6 @@ function LeadBot.PlayerMove(bot, cmd, mv)
     if bot:Team() == TEAM_SURVIVORS then 
         if bot:Health() <= 60 or team.NumPlayers(TEAM_SURVIVORS) <= team.NumPlayers(TEAM_ZOMBIE) then
             bot.freeroam = false
-        else
-            bot.freeroam = true
         end
     end
 
@@ -1580,23 +1579,39 @@ function LeadBot.PlayerMove(bot, cmd, mv)
     elseif GetConVar("leadbot_skill"):GetInt() == 1 then
         aimskill = 8
     elseif GetConVar("leadbot_skill"):GetInt() == 2 then
-        aimskill = 18
+        aimskill = 12
     else
-        aimskill = 32
+        aimskill = 16
     end
 
-    if bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) then
-        if bot:LBGetStrategy() > 0 and not bot.freeroam then 
-            lerp = FrameTime() * aimskill / 2
-            lerpc = FrameTime() * aimskill / 2
-        else
-            lerp = FrameTime() * aimskill
-            lerpc = FrameTime() * aimskill
+    if GetConVar("leadbot_skill"):GetInt() ~= 4 then
+        if bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) then
+            if bot:LBGetStrategy() > 0 and not bot.freeroam then 
+                lerp = FrameTime() * aimskill / 2
+                lerpc = FrameTime() * aimskill / 2
+            else
+                lerp = FrameTime() * aimskill
+                lerpc = FrameTime() * aimskill
+            end
         end
-    end
-    if bot:Team() == TEAM_SURVIVORS and !IsValid(controller.Target) or bot:Team() == TEAM_ZOMBIE then
-        lerp = FrameTime() * (aimskill / 4)
-        lerpc = FrameTime() * (aimskill / 4)
+        if bot:Team() == TEAM_SURVIVORS and !IsValid(controller.Target) or bot:Team() == TEAM_ZOMBIE then
+            lerp = FrameTime() * (aimskill / 4)
+            lerpc = FrameTime() * (aimskill / 4)
+        end
+    else
+        if bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) then
+            if bot:LBGetStrategy() > 0 and not bot.freeroam then 
+                lerp = FrameTime() * bot:LBGetShootSkill() / 2
+                lerpc = FrameTime() * bot:LBGetShootSkill() / 2
+            else
+                lerp = FrameTime() * bot:LBGetShootSkill()
+                lerpc = FrameTime() * bot:LBGetShootSkill()
+            end
+        end
+        if bot:Team() == TEAM_SURVIVORS and !IsValid(controller.Target) or bot:Team() == TEAM_ZOMBIE then
+            lerp = FrameTime() * (bot:LBGetShootSkill() / 4)
+            lerpc = FrameTime() * (bot:LBGetShootSkill() / 4)
+        end
     end
 
     -- got nowhere to go, why keep moving?

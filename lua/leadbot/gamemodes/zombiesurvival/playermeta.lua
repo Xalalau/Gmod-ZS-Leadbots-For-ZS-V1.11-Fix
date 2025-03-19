@@ -33,6 +33,14 @@ function player_meta.LBGetZomSkill(self)
     end
 end
 
+function player_meta.LBGetShootSkill(self)
+    if self.LeadBot_Config then
+        return self.LeadBot_Config[8]
+    else
+        return 0
+    end
+end
+
 function player_meta.LBGetModel(self)
     if self.LeadBot_Config then
         return self.LeadBot_Config[1]

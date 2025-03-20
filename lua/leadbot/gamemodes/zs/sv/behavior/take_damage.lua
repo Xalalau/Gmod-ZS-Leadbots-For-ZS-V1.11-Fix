@@ -48,6 +48,10 @@ local function HitZombieBot(aggressor, victimBot, hp, dmg)
 end
 
 function LeadBot.TakeDamage(aggressor, victimBot, hp, dmg)
+    if not (victim:IsPlayer() and victim:IsLBot() and (aggressor:IsPlayer() or aggressor:IsNPC())) then
+        return
+    end
+
     if leadbot_cs:GetInt() >= 1 then
         if victimBot:Team() == TEAM_ZOMBIE and aggressor:Team() == TEAM_SURVIVORS then 
             ZSB.playerCSSpeed = 1

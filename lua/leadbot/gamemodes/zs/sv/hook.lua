@@ -1,5 +1,3 @@
-
-
 hook.Add("InitPostEntity", "ZS_LeadBot_InitPostEntity", function()
     ZSB.InitPostEntity()
 end)
@@ -48,14 +46,11 @@ end)
 
 hook.Add("EntityTakeDamage", "ZS_LeadBot_EntityTakeDamage", function(victim, dmgI) 
     local aggressor = dmgI:GetAttacker()
+    local hp = victim:Health()
+    local dmg = dmgI:GetDamage()
+    local force = dmgI:GetDamageForce()
 
-    if victim:IsPlayer() and victim:IsLBot() and (aggressor:IsPlayer() or aggressor:IsNPC()) then
-        local hp = victim:Health()
-        local dmg = dmgI:GetDamage()
-        local force = dmgI:GetDamageForce()
-
-        LeadBot.TakeDamage(aggressor, victim, hp, dmg)
-    end
+    LeadBot.TakeDamage(aggressor, victim, hp, dmg)
 end)
 
 hook.Add("PlayerDeath", "ZS_LeadBot_PlayerDeath", function(victim, inflictor, attacker)

@@ -22,8 +22,8 @@ local function HitSurvivorBot(aggressor, victimBot, hp, dmg)
 end
 
 local function HitZombieBot(aggressor, victimBot, hp, dmg)
-    local distance = victimBot:GetPos():DistToSqr(controller.PosGen)
     local controller = victimBot:GetController()
+    local distance = victimBot:GetPos():DistToSqr(controller.PosGen)
     local hurtDistance = victimBot:GetPos():DistToSqr(aggressor:GetPos())
     local haveDifferentTeams = victimBot:Team() ~= aggressor:Team()
 

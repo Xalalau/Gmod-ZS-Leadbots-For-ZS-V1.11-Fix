@@ -46,6 +46,7 @@ CreateConVar("leadbot_hregen", "1", {FCVAR_ARCHIVE}, "If you want survivor bots 
 CreateConVar("leadbot_zcheats", "0", {FCVAR_ARCHIVE}, "If you want zombie bots to cheat a little so that they're better at killing humans'", 0 , 1)
 CreateConVar("leadbot_collision", "0", {FCVAR_ARCHIVE}, "If you want bots to not collide with each other or others", 0 , 1)
 CreateConVar("leadbot_knockback", "1", {FCVAR_ARCHIVE}, "If you want to not experience any knockback", 0 , 1)
+local leadbot_mapchanges =
 CreateConVar("leadbot_mapchanges", "0", {FCVAR_ARCHIVE}, "If you want certain things to be removed from certain maps in order for bots to not get stuck and/or confused", 0, 1)
 CreateConVar("leadbot_cs", "0", {FCVAR_ARCHIVE}, "If you want THE counter strike ZM experience", 0 , 1)
 CreateConVar("leadbot_skill", "4", {FCVAR_ARCHIVE}, "Changes how good the bots' aims are (4 = random)", 0 , 4)
@@ -72,7 +73,7 @@ end
 
 IncludeFilesInDir("leadbot/gamemodes/zs/sv/behavior")
 
-include("zs/sv/hook.lua")
+include("zs/sv/behavior_hook.lua")
 
 cvars.AddChangeCallback("leadbot_quota", function(_, oldval, val)
     oldval = tonumber(oldval)

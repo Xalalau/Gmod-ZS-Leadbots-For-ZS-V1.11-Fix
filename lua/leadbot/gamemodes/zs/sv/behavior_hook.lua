@@ -5,8 +5,6 @@ end)
 hook.Add("PlayerInitialSpawn", "ZS_LeadBot_PlayerInitialSpawn", function(ply)
     if ply:IsLBot() then
         LeadBot.InitialSpawn(ply)
-    else
-        LeadBot.PlayerInitialSpawn(ply)
     end
 end)
 

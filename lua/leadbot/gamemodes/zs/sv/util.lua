@@ -1,14 +1,10 @@
-ZSUtil = {}
-
-function ZSUtil.chance(chance)
-    return math.random(0, 100) <= chance
+function ZSB.Util:Odds(probability)
+    return math.random(1, 100) <= probability
 end
 
+-- ----------------------------------------------
 
-
-
-
-function ZSUtil.IsFacingEnt(ent1, ent2)
+function ZSB.Util:IsFacingEnt(ent1, ent2)
     if not IsValid(ent1) or not IsValid(ent2) then return false end
 
     local eyePos = ent1:EyePos()
@@ -23,9 +19,7 @@ function ZSUtil.IsFacingEnt(ent1, ent2)
     return dotProduct > 0.55
 end
 
-
-
-
+-- ----------------------------------------------
 
 local wantedCmdClasses = {
     ["prop_door_rotating"] = true,
@@ -50,7 +44,7 @@ local nextBotEntsScan = {
     -- [bot] = { next = time, foundEnts = table }
 }
 
-function ZSUtil.findEnts(bot)
+function ZSB.Util:FindEnts(bot)
     local lastScan = nextBotEntsScan[bot]
     local now = CurTime()
 
@@ -75,7 +69,7 @@ function ZSUtil.findEnts(bot)
 
                 table.insert(foundEnts.area[index], ent)
 
-                if ZSUtil.IsFacingEnt(bot, ent) then
+                if ZSB.Util:IsFacingEnt(bot, ent) then
                     table.insert(foundEnts.facing[index], ent)
                 end
 

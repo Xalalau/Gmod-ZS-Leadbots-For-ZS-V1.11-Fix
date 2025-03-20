@@ -1,6 +1,6 @@
 local mapName = game.GetMap()
 
-ZSBots.defaultMapValues = {
+ZSB.Map.default = {
     survivorBreak = false,
     survivorBoxBreak = false,
     zombiePropCheck = true,
@@ -24,7 +24,7 @@ ZSBots.defaultMapValues = {
     campingSpotList= {},
 }
 
-ZSBots.mapHandler = {
+ZSB.Map.handler = {
     zs_overandunderground_v2 = {
         survivorBreak = true,
         removeFuncBreakable = true,
@@ -34,7 +34,7 @@ ZSBots.mapHandler = {
         end,
         removePropPhysicsList = table.Add({
             ["models/props_debris/metal_panel01a.mdl"] = true
-        }, ZSBots.defaultMapValues.removePropPhysicsList),
+        }, ZSB.Map.default.removePropPhysicsList),
         campingSpotList = { Vector(-490.96, 3106.96, -55.96), Vector(-42.84, 2375.03, 80.03), Vector(-102.80, 3071.96, 216.03) }
     },
     zs_embassy = {
@@ -88,7 +88,7 @@ ZSBots.mapHandler = {
         survivorBreak = true,
         removePropPhysicsList = table.Add({
             ["models/props_debris/wood_board04a.mdl"] = true
-        }, ZSBots.defaultMapValues.removePropPhysicsList),
+        }, ZSB.Map.default.removePropPhysicsList),
         campingSpotList = { Vector(257.78, 704.61, 55.03), Vector(-250.97, 967.96, -80.96), Vector(-16.03, 114.03, -216.96) }
     },
     zs_port_v5 = {
@@ -141,7 +141,7 @@ ZSBots.mapHandler = {
     zs_panic_house_v2 = {
         removePropPhysicsList = table.Add({
             ["models/props_debris/wood_board06a.mdl"] = true
-        }, ZSBots.defaultMapValues.removePropPhysicsList),
+        }, ZSB.Map.default.removePropPhysicsList),
         campingSpotList = { Vector(-852.89, -354.96, 44.42), Vector(-848.92, 241.24, -336.70), Vector(-978.40, -106.28, -88.96) }
     },
     zs_snow = {
@@ -209,22 +209,22 @@ ZSBots.mapHandler = {
     }
 }
 
-ZSBots.currentMap = ZSBots.mapHandler[mapName] or {}
+ZSB.Map.current = ZSB.Map.handler[mapName] or {}
 
-function ZSBots:GetMapValue(key)
-    if self.currentMap[key] then
-        return self.currentMap[key]
+function ZSB.Map:GetValue(key)
+    if self.current[key] then
+        return self.current[key]
     else
-        return ZSBots.defaultMapValues[key]
+        return ZSB.Map.default[key]
     end
 end
 
-function ZSBots:SetMapValue(key, value)
-    self.currentMap[key] = value
+function ZSB.Map:SetValue(key, value)
+    self.current[key] = value
 end
 
 local function RemoveFromMap(key, class, entTab, filter)
-    if ZSBots:GetMapValue(key) then
+    if ZSB.Map:GetValue(key) then
         for k, v in ipairs(entTab or ents.FindByClass(class)) do
             if not filter or filter(v) then
                 v:Remove()
@@ -234,7 +234,7 @@ local function RemoveFromMap(key, class, entTab, filter)
 end
 
 local function CreateBotBarriers()
-    local botBarrierList = ZSBots:GetMapValue("botBarrierList")
+    local botBarrierList = ZSB.Map:GetValue("botBarrierList")
 
     for k, botBarrier in ipairs(botBarrierList) do
         local barrierLeadBot = ents.Create("prop_physics")
@@ -247,21 +247,21 @@ local function CreateBotBarriers()
 end
 
 local function CreateBotCampingSpots()
-    local campingSpotList = ZSBots:GetMapValue("campingSpotList")
+    local campingSpotList = ZSB.Map:GetValue("campingSpotList")
 
     for k, pos in ipairs(campingSpotList) do
         local sigil = ents.Create("prop_dynamic")
         sigil:SetModel("models/dav0r/buttons/button.mdl")
         sigil:SetPos(pos)
-        sigil:SetNoDraw(ZSBots.DEBUG)
+        sigil:SetNoDraw(ZSB.DEBUG)
         sigil:Spawn()
         sigil:Fire("DisableMotion")
 
-        ZSBots:SetMapValue("sigil" .. k , sigil)
+        ZSB.Map:SetValue("sigil" .. k , sigil)
     end
 end
 
-function ZSBots.InitMap()
+function ZSB.Map.Init()
     if GetConVar("leadbot_mapchanges"):GetInt() >= 1 then 
         RemoveFromMap("removeFuncDoorRotating", "func_door_rotating")
         RemoveFromMap("removePropDoorRotating", "prop_door_rotating")
@@ -269,7 +269,7 @@ function ZSBots.InitMap()
         RemoveFromMap("removeFuncBreakable", "func_breakable")
 
         local funcPhysboxEnts = ents.FindByClass("func_physbox")
-        local funcPhysboxFilter = ZSBots:GetMapValue("removeFuncPhysboxFilter")
+        local funcPhysboxFilter = ZSB.Map:GetValue("removeFuncPhysboxFilter")
 
         RemoveFromMap("removeFuncPhysbox", "func_physbox", funcPhysboxEnts, funcPhysboxFilter)
 
@@ -277,7 +277,7 @@ function ZSBots.InitMap()
 
         RemoveFromMap("removerop_physics", "func_physbox", funcPhysboxEnts, funcPhysboxFilter)
 
-        local removePropPhysicsList = ZSBots:GetMapValue("removePropPhysicsList")
+        local removePropPhysicsList = ZSB.Map:GetValue("removePropPhysicsList")
 
         local countPropPhysicsRemovals = table.Count(removePropPhysicsList)
 
@@ -292,7 +292,7 @@ function ZSBots.InitMap()
             end
         end
 
-        if ZSBots:GetMapValue("forceEnableMotion") then
+        if ZSB.Map:GetValue("forceEnableMotion") then
             for k, v in ipairs(funcPhysboxEnts) do
                 v:Fire("EnableMotion")
             end

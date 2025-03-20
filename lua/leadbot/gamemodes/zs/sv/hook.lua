@@ -1,7 +1,7 @@
 
 
 hook.Add("InitPostEntity", "ZS_LeadBot_InitPostEntity", function()
-    ZSBots.InitPostEntity()
+    ZSB.InitPostEntity()
 end)
 
 hook.Add("PlayerInitialSpawn", "ZS_LeadBot_PlayerInitialSpawn", function(ply)

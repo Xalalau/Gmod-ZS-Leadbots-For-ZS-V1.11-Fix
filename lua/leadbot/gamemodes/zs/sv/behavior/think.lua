@@ -9,7 +9,7 @@ local leadbot_minzombies = GetConVar("leadbot_minzombies")
 
 local n = 1
 
-function InfiniteAmmoForSurvivorBots()
+local function InfiniteAmmoForSurvivorBots()
     if leadbot_hinfammo:GetInt() < 1 then 
         n = 2
     else
@@ -39,7 +39,7 @@ function InfiniteAmmoForSurvivorBots()
 end
 
 function LeadBot.Think()
-    if ZSBots.INTERMISSION == 1 and leadbot_hordes:GetInt() >= 1 and leadbot_quota:GetInt() < 2 then 
+    if ZSB.INTERMISSION == 1 and leadbot_hordes:GetInt() >= 1 and leadbot_quota:GetInt() < 2 then 
         for k, v in ipairs(player.GetHumans()) do
             if v:Team() == TEAM_ZOMBIE then 
                 v:Redeem()
@@ -50,9 +50,9 @@ function LeadBot.Think()
     if leadbot_cs:GetInt() >= 1 then 
         for k, v in ipairs(player.GetAll()) do
             if v:Team() == TEAM_ZOMBIE then
-                ZSBots.playerCSSpeed = ZSBots.playerCSSpeed + 10
+                ZSB.playerCSSpeed = ZSB.playerCSSpeed + 10
                 if v:Health() ~= 1000 then 
-                    GAMEMODE:SetPlayerSpeed(v, math.min(ZSBots.playerCSSpeed, 200))
+                    GAMEMODE:SetPlayerSpeed(v, math.min(ZSB.playerCSSpeed, 200))
                 else
                     GAMEMODE:SetPlayerSpeed(v, 200)
                 end
@@ -80,7 +80,7 @@ function LeadBot.Think()
     end
 
     if team.NumPlayers(TEAM_ZOMBIE) >= 1 and team.NumPlayers(TEAM_ZOMBIE) < player.GetCount() then 
-        ZSBots.INTERMISSION = 0
+        ZSB.INTERMISSION = 0
     end
 
     --[[

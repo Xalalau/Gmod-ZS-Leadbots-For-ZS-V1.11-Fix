@@ -15,9 +15,9 @@ function LeadBot.SetupMove(bot, cmd, mv)
     local hallvar = math.random(-45, 45)
     local doorvar = math.random(-15, 15)
 
-    local sigil1 = ZSBots:GetMapValue("sigil1")
-    local sigil2 = ZSBots:GetMapValue("sigil2")
-    local sigil3 = ZSBots:GetMapValue("sigil3")
+    local sigil1 = ZSB.Map:GetValue("sigil1")
+    local sigil2 = ZSB.Map:GetValue("sigil2")
+    local sigil3 = ZSB.Map:GetValue("sigil3")
     local mapName = game.GetMap()
 
     if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS then
@@ -345,7 +345,7 @@ function LeadBot.SetupMove(bot, cmd, mv)
         controller.ForgetTarget = CurTime() + 4
     end
 
-    if ZSBots.DEBUG then
+    if ZSB.DEBUG then
         debugoverlay.Text(bot:EyePos(), bot:Nick(), 0.03, false)
         local min, max = bot:GetHull()
         debugoverlay.Box(bot:GetPos(), min, max, 0.03, Color(255, 255, 255, 0))
@@ -718,7 +718,7 @@ function LeadBot.SetupMove(bot, cmd, mv)
 
         controller.goalPos = goalpos
 
-        if ZSBots.DEBUG then
+        if ZSB.DEBUG then
             controller.P:Draw()
         end
 

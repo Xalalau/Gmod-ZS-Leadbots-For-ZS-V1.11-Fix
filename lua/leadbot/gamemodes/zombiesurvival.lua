@@ -20,7 +20,10 @@ LeadBot.Strategies = 3 -- how many strategies can the bot pick from
 
 --[[GAMEMODE CONFIGURATION END]]--
 
-ZSBots = {
+ZSB = {
+    Map = {},
+    Util= {},
+
     DEBUG = false,
     INTERMISSION = 1,
     INTERMISSION_FAKE_TIMER = 60,
@@ -109,20 +112,20 @@ function CmdAddBot(ply, _, args)
     end
 end
 
-function ZSBots.InitPostEntity()
+function ZSB.InitPostEntity()
     if not game.SinglePlayer() and leadbot_hordes:GetInt() >= 1 then
         timer.Create("Hordes", 60, -1, function() 
             RunConsoleCommand("leadbot_add", "1")
-            ZSBots.INTERMISSION = 0
+            ZSB.INTERMISSION = 0
         end )
     
         timer.Create("INTERMISSION_MESSAGE", 1, 60, function() 
-            PrintMessage( 4, "Infection begins in " .. ZSBots.INTERMISSION_FAKE_TIMER .. " Seconds!")
-            ZSBots.INTERMISSION_FAKE_TIMER = ZSBots.INTERMISSION_FAKE_TIMER - 1
+            PrintMessage( 4, "Infection begins in " .. ZSB.INTERMISSION_FAKE_TIMER .. " Seconds!")
+            ZSB.INTERMISSION_FAKE_TIMER = ZSB.INTERMISSION_FAKE_TIMER - 1
         end)
     end
 
-    ZSBots.InitMap()
+    ZSB.Map.Init()
 
     timer.Start("zombieNearDetector")
     timer.Start("zombieStuckDetector")

@@ -59,11 +59,7 @@ hook.Add("EntityTakeDamage", "ZS_LeadBot_EntityTakeDamage", function(victim, dmg
 end)
 
 hook.Add("PlayerDeath", "ZS_LeadBot_PlayerDeath", function(victim, inflictor, attacker)
-    if attacker.IsLBot and attacker:IsLBot() then
-        if victim:IsLBot() then
-            LeadBot.Death(attacker, victim)
-        else
-            LeadBot.PlayerDeath(attacker, victim)
-        end
+    if victim:IsLBot() then
+        LeadBot.Death(attacker, victim)
     end
 end)

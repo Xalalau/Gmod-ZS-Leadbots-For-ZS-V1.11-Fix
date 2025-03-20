@@ -37,6 +37,7 @@ CreateConVar("leadbot_names", "", {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Bot names, sep
 CreateConVar("leadbot_models", "", {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Bot models, seperated by commas.")
 CreateConVar("leadbot_name_prefix", "", {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Bot name prefix")
 CreateConVar("leadbot_minzombies", "1", {FCVAR_ARCHIVE}, "What Percentage of Leadbots become Zombies at the Beginning (this includes players as well)", 0, 100)
+local leadbot_zchance =
 CreateConVar("leadbot_zchance", "0", {FCVAR_ARCHIVE}, "If you want a chance to become a zombie when you spawn", 0 , 1)
 local leadbot_hordes = 
 CreateConVar("leadbot_hordes", "0", {FCVAR_ARCHIVE}, "If you want to play horde mode instead of using quota", 0 , 1)
@@ -48,6 +49,9 @@ CreateConVar("leadbot_knockback", "1", {FCVAR_ARCHIVE}, "If you want to not expe
 CreateConVar("leadbot_mapchanges", "0", {FCVAR_ARCHIVE}, "If you want certain things to be removed from certain maps in order for bots to not get stuck and/or confused", 0, 1)
 CreateConVar("leadbot_cs", "0", {FCVAR_ARCHIVE}, "If you want THE counter strike ZM experience", 0 , 1)
 CreateConVar("leadbot_skill", "4", {FCVAR_ARCHIVE}, "Changes how good the bots' aims are (4 = random)", 0 , 4)
+
+local zs_roundtime = GetConVar("zs_roundtime")
+local zs_human_deadline = GetConVar("zs_human_deadline")
 
 resource.AddFile("sound/intermission.mp3")
 
@@ -130,3 +134,36 @@ function ZSB.InitPostEntity()
     timer.Start("zombieNearDetector")
     timer.Start("zombieStuckDetector")
 end
+
+hook.Add("PlayerInitialSpawn", "ZS_LeadBot_RealPlayerInitialSpawn", function(ply)
+    if ply:IsBot() then return end
+
+    if leadbot_zchance:GetInt() < 1 and INFLICTION < 0.5 or
+       leadbot_zchance:GetInt() < 1 and CurTime() <= zs_roundtime:GetInt()*0.5 and not zs_human_deadline:GetBool()
+    then 
+        timer.Simple(2, function()
+            local mapName = game.GetMap()
+
+            ply:Redeem()
+
+            if leadbot_mapchanges:GetInt() >= 1 then 
+                if mapName == "zs_buntshot" then 
+                    ply:SetPos( Vector(-520.605774 + math.random(-25, 25), -90.801414 + math.random(-25, 25), -211.968750) ) 
+                elseif mapName == "zs_snow" then 
+                    ply:SetPos( Vector(-566.444092 + math.random(-25, 25), 1023.660217 + math.random(-25, 25), -38.856033) ) 
+                end
+            end
+        end)
+    end
+
+    if leadbot_hordes:GetInt() >= 1 and player.GetCount() == 1 then
+        ply:EmitSound("intermission.mp3", CHAN_REPLACE)
+        timer.Start("Hordes")
+        timer.Start("INTERMISSION_MESSAGE")
+    end
+
+    if leadbot_hordes:GetInt() < 1 and player.GetCount() >= 1 then
+        timer.Stop("Hordes")
+        timer.Stop("INTERMISSION_MESSAGE")
+    end
+end)

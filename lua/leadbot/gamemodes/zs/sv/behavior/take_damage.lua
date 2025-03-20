@@ -48,7 +48,7 @@ local function HitZombieBot(aggressor, victimBot, hp, dmg)
 end
 
 function LeadBot.TakeDamage(aggressor, victimBot, hp, dmg)
-    if not (victim:IsPlayer() and victim:IsLBot() and (aggressor:IsPlayer() or aggressor:IsNPC())) then
+    if not (aggressor:IsPlayer() or aggressor:IsNPC()) then
         return
     end
 

@@ -45,12 +45,14 @@ hook.Add("PlayerSpawn", "ZS_LeadBot_PlayerSpawn", function(ply)
 end) 
 
 hook.Add("EntityTakeDamage", "ZS_LeadBot_EntityTakeDamage", function(victim, dmgI) 
-    local aggressor = dmgI:GetAttacker()
-    local hp = victim:Health()
-    local dmg = dmgI:GetDamage()
-    local force = dmgI:GetDamageForce()
+    if victim:IsPlayer() and victim:IsLBot() then
+        local aggressor = dmgI:GetAttacker()
+        local hp = victim:Health()
+        local dmg = dmgI:GetDamage()
+        local force = dmgI:GetDamageForce()
 
-    LeadBot.TakeDamage(aggressor, victim, hp, dmg)
+        LeadBot.TakeDamage(aggressor, victim, hp, dmg)
+    end
 end)
 
 hook.Add("PlayerDeath", "ZS_LeadBot_PlayerDeath", function(victim, inflictor, attacker)

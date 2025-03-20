@@ -1,7 +1,7 @@
 -- Cache cvars
 local leadbot_cs = GetConVar("leadbot_cs")
 
-local function HitSurvivorBot(aggressor, victimBot, hp, dmg)
+local function OnSurvivorBotHurt(aggressor, victimBot, hp, dmg)
     local controller = victimBot:GetController()
     local haveDifferentTeams = victimBot:Team() ~= aggressor:Team()
 
@@ -21,7 +21,7 @@ local function HitSurvivorBot(aggressor, victimBot, hp, dmg)
     end
 end
 
-local function HitZombieBot(aggressor, victimBot, hp, dmg)
+local function OnZombieBotHurt(aggressor, victimBot, hp, dmg)
     local controller = victimBot:GetController()
     local distance = victimBot:GetPos():DistToSqr(controller.PosGen)
     local hurtDistance = victimBot:GetPos():DistToSqr(aggressor:GetPos())
@@ -68,10 +68,10 @@ function LeadBot.TakeDamage(aggressor, victimBot, hp, dmg)
     --]]
 
     if victimBot:Team() == TEAM_SURVIVORS then 
-        HitSurvivorBot(aggressor, victimBot, hp, dmg)
+        OnSurvivorBotHurt(aggressor, victimBot, hp, dmg)
     end
 
     if victimBot:Team() == TEAM_ZOMBIE then
-        HitZombieBot(aggressor, victimBot, hp, dmg)
+        OnZombieBotHurt(aggressor, victimBot, hp, dmg)
     end
 end

@@ -49,16 +49,12 @@ end)
 hook.Add("EntityTakeDamage", "ZS_LeadBot_EntityTakeDamage", function(victim, dmgI) 
     local aggressor = dmgI:GetAttacker()
 
-    if victim:IsPlayer() and victim:IsLBot() and ( aggressor:IsPlayer() or aggressor:IsNPC() ) then
+    if victim:IsPlayer() and victim:IsLBot() and (aggressor:IsPlayer() or aggressor:IsNPC()) then
         local hp = victim:Health()
         local dmg = dmgI:GetDamage()
         local force = dmgI:GetDamageForce()
 
-        LeadBot.InflictDamage(aggressor, victim, hp, dmg)
-
-        if victim:IsLBot() then
-            LeadBot.TakeDamage(aggressor, victim, hp, dmg)
-        end
+        LeadBot.TakeDamage(aggressor, victim, hp, dmg)
     end
 end)
 

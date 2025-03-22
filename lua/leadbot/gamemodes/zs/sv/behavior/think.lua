@@ -1,42 +1,8 @@
 -- Cache cvars
-local leadbot_hinfammo = GetConVar("leadbot_hinfammo")
 local leadbot_hordes = GetConVar("leadbot_hordes")
 local leadbot_cs = GetConVar("leadbot_cs")
 local leadbot_quota = GetConVar("leadbot_quota")
 local leadbot_minzombies = GetConVar("leadbot_minzombies")
-
--- Credit goes out to 女儿 for this infinite ammo code :D --
-
-local n = 1
-
-local function InfiniteAmmoForSurvivorBots()
-    if leadbot_hinfammo:GetInt() < 1 then 
-        n = 2
-    else
-        n = 1
-    end
-    if n > 0 then
-        for k,v in ipairs (player.GetBots()) do
-            weapon = v:GetActiveWeapon()
-            if IsValid(weapon) and v:Team() == TEAM_SURVIVORS then
-                local maxClip = weapon:GetMaxClip1()
-                local maxClip2 = weapon:GetMaxClip2()
-                local primAmmoType = weapon:GetPrimaryAmmoType()
-                local secAmmoType = weapon:GetSecondaryAmmoType()
-                if n == 1 then
-                    if maxClip >= 0 then weapon:SetClip1(maxClip) end
-                    if maxClip2 >= 0 then weapon:SetClip2(maxClip2) end
-                end
-                if primAmmoType ~= -1 then
-                    v:SetAmmo( maxClip, primAmmoType)
-                end
-                if secAmmoType ~= -1 and secAmmoType ~= primAmmoType then
-                    v:SetAmmo( maxClip2, secAmmoType)
-                end
-            end
-        end
-    end
-end
 
 function LeadBot.Think()
     if ZSB.INTERMISSION == 1 and leadbot_hordes:GetInt() >= 1 and leadbot_quota:GetInt() < 2 then 
@@ -94,8 +60,6 @@ function LeadBot.Think()
         end
     end
     ]]
-
-    InfiniteAmmoForSurvivorBots()
 
     for _, bot in ipairs(player.GetBots()) do
         if bot:IsLBot() then

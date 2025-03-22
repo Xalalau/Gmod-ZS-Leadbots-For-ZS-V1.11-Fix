@@ -58,3 +58,13 @@ hook.Add("PlayerDeath", "ZS_LeadBot_PlayerDeath", function(victim, inflictor, at
         LeadBot.Death(attacker, victim)
     end
 end)
+
+hook.Add("EntityFireBullets", "ZS_LeadBot_EntityFireBullets", function(ent, data)
+    if ent:IsLBot() then
+        local weapon = ent:GetActiveWeapon()
+
+        if IsValid(weapon) then
+            LeadBot.FireBullets(ent, weapon, data)
+        end
+    end
+end)

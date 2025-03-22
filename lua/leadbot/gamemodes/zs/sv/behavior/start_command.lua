@@ -188,8 +188,8 @@ function LeadBot.StartCommand(bot, cmd)
         local breakable = foundEnts.near['func_breakable'][math.random(1, #foundEnts.near['func_breakable'])]
 
         if IsValid(breakable) and breakable:GetMaxHealth() > 1 then
-            local survivorBreak = ZSB.Map.handler[game.GetMap()] and ZSB.Map.handler[game.GetMap()].survivorBreak or false
-            local zombieBreakCheck = ZSB.Map.handler[game.GetMap()] and ZSB.Map.handler[game.GetMap()].zombieBreakCheck or false
+            local survivorBreak = ZSB.Map:GetValue("survivorBreak", false)
+            local zombieBreakCheck = ZSB.Map:GetValue("zombieBreakCheck", false)
     
             if bot:Team() == TEAM_SURVIVORS and survivorBreak then
                 controller.Target = breakable
@@ -207,7 +207,7 @@ function LeadBot.StartCommand(bot, cmd)
         local physbox = foundEnts.near['func_physbox'][math.random(1, #foundEnts.near['func_physbox'])]
 
         if IsValid(physbox) then
-            local survivorBoxBreak = ZSB.Map.handler[game.GetMap()] and ZSB.Map.handler[game.GetMap()].survivorBoxBreak or false
+            local survivorBoxBreak = ZSB.Map:GetValue("survivorBoxBreak", false)
 
             if (bot:Team() == TEAM_ZOMBIE or survivorBoxBreak) and physbox:GetMaxHealth() > 1 then
                 controller.Target = physbox
@@ -218,7 +218,7 @@ function LeadBot.StartCommand(bot, cmd)
 
     if foundEnts.near['prop_physics'] then
         local pphysics = foundEnts.near['prop_physics'][math.random(1, #foundEnts.near['prop_physics'])]
-        local zombiePropCheck = ZSB.Map.handler[game.GetMap()] and ZSB.Map.handler[game.GetMap()].zombiePropCheck or false
+        local zombiePropCheck = ZSB.Map:GetValue("zombiePropCheck", false)
 
         if IsValid(pphysics) then
             if bot:Team() == TEAM_ZOMBIE or

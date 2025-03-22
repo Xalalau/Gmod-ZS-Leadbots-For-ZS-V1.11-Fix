@@ -117,9 +117,9 @@ function LeadBot.SetupMove(bot, cmd, mv)
                     controller.LastSegmented = CurTime() + 1000000
                 else
                     if team.NumPlayers(TEAM_ZOMBIE) > 0 then 
-                        for k, v in RandomPairs(player.GetAll()) do 
-                            if IsValid(v) and v:Team() == TEAM_ZOMBIE and not v:HasGodMode() and v:Alive() then 
-                                controller.PosGen = v:GetPos()
+                        for k, plyOrBot in RandomPairs(player.GetAll()) do 
+                            if IsValid(plyOrBot) and plyOrBot:Team() == TEAM_ZOMBIE and not plyOrBot:HasGodMode() and plyOrBot:Alive() then 
+                                controller.PosGen = plyOrBot:GetPos()
                                 controller.LastSegmented = CurTime() + 10
                                 break
                             end
@@ -162,9 +162,9 @@ function LeadBot.SetupMove(bot, cmd, mv)
                         if bot:LBGetSurvSkill() == 0 then 
                             bot:SelectWeapon("weapon_zs_swissarmyknife")
                         end
-                        for k, v in RandomPairs(player.GetAll()) do 
-                            if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
-                                controller.PosGen = v:GetPos()
+                        for k, plyOrBot in RandomPairs(player.GetAll()) do 
+                            if IsValid(plyOrBot) and plyOrBot:Team() == TEAM_SURVIVORS then 
+                                controller.PosGen = plyOrBot:GetPos()
                                 controller.LastSegmented = CurTime() + 10
                                 break
                             end
@@ -183,9 +183,9 @@ function LeadBot.SetupMove(bot, cmd, mv)
                         if bot:LBGetSurvSkill() == 0 then 
                             bot:SelectWeapon("weapon_zs_swissarmyknife")
                         end
-                        for k, v in RandomPairs(player.GetAll()) do 
-                            if IsValid(v) and v:Team() == TEAM_ZOMBIE and not v:HasGodMode() then 
-                                controller.PosGen = v:GetPos()
+                        for k, plyOrBot in RandomPairs(player.GetAll()) do 
+                            if IsValid(plyOrBot) and plyOrBot:Team() == TEAM_ZOMBIE and not plyOrBot:HasGodMode() then 
+                                controller.PosGen = plyOrBot:GetPos()
                                 controller.LastSegmented = CurTime() + 10
                                 break
                             end
@@ -196,9 +196,9 @@ function LeadBot.SetupMove(bot, cmd, mv)
         else
             -- find survivor position
             if team.NumPlayers(TEAM_SURVIVORS) ~= 0 then
-                for k, v in RandomPairs(player.GetAll()) do 
-                    if IsValid(v) and v:Team() == TEAM_SURVIVORS then 
-                        controller.PosGen = v:GetPos()
+                for k, plyOrBot in RandomPairs(player.GetAll()) do 
+                    if IsValid(plyOrBot) and plyOrBot:Team() == TEAM_SURVIVORS then 
+                        controller.PosGen = plyOrBot:GetPos()
                         controller.LastSegmented = CurTime() + 1000000
                         break
                     end

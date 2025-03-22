@@ -282,9 +282,9 @@ end
 
 local function RemoveFromMap(key, class, entTab, filter)
     if ZSB.Map:GetValue(key) then
-        for k, v in ipairs(entTab or ents.FindByClass(class)) do
-            if not filter or filter(v) then
-                v:Remove()
+        for k, ent in ipairs(entTab or ents.FindByClass(class)) do
+            if not filter or filter(ent) then
+                ent:Remove()
             end
         end
     end
@@ -295,6 +295,7 @@ local function CreateBotBarriers()
 
     for k, botBarrier in ipairs(botBarrierList) do
         local barrierLeadBot = ents.Create("prop_physics")
+
         barrierLeadBot:SetModel(botBarrier.model)
         barrierLeadBot:SetPos(botBarrier.pos)
         barrierLeadBot:SetAngles(botBarrier.ang)
@@ -338,9 +339,9 @@ function ZSB.Map.Init()
 
         local countPropPhysicsRemovals = table.Count(removePropPhysicsList)
 
-        for k, v in ipairs(propPhysicsEnts) do
-            if removePropPhysicsList[v] then
-                v:Remove()
+        for k, prop in ipairs(propPhysicsEnts) do
+            if removePropPhysicsList[prop] then
+                prop:Remove()
                 countPropPhysicsRemovals = countPropPhysicsRemovals - 1
             end
 
@@ -350,11 +351,11 @@ function ZSB.Map.Init()
         end
 
         if ZSB.Map:GetValue("forceEnableMotion") then
-            for k, v in ipairs(funcPhysboxEnts) do
-                v:Fire("EnableMotion")
+            for k, physbox in ipairs(funcPhysboxEnts) do
+                physbox:Fire("EnableMotion")
             end
-            for k, v in ipairs(propPhysicsEnts) do
-                v:Fire("EnableMotion")
+            for k, prop in ipairs(propPhysicsEnts) do
+                prop:Fire("EnableMotion")
             end
         end
 

@@ -6,7 +6,6 @@ local function UpdateZombieClass(victimBot)
     if not IsValid(victimBot) then return end
 
     local curZombieClass = victimBot:GetZombieClass()
-    local heightFix = Vector(0, 0, -20)
     local changeToNormalZombie = {
         [1] = true,
         [9] = true,
@@ -19,6 +18,7 @@ local function UpdateZombieClass(victimBot)
 
     if not victimBot:IsOnGround() then 
         local pos = victimBot:GetPos()
+        local heightFix = Vector(0, 0, -20)
 
         victimBot:SetPos(pos + heightFix)
     end

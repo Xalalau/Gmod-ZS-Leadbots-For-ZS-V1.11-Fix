@@ -56,7 +56,7 @@ local zs_human_deadline = GetConVar("zs_human_deadline")
 
 resource.AddFile("sound/intermission.mp3")
 
-include("zs/sv/map_init.lua")
+include("zs/sv/map_handler.lua")
 include("zs/sv/player_meta.lua")
 include("zs/sv/util.lua")
 include("zs/sv/add_bot.lua")

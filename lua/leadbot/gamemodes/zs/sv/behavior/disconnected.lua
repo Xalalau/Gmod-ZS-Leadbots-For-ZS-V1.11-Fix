@@ -1,5 +1,5 @@
 function LeadBot.Disconnected(bot)
-    if IsValid(bot.ControllerBot) then
-        bot.ControllerBot:Remove()
-    end
+    if not IsValid(bot.ControllerBot) then return end
+
+    bot.ControllerBot:Remove()
 end

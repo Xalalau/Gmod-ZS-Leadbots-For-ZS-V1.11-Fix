@@ -209,11 +209,15 @@ ZSB.Map.handler = {
     }
 }
 
-ZSB.Map.current = ZSB.Map.handler[mapName] or {}
+ZSB.Map.current = ZSB.Map.handler["zs_residentevil2v2"] or {}
 
-function ZSB.Map:GetValue(key)
+function ZSB.Map:GetValue(key, default)
+    -- nil can't be used as a default value
+
     if self.current[key] then
         return self.current[key]
+    elseif default ~= nil then
+        return default
     else
         return ZSB.Map.default[key]
     end

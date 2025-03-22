@@ -30,10 +30,12 @@ function LeadBot.Death(aggressor, victimBot)
 
         UpdateZombieClass(victimBot)
 
+        -- Second wind stopper 1
         timer.Simple(2.1, function()
             UpdateZombieClass(victimBot)
         end)
 
+        -- Second wind stopper 2
         timer.Simple(2.6, function()
             UpdateZombieClass(victimBot)
         end)

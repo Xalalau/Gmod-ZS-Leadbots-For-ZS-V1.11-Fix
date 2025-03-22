@@ -4,7 +4,7 @@ local leadbot_cs = GetConVar("leadbot_cs")
 local leadbot_quota = GetConVar("leadbot_quota")
 local leadbot_minzombies = GetConVar("leadbot_minzombies")
 
-function LeadBot.Think()
+function LeadBot.Tick()
     local minimumZombies = math.ceil(player.GetCount() * (leadbot_minzombies:GetInt() * 0.01))
     local reedeemPlayers = ZSB.INTERMISSION == 1 and leadbot_hordes:GetInt() >= 1 and leadbot_quota:GetInt() < 2
     local CSMode = leadbot_cs:GetBool()

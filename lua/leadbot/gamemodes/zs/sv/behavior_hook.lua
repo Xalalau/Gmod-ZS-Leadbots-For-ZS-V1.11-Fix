@@ -32,8 +32,8 @@ hook.Add("PostPlayerDeath", "ZS_LeadBot_PostPlayerDeath", function(ply)
     end
 end)
 
-hook.Add("Think", "LeadBot_Think", function()    
-    LeadBot.Think()
+hook.Add("Tick", "LeadBot_Tick", function()    
+    LeadBot.Tick()
 end)
 
 hook.Add("PlayerSpawn", "ZS_LeadBot_PlayerSpawn", function(ply)    

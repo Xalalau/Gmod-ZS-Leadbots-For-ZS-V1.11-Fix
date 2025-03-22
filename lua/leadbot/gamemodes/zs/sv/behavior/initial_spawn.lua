@@ -5,8 +5,6 @@ local leadbot_mapchanges = GetConVar("leadbot_mapchanges")
 
 function LeadBot.InitialSpawn(bot)
     if leadbot_quota:GetInt() > 1 and leadbot_hordes:GetInt() < 1 then
-        local mapName = game.GetMap()
-
         bot:SetMaxHealth(1000000)
 
         if leadbot_mapchanges:GetInt() >= 1 then 

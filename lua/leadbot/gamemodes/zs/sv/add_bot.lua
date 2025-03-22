@@ -148,7 +148,6 @@ local function GetBotName()
         end
 
         original_name = name
-        model = name
         name = string.lower(name)
         name = defaultBotNames[name] or name
 
@@ -230,10 +229,10 @@ function LeadBot.AddBot()
     ForceNavGeneration()
 
     local generated = "Leadbot #" .. #player.GetBots() + 1
-    local model = GetBotModel()
+    local name, original_name = GetBotName()
+    local model = original_name or GetBotModel()
     local color, weaponcolor = GetBotColors()
     local strategy = 0
-    local name, original_name = GetBotName()
     local survskill = math.random(0, 1)
     local zomskill = math.random(0, 1)
     local shootskill = math.random(4, 16)

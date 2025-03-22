@@ -1,71 +1,58 @@
-local posoffset = Vector(0, 0, -20)
-
 -- Cache cvars
 local leadbot_hregen = GetConVar("leadbot_hregen")
 local leadbot_cs = GetConVar("leadbot_cs")
 
-function LeadBot.Death(aggressor, victimBot)
-    if CLIENT then return end
-    if IsValid(victimBot) and victimBot:IsBot() and victimBot:Alive() and victimBot:Team() == TEAM_ZOMBIE then
-        if victimBot:GetZombieClass() ~= 1 then 
-            if victimBot:GetZombieClass() ~= 9 then 
-                if victimBot:GetZombieClass() ~= 11 then
-                    victimBot:SetZombieClass(1)
-                end
-            end
-        end
+local function UpdateZombieClass(victimBot)
+    if not IsValid(victimBot) then return end
+
+    local curZombieClass = victimBot:GetZombieClass()
+    local heightFix = Vector(0, 0, -20)
+    local changeToNormalZombie = {
+        [1] = true,
+        [9] = true,
+        [11] = true
+    }   
+
+    if changeToNormalZombie[curZombieClass] then 
+        victimBot:SetZombieClass(1)
+    end
+
+    if not victimBot:IsOnGround() then 
         local pos = victimBot:GetPos()
-        if victimBot:IsOnGround() then 
-            victimBot:SetPos(pos)
-        else
-            victimBot:SetPos(pos + posoffset)
-        end
+
+        victimBot:SetPos(pos + heightFix)
     end
-    timer.Create(victimBot:SteamID64().."secondwindstopper1", 2.1, 1, function()
-        if IsValid(victimBot) and victimBot:IsBot() and victimBot:Alive() and victimBot:Team() == TEAM_ZOMBIE then
-            if victimBot:GetZombieClass() ~= 1 then 
-                if victimBot:GetZombieClass() ~= 9 then 
-                    if victimBot:GetZombieClass() ~= 11 then
-                        victimBot:SetZombieClass(1)
-                    end
-                end
-            end
-            local pos = victimBot:GetPos()
-            if victimBot:IsOnGround() then 
-                victimBot:SetPos(pos)
-            else
-                victimBot:SetPos(pos + posoffset)
-            end
-        end
-    end)
-    timer.Create(victimBot:SteamID64().."secondwindstopper2", 2.6, 1, function()
-        if IsValid(victimBot) and victimBot:IsBot() and victimBot:Alive() and victimBot:Team() == TEAM_ZOMBIE then
-            if victimBot:GetZombieClass() ~= 1 then 
-                if victimBot:GetZombieClass() ~= 9 then 
-                    if victimBot:GetZombieClass() ~= 11 then
-                        victimBot:SetZombieClass(1)
-                    end
-                end
-            end
-            local pos = victimBot:GetPos()
-            if victimBot:IsOnGround() then 
-                victimBot:SetPos(pos)
-            else
-                victimBot:SetPos(pos + posoffset)
-            end
-        end
-    end)
-    if leadbot_hregen:GetInt() >= 1 then
-        if aggressor:IsPlayer() and aggressor:IsBot() and aggressor:Team() == TEAM_SURVIVORS and aggressor ~= victimBot then
-            local class = victimBot:GetZombieClass()
-            local classtab = ZombieClasses[class]
-            local newhp = classtab.Health / 10
-            aggressor:SetHealth(aggressor:Health() + math.floor(newhp) )
-        end
+end
+
+function LeadBot.Death(aggressor, victimBot)
+    if victimBot:IsBot() and victimBot:Alive() and victimBot:Team() == TEAM_ZOMBIE then
+        local curZombieClass = victimBot:GetZombieClass()
+
+        UpdateZombieClass(victimBot)
+
+        timer.Simple(2.1, function()
+            UpdateZombieClass(victimBot)
+        end)
+
+        timer.Simple(2.6, function()
+            UpdateZombieClass(victimBot)
+        end)
     end
-    if leadbot_cs:GetInt() >= 1 then 
-        if attacker:IsPlayer() and aggressor:Team() == TEAM_ZOMBIE and aggressor ~= victimBot then 
-            victimBot:EmitSound("npc/fast_zombie/fz_scream1.wav", CHAN_REPLACE)  
+
+    if aggressor ~= victimBot then
+        if leadbot_hregen:GetInt() >= 1 then
+            if aggressor:IsPlayer() and aggressor:IsBot() and aggressor:Team() == TEAM_SURVIVORS then
+                local class = victimBot:GetZombieClass()
+                local newHP = ZombieClasses[class].Health / 10
+
+                aggressor:SetHealth(aggressor:Health() + math.floor(newHP) )
+            end
+        end
+
+        if leadbot_cs:GetInt() >= 1 then 
+            if attacker:IsPlayer() and aggressor:Team() == TEAM_ZOMBIE then 
+                victimBot:EmitSound("npc/fast_zombie/fz_scream1.wav", CHAN_REPLACE)
+            end
         end
     end
 end

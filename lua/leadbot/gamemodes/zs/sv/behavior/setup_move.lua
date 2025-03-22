@@ -11,268 +11,22 @@ function LeadBot.SetupMove(bot, cmd, mv)
 
     local controller = bot.ControllerBot
 
-    local openvar = math.random(-90, 90)
-    local hallvar = math.random(-45, 45)
-    local doorvar = math.random(-15, 15)
-
+    local strategy = bot:LBGetStrategy()
     local sigil1 = ZSB.Map:GetValue("sigil1")
     local sigil2 = ZSB.Map:GetValue("sigil2")
     local sigil3 = ZSB.Map:GetValue("sigil3")
-    local mapName = game.GetMap()
 
     if !IsValid(controller.Target) and bot:Team() == TEAM_SURVIVORS then
-        if bot:LBGetStrategy() == 1 and sigil3 then
-            if bot:GetPos():DistToSqr(sigil3:GetPos()) <= 5000 then 
-                if mapName == "zs_panic_house_v2" then 
-                    bot:SetEyeAngles(Angle(0, 0 + doorvar, 0))
-                elseif mapName == "zs_termites_v2" then 
-                    bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
-                elseif mapName == "zs_nastyhouse_v3" then 
-                    bot:SetEyeAngles(Angle(0, 135 + openvar, 0))
-                elseif mapName == "zs_lila_panic_v3" then 
-                    bot:SetEyeAngles(Angle(0, 180 + hallvar, 0))
-                elseif mapName == "zs_villagehouse" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_afterseven_b" then 
-                    bot:SetEyeAngles(Angle(0, 180 + hallvar, 0))
-                elseif mapName == "zs_alexg_motel_v2" then 
-                    bot:SetEyeAngles(Angle(0, 0 + hallvar, 0))
-                elseif mapName == "zs_ancient_castle_opt" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_bunkerhouse" then 
-                    bot:SetEyeAngles(Angle(0, 180 + hallvar, 0))
-                elseif mapName == "zs_bog_pubremakev1" then 
-                    bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
-                elseif mapName == "zs_bog_shityhouse" then 
-                    bot:SetEyeAngles(Angle(0, 180 + doorvar, 0))
-                elseif mapName == "zs_buntshot" then 
-                    bot:SetEyeAngles(Angle(0, 0 + hallvar, 0))
-                elseif mapName == "zs_ascent" then 
-                    bot:SetEyeAngles(Angle(0, 0 + doorvar, 0))
-                elseif mapName == "zs_citadel_b4" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_clav_maze" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_clav_wall" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_coasthouse" then 
-                    bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
-                elseif mapName == "zs_deadblock_v2" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_embassy" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_fen" then 
-                    bot:SetEyeAngles(Angle(0, 0 + doorvar, 0))
-                elseif mapName == "zs_gu_frostbite_v2" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_house_number_23" then 
-                    bot:SetEyeAngles(Angle(0, 90 + doorvar, 0))
-                elseif mapName == "zs_house_outbreak_b2" then 
-                    bot:SetEyeAngles(Angle(0, 45 + openvar, 0))
-                elseif mapName == "zs_imashouse_b2" then 
-                    bot:SetEyeAngles(Angle(0, 135 + openvar, 0))
-                elseif mapName == "zs_jail_v1" then 
-                    bot:SetEyeAngles(Angle(0, 0 + hallvar, 0))
-                elseif mapName == "zs_lakefront_alpha" then 
-                    bot:SetEyeAngles(Angle(0, 315 + openvar, 0))
-                elseif mapName == "zs_mall_dl" then 
-                    bot:SetEyeAngles(Angle(0, 90 + doorvar, 0))
-                elseif mapName == "zs_nastierhouse_v3" then 
-                    bot:SetEyeAngles(Angle(0, 0 + hallvar, 0))
-                elseif mapName == "zs_nastiesthouse_v3" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_nastyvillage" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_overandunderground_v2" then 
-                    bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
-                elseif mapName == "zs_placid" then 
-                    bot:SetEyeAngles(Angle(0, 45 + openvar, 0))
-                elseif mapName == "zs_port_v5" then 
-                    bot:SetEyeAngles(Angle(0, 0 + doorvar, 0))
-                elseif mapName == "zs_prc_wurzel_v2" then 
-                    bot:SetEyeAngles(Angle(0, 135 + openvar, 0))
-                elseif mapName == "zs_pub" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_raunchierhouse_v2" then 
-                    bot:SetEyeAngles(Angle(0, 135 + openvar, 0))
-                elseif mapName == "zs_raunchyhouse_v3" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_residentevil2v2" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_the_pub_beta1" then 
-                    bot:SetEyeAngles(Angle(0, 135 + openvar, 0))
-                elseif mapName == "zs_snow" then 
-                    bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
-                end
-            end
-        elseif bot:LBGetStrategy() == 2 and sigil2 then
-            if bot:GetPos():DistToSqr(sigil2:GetPos()) <= 5000 then
-                if mapName == "zs_panic_house_v2" then 
-                    bot:SetEyeAngles(Angle(0, 0 + hallvar, 0))
-                elseif mapName == "zs_lila_panic_v3" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_bog_pubremakev1" then 
-                    bot:SetEyeAngles(Angle(0, 180 + doorvar, 0))
-                elseif mapName == "zs_bunkerhouse" then 
-                    bot:SetEyeAngles(Angle(0, 0 + doorvar, 0))
-                elseif mapName == "zs_bog_shityhouse" then 
-                    bot:SetEyeAngles(Angle(0, 180 + doorvar, 0))
-                elseif mapName == "zs_buntshot" then 
-                    bot:SetEyeAngles(Angle(0, 180 + hallvar, 0))
-                elseif mapName == "zs_afterseven_b" then 
-                    bot:SetEyeAngles(Angle(0, 90 + doorvar, 0))
-                elseif mapName == "zs_ascent" then 
-                    bot:SetEyeAngles(Angle(0, 180 + hallvar, 0))
-                elseif mapName == "zs_ancient_castle_opt" then 
-                    bot:SetEyeAngles(Angle(0, 90 + doorvar, 0))
-                elseif mapName == "zs_alexg_motel_v2" then 
-                    bot:SetEyeAngles(Angle(0, 0 + hallvar, 0))
-                elseif mapName == "zs_citadel_b4" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_clav_maze" then 
-                    bot:SetEyeAngles(Angle(0, 180 + hallvar, 0))
-                elseif mapName == "zs_clav_wall" then 
-                    bot:SetEyeAngles(Angle(0, 225 + openvar, 0))
-                elseif mapName == "zs_coasthouse" then 
-                    bot:SetEyeAngles(Angle(0, 0 + hallvar, 0))
-                elseif mapName == "zs_deadblock_v2" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_embassy" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_fen" then 
-                    bot:SetEyeAngles(Angle(0, 180 + doorvar, 0))
-                elseif mapName == "zs_gu_frostbite_v2" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_house_number_23" then 
-                    bot:SetEyeAngles(Angle(0, 90 + doorvar, 0))
-                elseif mapName == "zs_house_outbreak_b2" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_imashouse_b2" then 
-                    bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
-                elseif mapName == "zs_jail_v1" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_lakefront_alpha" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_mall_dl" then 
-                    bot:SetEyeAngles(Angle(0, 180 + hallvar, 0))
-                elseif mapName == "zs_nastierhouse_v3" then 
-                    bot:SetEyeAngles(Angle(0, 90 + doorvar, 0))
-                elseif mapName == "zs_nastiesthouse_v3" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_nastyhouse_v3" then 
-                    bot:SetEyeAngles(Angle(0, 45 + openvar, 0))
-                elseif mapName == "zs_nastyvillage" then 
-                    bot:SetEyeAngles(Angle(0, 0 + doorvar, 0))
-                elseif mapName == "zs_overandunderground_v2" then 
-                    bot:SetEyeAngles(Angle(0, 90 + doorvar, 0))
-                elseif mapName == "zs_placid" then 
-                    bot:SetEyeAngles(Angle(0, 180 + hallvar, 0))
-                elseif mapName == "zs_port_v5" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_prc_wurzel_v2" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_pub" then 
-                    bot:SetEyeAngles(Angle(0, 135 + openvar, 0))
-                elseif mapName == "zs_raunchierhouse_v2" then 
-                    bot:SetEyeAngles(Angle(0, 135 + openvar, 0))
-                elseif mapName == "zs_raunchyhouse_v3" then 
-                    bot:SetEyeAngles(Angle(0, 225 + openvar, 0))
-                elseif mapName == "zs_residentevil2v2" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_termites_v2" then 
-                    bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
-                elseif mapName == "zs_the_pub_beta1" then 
-                    bot:SetEyeAngles(Angle(0, 90 + doorvar, 0))
-                elseif mapName == "zs_villagehouse" then 
-                    bot:SetEyeAngles(Angle(0, 225 + openvar, 0))
-                elseif mapName == "zs_snow" then 
-                    bot:SetEyeAngles(Angle(0, 112.5 + hallvar, 0))
-                end
-            end
-        elseif bot:LBGetStrategy() == 3 and sigil1 then
-            if bot:GetPos():DistToSqr(sigil1:GetPos()) <= 5000 then 
-                if mapName == "zs_panic_house_v2" then 
-                    bot:SetEyeAngles(Angle(0, 90 + doorvar, 0))
-                elseif mapName == "zs_lila_panic_v3" then 
-                    bot:SetEyeAngles(Angle(0, 0 + openvar, 0))
-                elseif mapName == "zs_bog_pubremakev1" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_bunkerhouse" then 
-                    bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
-                elseif mapName == "zs_bog_shityhouse" then 
-                    bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
-                elseif mapName == "zs_buntshot" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_afterseven_b" then 
-                    bot:SetEyeAngles(Angle(0, 180 + hallvar, 0))
-                elseif mapName == "zs_ascent" then 
-                    bot:SetEyeAngles(Angle(0, 315 + openvar, 0))
-                elseif mapName == "zs_ancient_castle_opt" then 
-                    bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
-                elseif mapName == "zs_alexg_motel_v2" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_citadel_b4" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_clav_maze" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_clav_wall" then 
-                    bot:SetEyeAngles(Angle(0, 180 + hallvar, 0))
-                elseif mapName == "zs_coasthouse" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_deadblock_v2" then 
-                    bot:SetEyeAngles(Angle(0, 180 + hallvar, 0))
-                elseif mapName == "zs_embassy" then 
-                    bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
-                elseif mapName == "zs_fen" then 
-                    bot:SetEyeAngles(Angle(0, 90 + doorvar, 0))
-                elseif mapName == "zs_gu_frostbite_v2" then 
-                    bot:SetEyeAngles(Angle(0, 90 + doorvar, 0))
-                elseif mapName == "zs_house_number_23" then 
-                    bot:SetEyeAngles(Angle(0, 0 + hallvar, 0))
-                elseif mapName == "zs_house_outbreak_b2" then 
-                    bot:SetEyeAngles(Angle(0, 90 + doorvar, 0))
-                elseif mapName == "zs_imashouse_b2" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_jail_v1" then 
-                    bot:SetEyeAngles(Angle(0, 180 + hallvar, 0))
-                elseif mapName == "zs_lakefront_alpha" then 
-                    bot:SetEyeAngles(Angle(0, 225 + openvar, 0))
-                elseif mapName == "zs_mall_dl" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                elseif mapName == "zs_nastierhouse_v3" then 
-                    bot:SetEyeAngles(Angle(0, 0 + hallvar, 0))
-                elseif mapName == "zs_nastiesthouse_v3" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_nastyhouse_v3" then 
-                    bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
-                elseif mapName == "zs_nastyvillage" then 
-                    bot:SetEyeAngles(Angle(0, 180 + doorvar, 0))
-                elseif mapName == "zs_overandunderground_v2" then 
-                    bot:SetEyeAngles(Angle(0, 315 + openvar, 0))
-                elseif mapName == "zs_placid" then 
-                    bot:SetEyeAngles(Angle(0, 45 + openvar, 0))
-                elseif mapName == "zs_port_v5" then 
-                    bot:SetEyeAngles(Angle(0, 0 + doorvar, 0))
-                elseif mapName == "zs_prc_wurzel_v2" then 
-                    bot:SetEyeAngles(Angle(0, 180 + hallvar, 0))
-                elseif mapName == "zs_pub" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_raunchierhouse_v2" then 
-                    bot:SetEyeAngles(Angle(0, 315 + openvar, 0))
-                elseif mapName == "zs_raunchyhouse_v3" then 
-                    bot:SetEyeAngles(Angle(0, 270 + hallvar, 0))
-                elseif mapName == "zs_residentevil2v2" then 
-                    bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
-                elseif mapName == "zs_termites_v2" then 
-                    bot:SetEyeAngles(Angle(0, 270 + doorvar, 0))
-                elseif mapName == "zs_the_pub_beta1" then 
-                    bot:SetEyeAngles(Angle(0, 180 + hallvar, 0))
-                elseif mapName == "zs_villagehouse" then 
-                    bot:SetEyeAngles(Angle(0, 315 + openvar, 0))
-                elseif mapName == "zs_snow" then 
-                    bot:SetEyeAngles(Angle(0, 90 + hallvar, 0))
-                end
-            end
+        if strategy == 1 and sigil3 and bot:GetPos():DistToSqr(sigil3:GetPos()) <= 5000 or
+            strategy == 2 and sigil2 and bot:GetPos():DistToSqr(sigil2:GetPos()) <= 5000 or
+            strategy == 3 and sigil1 and bot:GetPos():DistToSqr(sigil1:GetPos()) <= 5000
+        then
+            local openvar = math.random(-90, 90)
+            local hallvar = math.random(-45, 45)
+            local doorvar = math.random(-15, 15)
+            local eyeAngles = ZSB.Map:GetValue("eyeAngles", nil, strategy, doorVar, hallVar, openVar)
+
+            bot:SetEyeAngles(eyeAngles)
         end
     end
 
@@ -354,11 +108,11 @@ function LeadBot.SetupMove(bot, cmd, mv)
     if !IsValid(controller.Target) and (!controller.PosGen or bot:GetPos():DistToSqr(controller.PosGen) < 1000 or controller.LastSegmented < CurTime()) then
         -- find a random spot on the map if human, and then do it again in 5 seconds!
         if bot:Team() == TEAM_SURVIVORS then
-            if bot.freeroam or bot:LBGetStrategy() == 0 then
+            if bot.freeroam or strategy == 0 then
                 if bot:LBGetSurvSkill() == 0 then 
                     bot:SelectWeapon("weapon_zs_swissarmyknife")
                 end
-                if bot:LBGetStrategy() <= 2 then 
+                if strategy <= 2 then 
                     controller.PosGen = controller:FindSpot("random", {radius = 1000000})
                     controller.LastSegmented = CurTime() + 1000000
                 else
@@ -376,7 +130,7 @@ function LeadBot.SetupMove(bot, cmd, mv)
                     end
                 end
             else
-                if bot:LBGetStrategy() == 1 then 
+                if strategy == 1 then 
                     -- camping ai 
                     if sigil3Valid then
                         local dist = bot:GetPos():DistToSqr(sigil3:GetPos())
@@ -394,7 +148,7 @@ function LeadBot.SetupMove(bot, cmd, mv)
                         controller.PosGen = controller:FindSpot("random", {radius = 1000000})
                         controller.LastSegmented = CurTime() + 5
                     end
-                elseif bot:LBGetStrategy() == 2 then
+                elseif strategy == 2 then
                     if sigil2Valid then 
                         local dist = bot:GetPos():DistToSqr(sigil2:GetPos())
                             if dist <= 2500 then
@@ -416,7 +170,7 @@ function LeadBot.SetupMove(bot, cmd, mv)
                             end
                         end
                     end
-                elseif bot:LBGetStrategy() == 3 then
+                elseif strategy == 3 then
                     if sigil1Valid then 
                         local dist = bot:GetPos():DistToSqr(sigil1:GetPos())
                             if dist <= 2500 then
@@ -474,7 +228,7 @@ function LeadBot.SetupMove(bot, cmd, mv)
                     end
                 end
             else
-                if bot:LBGetStrategy() == 0 or bot.freeroam then 
+                if strategy == 0 or bot.freeroam then 
                     if bot:Health() > 70 then 
                         if distance <= 45000 then
                             mv:SetForwardSpeed(-1200)
@@ -629,7 +383,7 @@ function LeadBot.SetupMove(bot, cmd, mv)
 
     if leadbot_skill:GetInt() ~= 4 then
         if bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) then
-            if bot:LBGetStrategy() > 0 and not bot.freeroam then 
+            if strategy > 0 and not bot.freeroam then 
                 lerp = FrameTime() * aimskill / 2
                 lerpc = FrameTime() * aimskill / 2
             else
@@ -643,7 +397,7 @@ function LeadBot.SetupMove(bot, cmd, mv)
         end
     else
         if bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) then
-            if bot:LBGetStrategy() > 0 and not bot.freeroam then 
+            if strategy > 0 and not bot.freeroam then 
                 lerp = FrameTime() * bot:LBGetShootSkill() / 2
                 lerpc = FrameTime() * bot:LBGetShootSkill() / 2
             else
@@ -690,7 +444,7 @@ function LeadBot.SetupMove(bot, cmd, mv)
         end
 
         if controller.NextCenter > CurTime() then
-            if curgoal.area:GetAttributes() ~= NAV_MESH_JUMP and bot:GetVelocity():Length2DSqr() <= 10000 and ( !IsValid(controller.Target) and bot:GetMoveType() ~= MOVETYPE_LADDER or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and ( bot:LBGetStrategy() == 0 or bot.freeroam ) or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and bot:LBGetStrategy() > 1 ) then                    if !bot:IsFrozen() then 
+            if curgoal.area:GetAttributes() ~= NAV_MESH_JUMP and bot:GetVelocity():Length2DSqr() <= 10000 and ( !IsValid(controller.Target) and bot:GetMoveType() ~= MOVETYPE_LADDER or bot:Team() == TEAM_SURVIVORS and IsValid(controller.Target) and ( strategy == 0 or bot.freeroam ) or bot:Team() == TEAM_ZOMBIE and IsValid(controller.Target) and strategy > 1 ) then                    if !bot:IsFrozen() then 
                     if controller.strafeAngle == 1 then
                         mv:SetSideSpeed(1500)
                         if bot:LBGetSurvSkill() == 1 then 

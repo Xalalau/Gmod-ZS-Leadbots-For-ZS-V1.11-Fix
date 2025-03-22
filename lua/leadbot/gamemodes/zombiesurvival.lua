@@ -148,10 +148,10 @@ hook.Add("PlayerInitialSpawn", "ZS_LeadBot_RealPlayerInitialSpawn", function(ply
             ply:Redeem()
 
             if leadbot_mapchanges:GetInt() >= 1 then 
-                if mapName == "zs_buntshot" then 
-                    ply:SetPos( Vector(-520.605774 + math.random(-25, 25), -90.801414 + math.random(-25, 25), -211.968750) ) 
-                elseif mapName == "zs_snow" then 
-                    ply:SetPos( Vector(-566.444092 + math.random(-25, 25), 1023.660217 + math.random(-25, 25), -38.856033) ) 
+                local fixedPos = ZSB.Map:GetValue("fixedPlayerSpawn")
+
+                if fixedPos then
+                    ply:SetPos(fixedPos)
                 end
             end
         end)

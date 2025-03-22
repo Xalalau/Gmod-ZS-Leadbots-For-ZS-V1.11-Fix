@@ -10,10 +10,10 @@ function LeadBot.InitialSpawn(bot)
         bot:SetMaxHealth(1000000)
 
         if leadbot_mapchanges:GetInt() >= 1 then 
-            if mapName == "zs_buntshot" then 
-                bot:SetPos( Vector(550.256470 + math.random(-25, 25), -595.521240 + math.random(-25, 25), -203.968750) )
-            elseif mapName == "zs_snow" then 
-                bot:SetPos( Vector(-154.754593 + math.random(-25, 25), 1325.260010 + math.random(-25, 25), -571.968750) )
+            local fixedPos = ZSB.Map:GetValue("fixedZombieSpawn")
+
+            if fixedPos then
+                ply:SetPos(fixedPos)
             end
         end 
     end

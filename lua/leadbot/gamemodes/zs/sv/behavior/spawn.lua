@@ -2,119 +2,129 @@
 local leadbot_cs = GetConVar("leadbot_cs")
 local leadbot_knockback = GetConVar("leadbot_knockback")
 
-function LeadBot.Spawn(bot)
-    if bot:Team() == TEAM_ZOMBIE and leadbot_cs:GetInt() >= 1 then 
-        timer.Create(bot:SteamID64() .. " csHealth", 1, 1, function() 
-            bot:SetMaxHealth(1000)
-            bot:SetHealth(1000) 
-        end )
+local survivorClasses = {
+    default = 1
+}
+
+local zombieClasses
+zombieClasses = {
+    default = 1,
+    [0.5] = {
+        toDefault = { [9] = true, [11] = true },
+        new = { 1, 5, 6, 7 },
+        default = 1,
+        getNew = function(bot)
+            local clsTab = zombieClasses[0.5]
+            local rand = math.random(1, 6)
+            local randCls = clsTab.new[rand]
+            local zombie = randCls and ZombieClasses[randCls]
+            local curCls =  bot:GetZombieClass()
+            return (rand > 3 or clsTab.toDefault[curCls]) and clsTab.default or
+                    zombie and INFLICTION >= zombie.Threshold and randCls or 
+                    clsTab.default
+        end
+    },
+    [0.75] = {
+        toDefault = { [9] = true, [11] = true },
+        new = { 1, 2, 3, 5, 6, 7, 8 },
+        default = 2,
+        getNew = function(bot)
+            local clsTab = zombieClasses[0.75]
+            local totalValidCls = #clsTab.new
+            local rand = math.random(1, totalValidCls * 2)
+            local randCls = clsTab.new[rand]
+            local zombie = randCls and ZombieClasses[randCls]
+            local curCls = bot:GetZombieClass()
+            return (rand > totalValidCls or clsTab.toDefault[curCls]) and clsTab.default or
+                    INFLICTION >= zombie.Threshold and randCls or 
+                    clsTab.default
+        end
+    },
+    [1] = {
+        toDefault = { [9] = true, [11] = true },
+        new = { 1, 2, 3, 4, 5, 6, 7, 8 },
+        newWithWeight = { [9] = 4, [12] = 2 },
+        default = 4,
+        getNew = function(bot)
+            local clsTab = zombieClasses[1]
+            local totalValidCls = #clsTab.new
+            local rand = math.random(1, totalValidCls * 2)
+            local randCls = clsTab.new[rand]
+            local zombie = randCls and ZombieClasses[randCls]
+            local zombieWeight9 = ZombieClasses[clsTab.newWithWeight[9]]
+            local zombieWeight12 = ZombieClasses[clsTab.newWithWeight[12]]
+            local curCls =  bot:GetZombieClass()
+            return rand >= 12 and INFLICTION >= zombieWeight12.Threshold and clsTab.newWithWeight[12] or
+                   rand >= 9 and rand < 12 and INFLICTION >= zombieWeight9.Threshold and clsTab.newWithWeight[9] or
+                   clsTab.toDefault[curCls] and clsTab.default or
+                   rand < totalValidCls and INFLICTION >= zombie.Threshold and randCls or 
+                   clsTab.default
+        end
+    }
+}
+
+local function GetClsTab()
+    local clsTab
+    local lastGotInfliction
+
+    for maxInfliction, newClsTab in pairs(zombieClasses) do
+        if not isnumber(maxInfliction) then continue end
+
+        if INFLICTION <= maxInfliction then
+            if not lastGotInfliction or maxInfliction < lastGotInfliction then
+                lastGotInfliction = maxInfliction
+                clsTab = newClsTab
+            end
+        end
     end
 
+    return clsTab
+end
+
+local function StripHumanWeapons(bot)
+    local weaps = bot:GetWeapons()
+
+    for _, weap in ipairs(weaps) do
+        local weapClass = weap:GetClass()
+
+        if weapons.IsBasedOn(weapClass, "weapon_zs_base") then
+            bot:StripWeapon(weapClass)
+        end
+    end
+end
+
+local function SetKnockBack(bot)
     if leadbot_knockback:GetInt() < 1 then 
         bot:AddEFlags(EFL_NO_DAMAGE_FORCES)
     else
         bot:RemoveEFlags(EFL_NO_DAMAGE_FORCES)
     end
+end
+
+function LeadBot.Spawn(bot)
+    SetKnockBack(bot)
+
+    if bot:Team() == TEAM_SURVIVORS then
+        bot:SetZombieClass(survivorClasses.default)
+    end
 
     if bot:Team() == TEAM_ZOMBIE then
+        StripHumanWeapons(bot)
 
-        local classes = math.random(1, 6)
-        local HALFclasses = math.random(1, 14)
-        local UNclasses = math.random(1, 16)
-
-        bot:StripWeapon("weapon_zs_swissarmyknife")
-        bot:StripWeapon("weapon_zs_battleaxe")
-        bot:StripWeapon("weapon_zs_peashooter")
-        bot:StripWeapon("weapon_zs_deagle")
-        bot:StripWeapon("weapon_zs_glock3")
-        bot:StripWeapon("weapon_zs_magnum")
-        bot:StripWeapon("weapon_zs_smg")
-        bot:StripWeapon("weapon_zs_uzi")
-        bot:StripWeapon("weapon_zs_barricadekit")
-        bot:StripWeapon("weapon_zs_crossbow")
-        bot:StripWeapon("weapon_zs_sweepershotgun")
-        bot:StripWeapon("weapon_zs_slugrifle")
-
-        if leadbot_cs:GetInt() < 1 then 
-            if INFLICTION < ZombieClasses[2].Threshold then 
-                if bot:GetZombieClass() ~= 9 then 
-                    if bot:GetZombieClass() ~= 11 then 
-                        if classes > 3 and INFLICTION >= ZombieClasses[1].Threshold then 
-                            bot:SetZombieClass(1)
-                        elseif classes == 1 and INFLICTION >= ZombieClasses[5].Threshold then
-                            bot:SetZombieClass(5)
-                        elseif classes == 2 and INFLICTION >= ZombieClasses[6].Threshold then
-                            bot:SetZombieClass(6)
-                        elseif classes == 3 and INFLICTION >= ZombieClasses[7].Threshold then
-                            bot:SetZombieClass(7)
-                        else
-                            bot:SetZombieClass(1)
-                        end
-                    end
-                end
-            elseif INFLICTION >= ZombieClasses[2].Threshold and INFLICTION < ZombieClasses[4].Threshold then
-                if HALFclasses > 7 and ZombieClasses[2].Threshold then 
-                    bot:SetZombieClass(2)
-                else
-                    if bot:GetZombieClass() ~= 9 then 
-                        if bot:GetZombieClass() ~= 11 then 
-                            if HALFclasses == 1 and INFLICTION >= ZombieClasses[1].Threshold then 
-                                bot:SetZombieClass(1)
-                            elseif HALFclasses == 2 and INFLICTION >= ZombieClasses[2].Threshold then
-                                bot:SetZombieClass(2)
-                            elseif HALFclasses == 3 and INFLICTION >= ZombieClasses[3].Threshold then
-                                bot:SetZombieClass(3)
-                            elseif HALFclasses == 4 and INFLICTION >= ZombieClasses[5].Threshold then
-                                bot:SetZombieClass(5)
-                            elseif HALFclasses == 5 and INFLICTION >= ZombieClasses[6].Threshold then
-                                bot:SetZombieClass(6)
-                            elseif HALFclasses == 6 and INFLICTION >= ZombieClasses[7].Threshold then
-                                bot:SetZombieClass(7)
-                            elseif HALFclasses == 7 and INFLICTION >= ZombieClasses[8].Threshold then
-                                bot:SetZombieClass(8)
-                            else
-                                bot:SetZombieClass(2)
-                            end
-                        end
-                    end
-                end
-            elseif INFLICTION >= ZombieClasses[4].Threshold then
-                if UNclasses > 12 and ZombieClasses[2].Threshold then 
-                    bot:SetZombieClass(2)
-                elseif UNclasses <= 12 and UNclasses > 8 and ZombieClasses[4].Threshold then
-                    bot:SetZombieClass(4)
-                elseif UNclasses <= 8 then
-                    if bot:GetZombieClass() ~= 9 then 
-                        if bot:GetZombieClass() ~= 11 then 
-                            if UNclasses == 1 and INFLICTION >= ZombieClasses[1].Threshold then 
-                                bot:SetZombieClass(1)
-                            elseif UNclasses == 2 and INFLICTION >= ZombieClasses[2].Threshold then
-                                bot:SetZombieClass(2)
-                            elseif UNclasses == 3 and INFLICTION >= ZombieClasses[3].Threshold then
-                                bot:SetZombieClass(3)
-                            elseif UNclasses == 4 and INFLICTION >= ZombieClasses[4].Threshold then 
-                                bot:SetZombieClass(4)
-                            elseif UNclasses == 5 and INFLICTION >= ZombieClasses[5].Threshold then
-                                bot:SetZombieClass(5)
-                            elseif UNclasses == 6 and INFLICTION >= ZombieClasses[6].Threshold then
-                                bot:SetZombieClass(6)
-                            elseif UNclasses == 7 and INFLICTION >= ZombieClasses[7].Threshold then
-                                bot:SetZombieClass(7)
-                            elseif UNclasses == 8 and INFLICTION >= ZombieClasses[8].Threshold then
-                                bot:SetZombieClass(8)
-                            else
-                                bot:SetZombieClass(4)
-                            end
-                        end
-                    end
-                else
-                    bot:SetZombieClass(4)
-                end
-            end 
+        if leadbot_cs:GetBool() then 
+            timer.Simple(1, function() 
+                if not IsValid(bot) then return end
+    
+                bot:SetMaxHealth(1000)
+                bot:SetHealth(1000) 
+            end)
+    
+            bot:SetZombieClass(zombieClasses.default)
         else
-            bot:SetZombieClass(1)
+            local clsTab = GetClsTab()
+            local nesCls = clsTab.getNew(bot)
+    
+            bot:SetZombieClass(nesCls)
         end
-    else
-        bot:SetZombieClass(1)
     end
 end

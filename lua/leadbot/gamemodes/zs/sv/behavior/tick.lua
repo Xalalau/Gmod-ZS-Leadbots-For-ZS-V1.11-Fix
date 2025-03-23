@@ -5,10 +5,13 @@ local leadbot_quota = GetConVar("leadbot_quota")
 local leadbot_minzombies = GetConVar("leadbot_minzombies")
 
 function LeadBot.Tick()
-    local minimumZombies = math.ceil(player.GetCount() * (leadbot_minzombies:GetInt() * 0.01))
+    local totalPlayers = player.GetCount()
+    local minimumZombies = math.ceil(totalPlayers * (leadbot_minzombies:GetInt() * 0.01))
     local reedeemPlayers = ZSB.INTERMISSION == 1 and leadbot_hordes:GetInt() >= 1 and leadbot_quota:GetInt() < 2
     local CSMode = leadbot_cs:GetBool()
+    local totalZombies = team.NumPlayers(TEAM_ZOMBIE)
 
+    local toZombies = 0
     for k, plyOrBot in ipairs(player.GetAll()) do
         if CSMode then
             if plyOrBot:Team() == TEAM_ZOMBIE then
@@ -37,9 +40,10 @@ function LeadBot.Tick()
 
             -- bot:SetNoCollideWithTeammates(false)
 
-            if bot:Team() == TEAM_SURVIVORS then
-                if minimumZombies < team.NumPlayers(TEAM_ZOMBIE) then
+            if bot:Team() == TEAM_SURVIVORS and totalPlayers >= leadbot_quota:GetInt() then
+                if minimumZombies > totalZombies + toZombies then
                     bot:Kill()
+                    toZombies = toZombies + 1
                 end
             end
 
@@ -56,7 +60,7 @@ function LeadBot.Tick()
         end
     end
 
-    if team.NumPlayers(TEAM_ZOMBIE) >= 1 and team.NumPlayers(TEAM_ZOMBIE) < player.GetCount() then 
+    if totalZombies >= 1 and totalZombies < totalPlayers then 
         ZSB.INTERMISSION = 0
     end
 end
